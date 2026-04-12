@@ -1341,6 +1341,10 @@ const DRAFT_KEY = 'ramo_ata_draft';
 const SECTION_DRAFT_FIELDS = {
   '1': ['data','frequencia','presidida','presidida-outro','dirigida','dirigida-outro','regente','pianista'],
   '2': ['h-aber-num','oracao1','anuncios'],
+  '3': ['rows-apoios'],
+  '4': ['rows-ord'],
+  '5': ['rows-conf'],
+  '6': ['rows-bencao'],
   '7': ['h-sacr-num','bencao-pao','bencao-agua'],
   '8': ['convite-test','obs-test','num-mus-resp','num-mus-titulo'],
   '9': ['h-enc-num','oracao-enc']
@@ -1376,6 +1380,7 @@ function loadDraft() {
         if (badge) badge.textContent = '↑ Lembrado da última reunião';
       }
     });
+    loadTablesFromDraft(draft);
   } catch(e) {}
 }
 
@@ -1457,8 +1462,8 @@ function addRow(tbodyId, cols) {
       el.placeholder = col.ph || '';
     }
     if (col.w) el.style.width = col.w;
-    el.addEventListener('input', syncPrint);
-    el.addEventListener('change', syncPrint);
+    el.addEventListener('input', () => { saveTableDraft(tbodyId); syncPrint(); });
+    el.addEventListener('change', () => { saveTableDraft(tbodyId); syncPrint(); });
     td.appendChild(el);
     tr.appendChild(td);
   });
@@ -1467,11 +1472,73 @@ function addRow(tbodyId, cols) {
   const btn   = document.createElement('button');
   btn.className = 'del-btn'; btn.innerHTML = '×';
   btn.title = 'Remover linha';
-  btn.onclick = () => { tr.remove(); syncPrint(); };
+  btn.onclick = () => { tr.remove(); saveTableDraft(tbodyId); syncPrint(); };
   tdDel.appendChild(btn);
   tr.appendChild(tdDel);
   tbody.appendChild(tr);
+  saveTableDraft(tbodyId);
   syncPrint();
+}
+
+/* Persist dynamic tables (seções 3–6) inside the same draft object */
+const TABLE_DRAFT_KEYS = {
+  'body-apoios': 'rows-apoios',
+  'body-ord': 'rows-ord',
+  'body-conf': 'rows-conf',
+  'body-bencao': 'rows-bencao'
+};
+
+function serializeTable(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return [];
+  const out = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const cells = tr.querySelectorAll('input, select');
+    out.push(Array.from(cells).map(c => c.value));
+  });
+  return out;
+}
+
+function saveTableDraft(tbodyId) {
+  const key = TABLE_DRAFT_KEYS[tbodyId];
+  if (!key) return;
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+    draft[key] = serializeTable(tbodyId);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function loadTablesFromDraft(draft) {
+  const tables = [
+    { key: 'rows-apoios', tbodyId: 'body-apoios', cols: COL_APOIOS },
+    { key: 'rows-ord', tbodyId: 'body-ord', cols: COL_ORD },
+    { key: 'rows-conf', tbodyId: 'body-conf', cols: COL_CONF },
+    { key: 'rows-bencao', tbodyId: 'body-bencao', cols: COL_BENCAO }
+  ];
+  tables.forEach(({ key, tbodyId, cols }) => {
+    let rows = draft[key];
+    if (rows == null || rows === '') return;
+    if (typeof rows === 'string') {
+      try { rows = JSON.parse(rows); } catch(e) { return; }
+    }
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    rows.forEach(rowVals => {
+      if (!Array.isArray(rowVals)) return;
+      addRow(tbodyId, cols);
+      const tr = tbody.querySelector('tr:last-child');
+      if (!tr) return;
+      const controls = tr.querySelectorAll('input, select');
+      rowVals.forEach((v, i) => {
+        if (controls[i]) controls[i].value = v == null ? '' : String(v);
+      });
+    });
+    if (!tbody.querySelectorAll('tr').length) addRow(tbodyId, cols);
+    saveTableDraft(tbodyId);
+  });
 }
 
 /* ─── SYNC PRINT DOC ────────────────────────────── */
