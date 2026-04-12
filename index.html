@@ -77,6 +77,31 @@ body {
 .btn-ghost  { background: rgba(255,255,255,.13); color: white; border: 1px solid rgba(255,255,255,.3); }
 .btn-ghost:hover { background: rgba(255,255,255,.23); }
 
+/* Font-size control group */
+.font-size-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.font-size-ctrl .fs-label {
+  font-size: .7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.65);
+  min-width: 30px;
+  text-align: center;
+  letter-spacing: .03em;
+}
+.font-size-ctrl .btn-ghost {
+  padding: 6px 10px;
+  font-size: .78rem;
+  font-weight: 900;
+  line-height: 1;
+}
+@media print {
+  .font-size-ctrl { display: none !important; }
+}
+
 .form-wrap {
   max-width: 880px;
   margin: 28px auto;
@@ -460,6 +485,11 @@ body {
     <small>Ramo Imperatriz · Estaca Palhoça</small>
   </div>
   <div class="header-actions">
+    <div class="font-size-ctrl" title="Ajustar tamanho da fonte do documento impresso">
+      <button class="btn btn-ghost" id="btn-fs-dec" onclick="adjustFontSize(-1)" title="Diminuir fonte (1pt)">A−</button>
+      <span class="fs-label" id="fs-indicator">8pt</span>
+      <button class="btn btn-ghost" id="btn-fs-inc" onclick="adjustFontSize(1)" title="Aumentar fonte (1pt)">A+</button>
+    </div>
     <button class="btn btn-ghost" onclick="resetForm()">↺ Limpar</button>
     <button class="btn btn-primary" onclick="printDoc()">⇩ Imprimir / PDF</button>
   </div>
@@ -1326,6 +1356,37 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+/* ─── FONT SIZE ─────────────────────────────────── */
+const FS_KEY  = 'ramo_print_font_size';
+const FS_MIN  = 6;
+const FS_MAX  = 14;
+let printFontSize = 8;
+
+function initFontSize() {
+  try {
+    const saved = parseInt(localStorage.getItem(FS_KEY), 10);
+    if (saved >= FS_MIN && saved <= FS_MAX) printFontSize = saved;
+  } catch(e) {}
+  applyFontSize();
+}
+
+function adjustFontSize(delta) {
+  printFontSize = Math.max(FS_MIN, Math.min(FS_MAX, printFontSize + delta));
+  applyFontSize();
+  try { localStorage.setItem(FS_KEY, String(printFontSize)); } catch(e) {}
+}
+
+function applyFontSize() {
+  document.getElementById('print-doc').style.fontSize = printFontSize + 'pt';
+  const ind = document.getElementById('fs-indicator');
+  if (ind) ind.textContent = printFontSize + 'pt';
+  // Dim buttons at limits
+  const dec = document.getElementById('btn-fs-dec');
+  const inc = document.getElementById('btn-fs-inc');
+  if (dec) dec.style.opacity = printFontSize <= FS_MIN ? '.35' : '';
+  if (inc) inc.style.opacity = printFontSize >= FS_MAX ? '.35' : '';
+}
+
 /* ─── PRINT ─────────────────────────────────────── */
 function printDoc() {
   syncPrint();
@@ -1381,6 +1442,7 @@ addRow('body-disc',   COL_DISC);
 
 loadDraft();
 loadMemory();
+initFontSize();
 syncPrint();
 </script>
 </body>
