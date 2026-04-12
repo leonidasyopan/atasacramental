@@ -203,7 +203,7 @@ function loadDraft() {
 /* ─── Initialization ───────────────────────────── */
 
 (function init() {
-  // Restore unit type preference (also populates chamados datalist)
+  // Restore unit type preference
   tipoUnidade = getSavedUnitType();
   setUnitType(tipoUnidade);
 

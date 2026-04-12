@@ -17,7 +17,7 @@ const SECTION_DRAFT_FIELDS = {
   '5': ['rows-conf'],
   '6': ['rows-bencao'],
   '7': ['h-sacr-num','bencao-pao','bencao-agua'],
-  '8': ['convite-test','obs-test','num-mus-resp','num-mus-titulo'],
+  '8': ['convite-test','obs-test','num-mus-resp','num-mus-titulo','rows-disc'],
   '9': ['h-enc-num','oracao-enc']
 };
 

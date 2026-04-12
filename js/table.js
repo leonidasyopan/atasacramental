@@ -14,7 +14,7 @@ var COL_APOIOS = [
 ];
 
 var COL_ORD = [
-  { type: 'select', opts: ['Diácono', 'Mestre', 'Élder', 'Sumo Sacerdote', 'Setenta', 'Bispo'], w: '110px' },
+  { type: 'select', opts: ['Diácono', 'Mestre', 'Sacerdote', 'Élder', 'Sumo Sacerdote', 'Setenta', 'Bispo'], w: '110px' },
   { type: 'text', ph: 'Nome completo' },
   { type: 'text', ph: 'Ordenado por' },
   { type: 'text', ph: 'Aprovado por' }
@@ -44,7 +44,8 @@ var TABLE_DRAFT_KEYS = {
   'body-apoios': 'rows-apoios',
   'body-ord':    'rows-ord',
   'body-conf':   'rows-conf',
-  'body-bencao': 'rows-bencao'
+  'body-bencao': 'rows-bencao',
+  'body-disc':   'rows-disc'
 };
 
 /* ─── Add Row ──────────────────────────────────── */
@@ -72,7 +73,6 @@ function addRow(tbodyId, cols) {
       el = document.createElement('input');
       el.type = col.type || 'text';
       el.placeholder = col.ph || '';
-      if (col.list) el.setAttribute('list', col.list);
     }
 
     if (col.w) el.style.width = col.w;
@@ -143,7 +143,8 @@ function loadTablesFromDraft(draft) {
     { key: 'rows-apoios', tbodyId: 'body-apoios', cols: COL_APOIOS },
     { key: 'rows-ord',    tbodyId: 'body-ord',    cols: COL_ORD },
     { key: 'rows-conf',   tbodyId: 'body-conf',   cols: COL_CONF },
-    { key: 'rows-bencao', tbodyId: 'body-bencao',  cols: COL_BENCAO }
+    { key: 'rows-bencao', tbodyId: 'body-bencao',  cols: COL_BENCAO },
+    { key: 'rows-disc',   tbodyId: 'body-disc',    cols: COL_DISC }
   ];
 
   tables.forEach(function (t) {

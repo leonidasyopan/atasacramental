@@ -132,7 +132,6 @@ function pickChamadoOutro() {
   closeChamadosDialog();
   if (_cdTarget) {
     _cdTarget.value = '';
-    _cdTarget.removeAttribute('readonly');
     _cdTarget.focus();
   }
 }

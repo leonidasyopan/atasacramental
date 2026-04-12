@@ -55,6 +55,7 @@ function setAuthLoading(loading) {
 /* ─── Auth State Listener ──────────────────────── */
 
 auth.onAuthStateChanged(function (user) {
+  setAuthLoading(false);
   if (user) {
     if (isEmailAllowed(user.email)) {
       // Authorized — show app
@@ -110,6 +111,7 @@ function registerWithEmail() {
   var pass  = document.getElementById('auth-password').value;
   if (!email || !pass) { setAuthError('Preencha e-mail e senha.'); return; }
   if (pass.length < 6) { setAuthError('A senha deve ter pelo menos 6 caracteres.'); return; }
+  if (!isEmailAllowed(email)) { setAuthError('Este e-mail não está autorizado a criar conta.'); return; }
 
   setAuthError('');
   setAuthLoading(true);
@@ -180,3 +182,13 @@ function translateAuthError(code) {
   };
   return map[code] || 'Erro de autenticação. Tente novamente.';
 }
+
+/* ─── Enter-key support for auth form ──────────── */
+
+document.getElementById('auth-password').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (loginMode === 'register') registerWithEmail();
+    else loginWithEmail();
+  }
+});
