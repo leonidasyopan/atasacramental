@@ -1,0 +1,14 @@
+/* ═══════════════════════════════════════════
+   CSS VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --navy:       #1B3A6B;
+  --blue:       #2E5FAB;
+  --light-blue: #EBF0FA;
+  --border:     #D1D9E8;
+  --text:       #1F2937;
+  --accent:     #C9A84C;
+  --red:        #dc2626;
+  --red-light:  #fee2e2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
