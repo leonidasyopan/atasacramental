@@ -1,63 +1,38 @@
-'use strict';
+We need to improve the calling list. The former one was imcomplete. Here is the updated one: 
 
-/* ═══════════════════════════════════════════
-   CHAMADOS (CALLINGS) DATABASE — LCR completa
-   Retorna a lista de chamados por organização,
-   adaptada ao tipo de unidade (Ala ou Ramo).
-═══════════════════════════════════════════ */
-
-/**
- * Labels legíveis para cada grupo de chamados.
- * Usado na UI para organizar visualmente as opções.
- */
-var CHAMADOS_GROUP_LABELS = {
-  liderancaPrincipal:       'Liderança Principal',
-  quorumDeElderes:          'Quórum de Élderes',
-  sociedadeDeSocorro:       'Sociedade de Socorro',
-  sacerdocioAaronico:       'Sacerdócio Aarônico',
-  mocas:                    'Moças',
-  escolaDominical:          'Escola Dominical',
-  primaria:                 'Primária',
-  missao:                   'Missão',
-  jovensAdultosSolteiros:   'Jovens Adultos Solteiros',
-  bemEstarEAutossuficiencia:'Bem-Estar e Autossuficiência',
-  musica:                   'Música',
-  instalacoes:              'Instalações',
-  outros:                   'Outros'
-};
-
+```
 /**
  * Retorna a lista completa de chamados estruturada com base no LCR da Igreja.
- * @param {string} tipoUnidade - 'ala' ou 'ramo' (padrão)
+ * @param {string} tipoUnidade - 'ala' (padrão) ou 'ramo'
  * @returns {object} Objeto contendo os chamados agrupados por organização
  */
-function obterChamados(tipoUnidade) {
-  if (tipoUnidade === undefined) tipoUnidade = 'ramo';
-  var isAla = tipoUnidade.toLowerCase() === 'ala';
-  var sufixo = isAla ? 'da Ala' : 'do Ramo';
+function obterListaDeChamadosLCR(tipoUnidade = 'ala') {
+  const isAla = tipoUnidade.toLowerCase() === 'ala';
+  const sufixo = isAla ? 'da Ala' : 'do Ramo';
+  const preposicao = isAla ? 'de Ala' : 'de Ramo';
 
   return {
     liderancaPrincipal: isAla ? [
       "Bispo",
       "Primeiro Conselheiro no Bispado",
       "Segundo Conselheiro no Bispado",
-      "Secretário Executivo " + sufixo,
-      "Secretário Executivo Assistente " + sufixo,
-      "Secretário " + sufixo,
-      "Secretário Adjunto " + sufixo,
-      "Secretário Adjunto " + sufixo + " \u2013 Registro de Membros",
-      "Secretário Adjunto Financeiro " + sufixo
+      `Secretário Executivo ${sufixo}`,
+      `Secretário Executivo Assistente ${sufixo}`,
+      `Secretário ${sufixo}`,
+      `Secretário Adjunto ${sufixo}`,
+      `Secretário Adjunto ${sufixo} – Registro de Membros`,
+      `Secretário Adjunto Financeiro ${sufixo}`
     ] : [
       "Presidente de Ramo",
       "Líder Interino do Ramo",
       "Primeiro Conselheiro na Presidência de Ramo",
       "Segundo Conselheiro na Presidência de Ramo",
-      "Secretário Executivo " + sufixo,
-      "Secretário Executivo Assistente " + sufixo,
-      "Secretário " + sufixo,
-      "Secretário Adjunto " + sufixo,
-      "Secretário Adjunto " + sufixo + " \u2013 Registro de Membros",
-      "Secretário Adjunto Financeiro " + sufixo
+      `Secretário Executivo ${sufixo}`,
+      `Secretário Executivo Assistente ${sufixo}`,
+      `Secretário ${sufixo}`,
+      `Secretário Adjunto ${sufixo}`,
+      `Secretário Adjunto ${sufixo} – Registro de Membros`,
+      `Secretário Adjunto Financeiro ${sufixo}`
     ],
 
     quorumDeElderes: [
@@ -95,9 +70,7 @@ function obterChamados(tipoUnidade) {
     ],
 
     sacerdocioAaronico: [
-      isAla
-        ? "Presidente do Quórum de Sacerdotes (Bispo)"
-        : "Presidente do Quórum de Sacerdotes (Presidente de Ramo)",
+      isAla ? "Presidente do Quórum de Sacerdotes (Bispo)" : "Presidente do Quórum de Sacerdotes (Presidente de Ramo)",
       "Primeiro Assistente do Quórum de Sacerdotes",
       "Segundo Assistente do Quórum de Sacerdotes",
       "Secretário do Quórum de Sacerdotes",
@@ -115,11 +88,11 @@ function obterChamados(tipoUnidade) {
       "Secretário do Quórum de Diáconos",
       "Consultor do Quórum de Diáconos",
       "Especialista do Quórum de Diáconos",
-      "Especialista dos Quóruns do Sacerdócio Aarônico \u2014 Diretor de Acampamento",
-      "Especialista dos Quóruns do Sacerdócio Aarônico \u2014 Diretor Adjunto de Acampamento",
+      "Aaronic Priesthood Quorums Specialist - Camp Director",
+      "Aaronic Priesthood Quorums Specialist - Assistant Camp Director",
       "Membro do Comitê dos Rapazes da Estaca",
-      "Especialista dos Rapazes \u2014 Esportes",
-      "Especialista dos Rapazes \u2014 Assistente de Esportes",
+      "Especialista dos Rapazes — Esportes",
+      "Especialista dos Rapazes — Assistente de Esportes",
       "Especialista dos Quóruns do Sacerdócio Aarônico"
     ],
 
@@ -134,12 +107,12 @@ function obterChamados(tipoUnidade) {
       "Segunda Conselheira da Classe das Moças",
       "Secretária da Classe das Moças",
       "Consultoras da Classe das Moças",
-      "Especialista das Moças \u2014 Atividades",
-      "Especialista das Moças \u2014 Diretora de Acampamento",
-      "Especialista das Moças \u2014 Diretora Adjunta de Acampamento",
+      "Especialista das Moças - Atividades",
+      "Especialista das Moças - Diretora de Acampamento",
+      "Especialista das Moças - Diretora Adjunta de Acampamento",
       "Comitê das Moças da Estaca",
-      "Especialista das Moças \u2014 Esportes",
-      "Especialista das Moças \u2014 Assistente de Esportes"
+      "Especialista das Moças — Esportes",
+      "Especialista das Moças — Assistente de Esportes"
     ],
 
     escolaDominical: [
@@ -160,21 +133,21 @@ function obterChamados(tipoUnidade) {
       "Líder de Música da Primária",
       "Professor(a) da Primária",
       "Líder do Berçário",
-      "Líder de Atividades da Primária"
+      "Líder de Atividades da Primária" // LCR usa para Meninos e Meninas
     ],
 
     missao: [
-      "Líder da Missão " + sufixo,
-      "Assistente do Líder da Missão " + sufixo,
-      "Missionário " + sufixo
+      `Líder da Missão ${sufixo}`,
+      `Assistente do Líder da Missão ${sufixo}`,
+      `Missionário ${sufixo}`
     ],
 
     jovensAdultosSolteiros: [
       "Consultora das Irmãs Jovens Adultas Solteiras da Sociedade de Socorro",
       "Consultor dos Jovens Adultos Solteiros",
       "Líder dos Jovens Adultos Solteiros",
-      "Presidente do Comitê de Jovens Adultos Solteiros",
-      "Membro do Comitê de Jovens Adultos Solteiros"
+      "Young Single Adult Committee Chair",
+      "Young Single Adult Committee Member"
     ],
 
     bemEstarEAutossuficiencia: [
@@ -197,11 +170,11 @@ function obterChamados(tipoUnidade) {
 
     instalacoes: [
       "Representante do Edifício",
-      "Programador \u2014 Edifício 1",
-      "Programador \u2014 Edifício 2",
-      "Programador \u2014 Edifício 3",
-      "Programador \u2014 Edifício 4",
-      "Programador \u2014 Edifício 5"
+      "Programador - Edifício 1",
+      "Programador - Edifício 2",
+      "Programador - Edifício 3",
+      "Programador - Edifício 4",
+      "Programador - Edifício 5"
     ],
 
     outros: [
@@ -210,21 +183,15 @@ function obterChamados(tipoUnidade) {
       "Representante de A Liahona",
       "Especialista de Comunicações por E-mail",
       "Especialista de Tecnologia",
-      isAla ? "Intérprete da Ala" : "Intérprete do Ramo"
+      "Ward/Branch Interpreter"
     ]
   };
 }
+``` 
 
-/**
- * Retorna todos os chamados como uma lista plana.
- * @param {string} tipoUnidade - 'ala' ou 'ramo'
- * @returns {string[]} Lista plana de todos os chamados
- */
-function obterChamadosLista(tipoUnidade) {
-  var chamados = obterChamados(tipoUnidade);
-  var result = [];
-  Object.keys(chamados).forEach(function (key) {
-    chamados[key].forEach(function (item) { result.push(item); });
-  });
-  return result;
-}
+Also, I want to imrprove the User Experience here. The current list is too long, so I feel that we can improve the experience by creating a dialog box that is opened when we want to add the "name" of the calling. In the Dialog box we could have two parts then. The user first selects from a list the categories/organizations, and once that is chosen, they can select one of the callings from that organization. 
+When the user fills the dialog box and confirms, the calling is presented as before, for example: "Presidente da Escola Dominical".
+
+What do you think? Does that work? Do you have a better suggestion based on best practices of User Experience and Software Development?
+
+<critical>If you have questions, ask. Do not make assumptions</critica>

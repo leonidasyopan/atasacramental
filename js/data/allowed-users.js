@@ -10,5 +10,6 @@
 
 var ALLOWED_EMAILS = [
   'leonidasyopan@gmail.com',
-  'yopanssudo@gmail.com'
+  'yopanssudo@gmail.com',
+  'bruno.barbosa.sud@gmail.com'
 ];

@@ -34,26 +34,7 @@ function setUnitType(tipo) {
   // Page title
   document.title = 'Ata da Reunião Sacramental \u2014 ' + unitLabel + ' Imperatriz';
 
-  // Rebuild chamados datalist
-  populateChamadosList();
-
   syncPrint();
-}
-
-function populateChamadosList() {
-  var list = document.getElementById('chamados-list');
-  if (!list) return;
-  list.innerHTML = '';
-
-  var chamados = obterChamados(tipoUnidade);
-
-  Object.keys(chamados).forEach(function (key) {
-    chamados[key].forEach(function (item) {
-      var opt = document.createElement('option');
-      opt.value = item;
-      list.appendChild(opt);
-    });
-  });
 }
 
 /* ─── Section Toggle ───────────────────────────── */

@@ -777,3 +777,199 @@ body {
   #app-content { display: block !important; }
   .user-info { display: none !important; }
 }
+
+/* ═══════════════════════════════════════════
+   CHAMADOS DIALOG
+═══════════════════════════════════════════ */
+.cd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.cd-dialog {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px rgba(27,58,107,.3);
+  overflow: hidden;
+}
+.cd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cd-header h3 {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.cd-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #9CA3AF;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all .15s;
+}
+.cd-close:hover { color: var(--navy); background: var(--light-blue); }
+
+.cd-search-wrap { padding: 12px 20px 8px; flex-shrink: 0; }
+.cd-search {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: .85rem;
+  font-family: 'Lato', sans-serif;
+  color: var(--text);
+  transition: border-color .15s;
+}
+.cd-search:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46,95,171,.12);
+}
+
+.cd-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cd-chip {
+  padding: 5px 11px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--text);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.cd-chip.active {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+.cd-chip:hover:not(.active) {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.cd-list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px;
+  min-height: 100px;
+}
+.cd-group-label {
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  padding: 10px 8px 4px;
+}
+.cd-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  font-size: .82rem;
+  font-family: 'Lato', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background .1s;
+}
+.cd-item:hover { background: var(--light-blue); }
+.cd-empty {
+  padding: 24px 10px;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: .85rem;
+}
+
+.cd-footer {
+  padding: 10px 20px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cd-outro-btn {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1.5px dashed var(--blue);
+  border-radius: 8px;
+  background: var(--light-blue);
+  color: var(--blue);
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cd-outro-btn:hover { background: #dce8fa; }
+
+/* ── Chamado cell in dynamic table ── */
+.chamado-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chamado-cell input {
+  flex: 1;
+  min-width: 0;
+}
+.chamado-picker-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--light-blue);
+  color: var(--navy);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  padding: 0;
+}
+.chamado-picker-btn:hover {
+  background: #dce8fa;
+  border-color: var(--blue);
+}
+
+@media (max-width: 560px) {
+  .cd-dialog { max-height: 90vh; }
+  .cd-categories { padding: 8px 14px 10px; }
+  .cd-search-wrap { padding: 10px 14px 6px; }
+  .cd-header { padding: 14px 14px 10px; }
+  .cd-footer { padding: 8px 14px 12px; }
+}
+
+@media print {
+  .cd-overlay { display: none !important; }
+}

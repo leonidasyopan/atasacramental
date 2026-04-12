@@ -412,9 +412,6 @@
 
 </div><!-- /form-wrap -->
 
-<!-- Chamados datalist (populated by JS based on unit type) -->
-<datalist id="chamados-list"></datalist>
-
 <!-- ═══════════════ PRINT DOCUMENT ═══════════════ -->
 <div class="print-doc" id="print-doc">
   <div class="doc-header">
@@ -530,6 +527,26 @@
 
 </div><!-- /app-content -->
 
+<!-- ═══════════════ CHAMADOS DIALOG ═══════════════ -->
+<div id="chamados-dialog-overlay" class="cd-overlay" style="display:none">
+  <div class="cd-dialog" role="dialog" aria-label="Selecionar Chamado">
+    <div class="cd-header">
+      <h3>Selecionar Chamado</h3>
+      <button class="cd-close" onclick="closeChamadosDialog()" title="Fechar">&times;</button>
+    </div>
+    <div class="cd-search-wrap">
+      <input type="text" id="cd-search" class="cd-search" placeholder="Buscar chamado..." autocomplete="off">
+    </div>
+    <div class="cd-categories" id="cd-categories"></div>
+    <div class="cd-list-wrap">
+      <div class="cd-list" id="cd-list"></div>
+    </div>
+    <div class="cd-footer">
+      <button class="cd-outro-btn" onclick="pickChamadoOutro()">Outro / Personalizado</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -546,6 +563,7 @@
 <!-- App modules -->
 <script src="js/storage.js"></script>
 <script src="js/table.js"></script>
+<script src="js/chamados-dialog.js"></script>
 <script src="js/print.js"></script>
 <script src="js/app.js"></script>
 </body>

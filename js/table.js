@@ -10,7 +10,7 @@
 var COL_APOIOS = [
   { type: 'select', opts: ['Apoio', 'Desobrigação', 'Sustentação', 'Reconhecimento'], w: '130px' },
   { type: 'text', ph: 'Nome completo' },
-  { type: 'text', ph: 'Chamado', list: 'chamados-list' }
+  { type: 'text', ph: 'Chamado', chamadoPicker: true }
 ];
 
 var COL_ORD = [
@@ -78,7 +78,24 @@ function addRow(tbodyId, cols) {
     if (col.w) el.style.width = col.w;
     el.addEventListener('input',  function () { saveTableDraft(tbodyId); syncPrint(); });
     el.addEventListener('change', function () { saveTableDraft(tbodyId); syncPrint(); });
-    td.appendChild(el);
+
+    if (col.chamadoPicker) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'chamado-cell';
+      var pickerBtn = document.createElement('button');
+      pickerBtn.type = 'button';
+      pickerBtn.className = 'chamado-picker-btn';
+      pickerBtn.title = 'Selecionar chamado';
+      pickerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5h14v1.5H1zm0 4h14v1.5H1zm0 4h10v1.5H1z"/></svg>';
+      (function (input) {
+        pickerBtn.onclick = function () { openChamadosDialog(input); };
+      })(el);
+      wrapper.appendChild(el);
+      wrapper.appendChild(pickerBtn);
+      td.appendChild(wrapper);
+    } else {
+      td.appendChild(el);
+    }
     tr.appendChild(td);
   });
 
