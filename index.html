@@ -440,17 +440,34 @@ body {
 .print-doc .sig-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24pt;
-  margin-top: 8pt;
-  padding-top: 5pt;
+  gap: 28pt;
+  margin-top: 12pt;
+  padding-top: 10pt;
+  padding-bottom: 22pt;
   border-top: 1pt solid #1B3A6B;
 }
 .print-doc .sig-block {
-  border-top: .6pt solid #555;
-  padding-top: 2pt;
-  font-size: 6.5pt;
-  color: #444;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   text-align: center;
+}
+/* Área em branco para assinatura à mão, acima da linha */
+.print-doc .sig-pad {
+  min-height: 36pt;
+  flex-shrink: 0;
+}
+.print-doc .sig-line {
+  border-top: .7pt solid #333;
+  width: 100%;
+  flex-shrink: 0;
+}
+.print-doc .sig-label {
+  padding-top: 5pt;
+  font-size: 6.5pt;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: .02em;
 }
 
 /* ── Clear section button ── */
@@ -823,6 +840,21 @@ body {
     </div>
   </div>
 
+  <!-- 10. Assinaturas (impressão) -->
+  <div class="card" id="card-10">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">10</div><h2>Assinaturas</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-10" checked onchange="toggleSection('10')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.85rem;color:#4b5563;line-height:1.45;margin:0">
+        Linhas para assinatura do secretário e do presidente aparecem ao final da ata impressa quando esta seção está incluída.
+      </p>
+    </div>
+  </div>
+
 </div><!-- /form-wrap -->
 
 <!-- ═══════════════ PRINT DOCUMENT ═══════════════ -->
@@ -921,10 +953,20 @@ body {
     </div>
   </div>
 
-  <!-- Signature -->
-  <div class="sig-row">
-    <div class="sig-block">Secretário(a) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-    <div class="sig-block">Presidente do Ramo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  <!-- Assinaturas (opcional — espço para rubrica acima da linha) -->
+  <div class="section" id="p-sec10">
+    <div class="sig-row">
+      <div class="sig-block">
+        <div class="sig-pad" aria-hidden="true"></div>
+        <div class="sig-line"></div>
+        <div class="sig-label">Secretário(a)</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-pad" aria-hidden="true"></div>
+        <div class="sig-line"></div>
+        <div class="sig-label">Presidente do Ramo</div>
+      </div>
+    </div>
   </div>
 </div><!-- /print-doc -->
 
@@ -1236,8 +1278,8 @@ const COL_DISC = [
 ];
 
 /* ─── SECTION STATE ─────────────────────────────── */
-// Sections that can be toggled: 2,3,4,5,6
-const sectionEnabled = { '2':true,'3':true,'4':true,'5':true,'6':true };
+// Sections that can be toggled: 2–6, 10 (assinaturas)
+const sectionEnabled = { '2':true,'3':true,'4':true,'5':true,'6':true,'10':true };
 
 function toggleSection(id) {
   const enabled = document.getElementById('chk-' + id).checked;
@@ -1556,6 +1598,9 @@ function syncPrint() {
   // 9. Encerramento
   document.getElementById('p-h-enc').textContent  = hymnLabel('h-enc-num','h-enc-nome');
   document.getElementById('p-or-enc').textContent = tv('oracao-enc');
+
+  // 10. Assinaturas
+  setVisible('p-sec10', sectionEnabled['10']);
 }
 
 function escHtml(s) {
@@ -1621,7 +1666,7 @@ function resetForm() {
   addRow('body-disc',   COL_DISC);
 
   // reset section toggles
-  ['2','3','4','5','6'].forEach(id => {
+  ['2','3','4','5','6','10'].forEach(id => {
     document.getElementById('chk-'+id).checked = true;
     sectionEnabled[id] = true;
     document.getElementById('card-'+id).classList.remove('disabled-section');
