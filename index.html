@@ -36,13 +36,18 @@ body {
   color: white;
   padding: 14px 28px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px 16px;
   position: sticky;
   top: 0;
   z-index: 200;
   box-shadow: 0 2px 14px rgba(27,58,107,.35);
+}
+.app-header > div:first-child {
+  min-width: 0;
+  flex: 0 1 auto;
 }
 .app-header h1 {
   font-family: 'EB Garamond', serif;
@@ -59,7 +64,16 @@ body {
   text-transform: uppercase;
   margin-top: 2px;
 }
-.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 1 auto;
+  max-width: 100%;
+}
 
 .btn {
   padding: 8px 16px;
@@ -100,6 +114,14 @@ body {
 }
 @media print {
   .font-size-ctrl { display: none !important; }
+}
+
+@media (max-width: 560px) {
+  .app-header { padding: 12px 16px; }
+  .header-actions {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .form-wrap {
