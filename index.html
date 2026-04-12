@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ata da Reunião Sacramental — Ramo Imperatriz</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --navy:       #1B3A6B;
+  --blue:       #2E5FAB;
+  --light-blue: #EBF0FA;
+  --border:     #D1D9E8;
+  --text:       #1F2937;
+  --accent:     #C9A84C;
+  --red:        #dc2626;
+  --red-light:  #fee2e2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ═══════════════════════════════════════════
+   SCREEN LAYOUT
+═══════════════════════════════════════════ */
+body {
+  font-family: 'Lato', sans-serif;
+  background: #f0f4f9;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app-header {
+  background: var(--navy);
+  color: white;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 14px rgba(27,58,107,.35);
+}
+.app-header h1 {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.app-header small {
+  display: block;
+  font-size: .68rem;
+  font-weight: 300;
+  opacity: .72;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: var(--navy); }
+.btn-primary:hover { background: #b8953e; }
+.btn-ghost  { background: rgba(255,255,255,.13); color: white; border: 1px solid rgba(255,255,255,.3); }
+.btn-ghost:hover { background: rgba(255,255,255,.23); }
+
+.form-wrap {
+  max-width: 880px;
+  margin: 28px auto;
+  padding: 0 18px 80px;
+}
+
+/* ── Card ── */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(27,58,107,.08);
+  margin-bottom: 18px;
+  overflow: hidden;
+  transition: opacity .2s, transform .2s;
+}
+.card.disabled-section {
+  opacity: .45;
+  pointer-events: none;
+}
+.card-header {
+  background: var(--navy);
+  color: white;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-header-left { display: flex; align-items: center; gap: 10px; }
+.card-header .num {
+  background: var(--accent);
+  color: var(--navy);
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.card-header h2 {
+  font-family: 'EB Garamond', serif;
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* Section toggle (enable/disable) */
+.section-enable-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.8);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+.section-enable-toggle input[type=checkbox] {
+  appearance: none;
+  width: 32px; height: 18px;
+  background: rgba(255,255,255,.2);
+  border-radius: 9px;
+  cursor: pointer;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.section-enable-toggle input[type=checkbox]:checked {
+  background: var(--accent);
+}
+.section-enable-toggle input[type=checkbox]::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: transform .2s;
+}
+.section-enable-toggle input[type=checkbox]:checked::after {
+  transform: translateX(14px);
+}
+
+.card-body { padding: 18px; }
+
+/* ── Fields ── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.field-row.single { grid-template-columns: 1fr; }
+.field-row.third  { grid-template-columns: 1fr 1fr 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.field input, .field select, .field textarea {
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: .87rem;
+  font-family: 'Lato', sans-serif;
+  color: var(--text);
+  background: white;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46,95,171,.12);
+}
+.field textarea { resize: vertical; min-height: 54px; }
+
+/* remembered badge */
+.remembered-badge {
+  font-size: .64rem;
+  color: #6B7280;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Hymn lookup */
+.hymn-group { display: grid; grid-template-columns: 82px 1fr; gap: 7px; align-items: end; }
+.hymn-name  { background: var(--light-blue) !important; color: var(--navy) !important; font-style: italic; cursor: default !important; }
+
+/* Mode toggle (Testemunhos vs Discursantes) */
+.mode-toggle {
+  display: flex;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 2px solid var(--navy);
+  width: fit-content;
+  margin-bottom: 16px;
+}
+.mode-btn {
+  padding: 7px 18px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  border: none;
+  background: white;
+  color: var(--navy);
+  transition: all .15s;
+}
+.mode-btn.active { background: var(--navy); color: white; }
+
+/* ── Dynamic tables ── */
+.dyn-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.dyn-table th {
+  background: var(--navy);
+  color: white;
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 7px 9px;
+  text-align: left;
+}
+.dyn-table td { padding: 3px 3px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.dyn-table td input, .dyn-table td select {
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 6px 7px;
+  font-size: .82rem;
+  font-family: 'Lato', sans-serif;
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+}
+.dyn-table td input:focus, .dyn-table td select:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: var(--light-blue);
+}
+.del-btn {
+  width: 26px; height: 26px;
+  border: none; border-radius: 50%;
+  background: var(--red-light);
+  color: var(--red);
+  cursor: pointer;
+  font-size: 1rem; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.del-btn:hover { background: #fca5a5; }
+
+.add-row-btn {
+  background: var(--light-blue);
+  border: 1.5px dashed var(--blue);
+  color: var(--blue);
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 6px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 2px;
+}
+.add-row-btn:hover { background: #dce8fa; }
+
+/* ═══════════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════════ */
+@media print {
+  @page { size: A4; margin: 11mm 13mm 11mm 13mm; }
+  body, html { background: white !important; }
+  .app-header, .form-wrap { display: none !important; }
+  .print-doc { display: block !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+/* ── Print document ── */
+.print-doc {
+  display: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 8pt;
+  color: #111;
+  line-height: 1.3;
+}
+.print-doc .doc-header {
+  text-align: center;
+  border-bottom: 2.5pt solid #1B3A6B;
+  padding-bottom: 5pt;
+  margin-bottom: 7pt;
+}
+.print-doc .church-name {
+  font-size: 6.5pt;
+  color: #1B3A6B;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 2pt;
+}
+.print-doc .branch-name {
+  font-family: 'EB Garamond', serif;
+  font-size: 13pt;
+  font-weight: 700;
+  color: #1B3A6B;
+  margin-bottom: 1pt;
+}
+.print-doc .doc-title {
+  font-size: 9.5pt;
+  font-weight: 700;
+  color: #2E5FAB;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.print-doc .section {
+  margin-bottom: 6pt;
+  page-break-inside: avoid;
+}
+.print-doc .sec-title {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #1B3A6B;
+  border-bottom: 1.5pt solid #2E5FAB;
+  padding-bottom: 2pt;
+  margin-bottom: 4pt;
+}
+.print-doc .two-col  { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; margin-bottom: 3pt; }
+.print-doc .three-col{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8pt; margin-bottom: 3pt; }
+.print-doc .fl { display: flex; gap: 5pt; margin-bottom: 3pt; align-items: baseline; }
+.print-doc .lbl { font-size: 7pt; font-weight: 700; color: #333; white-space: nowrap; flex-shrink: 0; }
+.print-doc .val {
+  border-bottom: .6pt solid #aaa;
+  flex: 1;
+  min-width: 28pt;
+  font-size: 7.5pt;
+  padding-bottom: 1pt;
+  color: #111;
+}
+
+.print-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3pt;
+  font-size: 7pt;
+}
+.print-doc table th {
+  background: #1B3A6B !important;
+  color: white !important;
+  padding: 3pt 5pt;
+  font-size: 6pt;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  text-align: left;
+}
+.print-doc table td {
+  padding: 2.5pt 5pt;
+  border-bottom: .5pt solid #ddd;
+  border-left: .5pt solid #ddd;
+  border-right: .5pt solid #ddd;
+}
+.print-doc table tr:nth-child(even) td { background: #f5f8ff; }
+.print-doc .obs-line {
+  border-bottom: .5pt solid #ccc;
+  height: 11pt;
+  margin-bottom: 2pt;
+}
+.print-doc .sig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24pt;
+  margin-top: 8pt;
+  padding-top: 5pt;
+  border-top: 1pt solid #1B3A6B;
+}
+.print-doc .sig-block {
+  border-top: .6pt solid #555;
+  padding-top: 2pt;
+  font-size: 6.5pt;
+  color: #444;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="app-header">
+  <div>
+    <h1>Ata da Reunião Sacramental</h1>
+    <small>Ramo Imperatriz · Estaca Palhoça</small>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="resetForm()">↺ Limpar</button>
+    <button class="btn btn-primary" onclick="printDoc()">⇩ Imprimir / PDF</button>
+  </div>
+</header>
+
+<!-- ═══════════════ FORM ═══════════════ -->
+<div class="form-wrap">
+
+  <!-- 1. Informações Gerais (always on) -->
+  <div class="card" id="card-1">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="num">1</div>
+        <h2>Informações Gerais</h2>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Data da Reunião</label>
+          <input type="date" id="data" oninput="syncPrint()">
+        </div>
+        <div class="field">
+          <label>Frequência (nº de presentes)</label>
+          <input type="number" id="frequencia" placeholder="ex: 28" min="0" oninput="syncPrint()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Presidida por</label>
+          <select id="presidida" onchange="handleOtro('presidida'); syncPrint()">
+            <option value="">— Selecione —</option>
+            <option>Leonidas Yopan</option>
+            <option>Thiago Sodré Pimentel Santos</option>
+            <option>Eloi Roque Sangaletto</option>
+            <option value="__outro__">Outro / Preencher</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Dirigida por</label>
+          <select id="dirigida" onchange="handleOtro('dirigida'); syncPrint()">
+            <option value="">— Selecione —</option>
+            <option>Leonidas Yopan</option>
+            <option>Thiago Sodré Pimentel Santos</option>
+            <option>Eloi Roque Sangaletto</option>
+            <option value="__outro__">Outro / Preencher</option>
+          </select>
+        </div>
+      </div>
+      <!-- "Outro" inputs — shown only when needed -->
+      <div class="field-row" id="outro-row" style="display:none">
+        <div class="field" id="presidida-outro-wrap" style="display:none">
+          <label>Nome — Presidida por</label>
+          <input type="text" id="presidida-outro" placeholder="Nome completo" oninput="syncPrint()">
+        </div>
+        <div class="field" id="dirigida-outro-wrap" style="display:none">
+          <label>Nome — Dirigida por</label>
+          <input type="text" id="dirigida-outro" placeholder="Nome completo" oninput="syncPrint()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Regente de Música</label>
+          <input type="text" id="regente" placeholder="Nome do regente"
+            oninput="syncPrint(); saveMemory('regente', this.value)">
+          <span class="remembered-badge" id="badge-regente"></span>
+        </div>
+        <div class="field">
+          <label>Pianista / Organista</label>
+          <input type="text" id="pianista" placeholder="Nome do pianista"
+            oninput="syncPrint(); saveMemory('pianista', this.value)">
+          <span class="remembered-badge" id="badge-pianista"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Abertura -->
+  <div class="card" id="card-2">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">2</div><h2>Abertura</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-2" checked onchange="toggleSection('2')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Hino de Abertura</label>
+          <div class="hymn-group">
+            <input type="number" id="h-aber-num" placeholder="Nº" min="1" max="1210"
+              oninput="lookupHymn('h-aber-num','h-aber-nome'); syncPrint()">
+            <input type="text" id="h-aber-nome" class="hymn-name" readonly placeholder="Nome do hino">
+          </div>
+        </div>
+        <div class="field">
+          <label>1ª Oração</label>
+          <input type="text" id="oracao1" placeholder="Nome do irmão/irmã" oninput="syncPrint()">
+        </div>
+      </div>
+      <div class="field-row single">
+        <div class="field">
+          <label>Anúncios / Reconhecimentos</label>
+          <textarea id="anuncios" placeholder="Anúncios, reconhecimentos, visitantes..." oninput="syncPrint()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Apoios e Desobrigações -->
+  <div class="card" id="card-3">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">3</div><h2>Apoios e Desobrigações</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-3" checked onchange="toggleSection('3')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <table class="dyn-table">
+        <thead><tr>
+          <th style="width:22%">Tipo</th>
+          <th>Nome Completo</th>
+          <th>Cargo / Observação</th>
+          <th style="width:34px"></th>
+        </tr></thead>
+        <tbody id="body-apoios"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addRow('body-apoios', COL_APOIOS)">+ Adicionar linha</button>
+    </div>
+  </div>
+
+  <!-- 4. Ordenações -->
+  <div class="card" id="card-4">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">4</div><h2>Ordenações ao Sacerdócio</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-4" checked onchange="toggleSection('4')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <table class="dyn-table">
+        <thead><tr>
+          <th style="width:17%">Ofício</th>
+          <th>Nome Completo</th>
+          <th style="width:26%">Ordenado por</th>
+          <th style="width:22%">Aprovado por</th>
+          <th style="width:34px"></th>
+        </tr></thead>
+        <tbody id="body-ord"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addRow('body-ord', COL_ORD)">+ Adicionar linha</button>
+    </div>
+  </div>
+
+  <!-- 5. Confirmações -->
+  <div class="card" id="card-5">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">5</div><h2>Confirmações / Batizados</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-5" checked onchange="toggleSection('5')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <table class="dyn-table">
+        <thead><tr>
+          <th style="width:15%">Tipo</th>
+          <th>Nome Completo</th>
+          <th style="width:25%">Realizado por</th>
+          <th style="width:22%">Padrinho/Madrinha</th>
+          <th style="width:34px"></th>
+        </tr></thead>
+        <tbody id="body-conf"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addRow('body-conf', COL_CONF)">+ Adicionar linha</button>
+    </div>
+  </div>
+
+  <!-- 6. Bênção a Crianças -->
+  <div class="card" id="card-6">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">6</div><h2>Dar Nome e Bênção a Crianças</h2></div>
+      <label class="section-enable-toggle">
+        <input type="checkbox" id="chk-6" checked onchange="toggleSection('6')"> Incluir
+      </label>
+    </div>
+    <div class="card-body">
+      <table class="dyn-table">
+        <thead><tr>
+          <th>Nome da Criança</th>
+          <th>Pai / Responsável Portador do Sacerdócio</th>
+          <th style="width:34px"></th>
+        </tr></thead>
+        <tbody id="body-bencao"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addRow('body-bencao', COL_BENCAO)">+ Adicionar linha</button>
+    </div>
+  </div>
+
+  <!-- 7. Sacramento -->
+  <div class="card" id="card-7">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">7</div><h2>Sacramento</h2></div>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Hino Sacramental</label>
+          <div class="hymn-group">
+            <input type="number" id="h-sacr-num" placeholder="Nº" min="1" max="1210"
+              oninput="lookupHymn('h-sacr-num','h-sacr-nome'); syncPrint()">
+            <input type="text" id="h-sacr-nome" class="hymn-name" readonly placeholder="Nome do hino">
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Bênção do Pão</label>
+          <input type="text" id="bencao-pao" placeholder="Nome" oninput="syncPrint()">
+        </div>
+        <div class="field">
+          <label>Bênção da Água</label>
+          <input type="text" id="bencao-agua" placeholder="Nome" oninput="syncPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Mensagens — mode toggle -->
+  <div class="card" id="card-8">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">8</div><h2>Mensagens</h2></div>
+    </div>
+    <div class="card-body">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-test" onclick="setMode('test')">Jejum e Testemunhos</button>
+        <button class="mode-btn"        id="btn-disc" onclick="setMode('disc')">Com Discursantes</button>
+      </div>
+
+      <!-- Testemunhos -->
+      <div id="pane-test">
+        <div class="field-row single">
+          <div class="field">
+            <label>Responsável pelo convite aos testemunhos</label>
+            <input type="text" id="convite-test" placeholder="Nome de quem dirige e convida" oninput="syncPrint()">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Observações</label>
+            <textarea id="obs-test" rows="3" placeholder="Observações gerais..." oninput="syncPrint()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discursantes -->
+      <div id="pane-disc" style="display:none">
+        <table class="dyn-table">
+          <thead><tr>
+            <th>Discursante</th>
+            <th>Tema / Assunto</th>
+            <th style="width:80px">Tempo (min)</th>
+            <th style="width:34px"></th>
+          </tr></thead>
+          <tbody id="body-disc"></tbody>
+        </table>
+        <button class="add-row-btn" onclick="addRow('body-disc', COL_DISC)">+ Adicionar discursante</button>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field">
+            <label>Nº Musical Especial — Responsável</label>
+            <input type="text" id="num-mus-resp" placeholder="Nome" oninput="syncPrint()">
+          </div>
+          <div class="field">
+            <label>Título / Peça</label>
+            <input type="text" id="num-mus-titulo" placeholder="Título da apresentação" oninput="syncPrint()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Encerramento -->
+  <div class="card" id="card-9">
+    <div class="card-header">
+      <div class="card-header-left"><div class="num">9</div><h2>Encerramento</h2></div>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Hino de Encerramento</label>
+          <div class="hymn-group">
+            <input type="number" id="h-enc-num" placeholder="Nº" min="1" max="1210"
+              oninput="lookupHymn('h-enc-num','h-enc-nome'); syncPrint()">
+            <input type="text" id="h-enc-nome" class="hymn-name" readonly placeholder="Nome do hino">
+          </div>
+        </div>
+        <div class="field">
+          <label>Oração de Encerramento</label>
+          <input type="text" id="oracao-enc" placeholder="Nome do irmão/irmã" oninput="syncPrint()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /form-wrap -->
+
+<!-- ═══════════════ PRINT DOCUMENT ═══════════════ -->
+<div class="print-doc" id="print-doc">
+  <div class="doc-header">
+    <div class="church-name">A Igreja de Jesus Cristo dos Santos dos Últimos Dias</div>
+    <div class="branch-name">Estaca Palhoça &nbsp;·&nbsp; Ramo Imperatriz</div>
+    <div class="doc-title" id="p-title">Ata da Reunião Sacramental</div>
+  </div>
+
+  <!-- Sec 1: always shown -->
+  <div class="section">
+    <div class="sec-title">1. Informações Gerais</div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Data:</span><span class="val" id="p-data"></span></div>
+      <div class="fl"><span class="lbl">Frequência:</span><span class="val" id="p-freq"></span></div>
+    </div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Presidida por:</span><span class="val" id="p-pres"></span></div>
+      <div class="fl"><span class="lbl">Dirigida por:</span><span class="val" id="p-dir"></span></div>
+    </div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Regente:</span><span class="val" id="p-reg"></span></div>
+      <div class="fl"><span class="lbl">Pianista/Organista:</span><span class="val" id="p-pian"></span></div>
+    </div>
+  </div>
+
+  <!-- Sec 2 -->
+  <div class="section" id="p-sec2">
+    <div class="sec-title">2. Abertura</div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Hino de Abertura:</span><span class="val" id="p-h-aber"></span></div>
+      <div class="fl"><span class="lbl">1ª Oração:</span><span class="val" id="p-or1"></span></div>
+    </div>
+    <div class="fl"><span class="lbl">Anúncios / Reconhecimentos:</span><span class="val" id="p-anun"></span></div>
+  </div>
+
+  <!-- Sec 3 -->
+  <div class="section" id="p-sec3">
+    <div class="sec-title">3. Apoios e Desobrigações</div>
+    <table>
+      <thead><tr><th style="width:20%">Tipo</th><th>Nome Completo</th><th style="width:32%">Cargo / Observação</th></tr></thead>
+      <tbody id="p-body-apoios"></tbody>
+    </table>
+  </div>
+
+  <!-- Sec 4 -->
+  <div class="section" id="p-sec4">
+    <div class="sec-title">4. Ordenações ao Sacerdócio</div>
+    <table>
+      <thead><tr><th style="width:15%">Ofício</th><th>Nome Completo</th><th style="width:24%">Ordenado por</th><th style="width:20%">Aprovado por</th></tr></thead>
+      <tbody id="p-body-ord"></tbody>
+    </table>
+  </div>
+
+  <!-- Sec 5 -->
+  <div class="section" id="p-sec5">
+    <div class="sec-title">5. Confirmações / Batizados</div>
+    <table>
+      <thead><tr><th style="width:13%">Tipo</th><th>Nome Completo</th><th style="width:23%">Realizado por</th><th style="width:21%">Padrinho/Madrinha</th></tr></thead>
+      <tbody id="p-body-conf"></tbody>
+    </table>
+  </div>
+
+  <!-- Sec 6 -->
+  <div class="section" id="p-sec6">
+    <div class="sec-title">6. Dar Nome e Bênção a Crianças</div>
+    <table>
+      <thead><tr><th>Nome da Criança</th><th>Pai / Responsável Portador do Sacerdócio</th></tr></thead>
+      <tbody id="p-body-bencao"></tbody>
+    </table>
+  </div>
+
+  <!-- Sec 7 -->
+  <div class="section">
+    <div class="sec-title">7. Sacramento</div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Hino Sacramental:</span><span class="val" id="p-h-sacr"></span></div>
+      <div></div>
+    </div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Bênção do Pão:</span><span class="val" id="p-b-pao"></span></div>
+      <div class="fl"><span class="lbl">Bênção da Água:</span><span class="val" id="p-b-agua"></span></div>
+    </div>
+  </div>
+
+  <!-- Sec 8 (dynamic) -->
+  <div class="section" id="p-sec8"></div>
+
+  <!-- Sec 9 -->
+  <div class="section">
+    <div class="sec-title">9. Encerramento</div>
+    <div class="two-col">
+      <div class="fl"><span class="lbl">Hino de Encerramento:</span><span class="val" id="p-h-enc"></span></div>
+      <div class="fl"><span class="lbl">Oração de Encerramento:</span><span class="val" id="p-or-enc"></span></div>
+    </div>
+  </div>
+
+  <!-- Signature -->
+  <div class="sig-row">
+    <div class="sig-block">Secretário(a) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    <div class="sig-block">Presidente do Ramo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  </div>
+</div><!-- /print-doc -->
+
+<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+<script>
+'use strict';
+
+/* ─── HYMN DATABASE ─────────────────────────────── */
+const HYMNS = {
+  1:"A Alva Rompe",2:"Tal Como um Facho",3:"Alegres Cantemos",4:"No Monte a Bandeira",
+  5:"Israel, Jesus te Chama",6:"Um Anjo Lá do Céu",7:"O Que Vimos Lá nos Céus?",
+  8:"Profeta, Sempre a Deus",9:"Graças Damos, Ó Deus, por um Profeta",10:"Vinde ao Profeta Escutar",
+  11:"Ó Pai Celestial",12:"Que Manhã Maravilhosa!",13:"Rejubilai-vos, Ó Nações",
+  14:"Hoje ao Profeta Rendamos Louvores",15:"Um Pobre e Aflito Viajor",16:"Ó Montanhas Mil",
+  17:"Por Teus Dons",18:"Vede, Ó Santos",20:"Vinde, Ó Santos",23:"Lá nos Cumes",
+  24:"Vem, Ó Dia Prometido",25:"Bela Sião",26:"O Mundo Desperta",27:"Vinde, Ó Filhos do Senhor",
+  28:"Ó Vem, Supremo Rei",29:"Ó Criaturas do Senhor",30:"Ó Santos, Que na Terra Habitais",
+  31:"Com Braço Forte",32:"Castelo Forte",33:"Glória a Deus Cantai",34:"Louvai a Deus",
+  35:"A Deus, Senhor e Rei",36:"Deste Mundo as Flores Mil",37:"O Senhor meu Pastor é",
+  38:"Que Toda Honra e Glória",39:"Corações, Pois, Exultai",41:"Firmes Segui",
+  42:"Que Firme Alicerce",43:"Grandioso És Tu",44:"Jesus, Minha Luz",45:"Ó Vós Que Amais ao Senhor",
+  46:"Nossas Vozes Elevemos",47:"Com Sábio e Terno Amor",48:"Ó Bondoso Pai Eterno",
+  49:"Pela Beleza que há no Chão",50:"Cantando Louvamos",51:"Unidos, Ó Pai",
+  52:"Vinde, Ó Povos, Graças Dar",53:"Se Tenho Fé",54:"Doce é o Trabalho",
+  57:"A Vida é Luta sem Quartel",59:"Louvai o Eterno Criador",
+  60:"Na Escuridão, Oh, Brilha, Meiga Luz",61:"Careço de Jesus",62:"Mais Perto Quero Estar",
+  63:"Guia-me a Ti",64:"Ó Pai Celeste",65:"Jesus Cristo é meu Senhor",66:"Creio em Cristo",
+  67:"Eu Sei que Vive o Redentor",68:"Vinde a Mim",69:"Vinde a Cristo",
+  70:"Eu Sei que Vive meu Senhor",71:"Um Testemunho é Dom de Deus",72:"Mestre o Mar se Revolta",
+  73:"Onde Encontrar a Paz?",74:"Sê Humilde",75:"Mais Vontade Dá-me",76:"Rocha Eterna",
+  77:"A Luz de Deus",78:"Embora Cheios de Pesar",79:"Ó Doce, Grata Oração",
+  80:"Santo Espírito de Deus",81:"Há Horas de Preciosa Paz",82:"Eis-nos Agora Aqui",
+  83:"Com Fervor Fizeste a Prece?",84:"Só por em Ti, Jesus, Pensar",85:"Deus Vos Guarde",
+  86:"Nossa Humilde Prece Atende",87:"Ó Bondoso Pai Eterno (v2)",88:"Dá-nos, Tu, Ó Pai Bondoso",
+  89:"Ao Partir Cantemos",90:"Teu Santo Espírito, Senhor",91:"Qual Orvalho que Cintila",
+  92:"Vai Fugindo o Dia",93:"Suavemente a Noite Cai",95:"Eis-nos, Hoje, a Teus Pés",
+  96:"É Tarde, a Noite Logo Vem",97:"Comigo Habita",98:"Ó Deus, Senhor Eterno",
+  99:"Ao Partilhar de Teu Amor",100:"Entoai a Deus Louvor",101:"Deus, Escuta",
+  102:"Nossa Humilde Prece Atende (v2)",103:"Enquanto Unidos em Amor",
+  104:"Quão Grato é Cantar Louvor",105:"Cantemos Todos a Jesus",106:"Jesus de Nazaré, Mestre e Rei",
+  107:"Deus Tal Amor por Nós Mostrou",109:"Em uma Cruz Jesus Morreu",
+  110:"Vede, Morreu o Redentor",111:"Lembrando a Morte de Jesus",112:"Assombro me Causa",
+  113:"No Monte do Calvário",114:"Da Corte Celestial",115:"Tão Humilde ao Nascer",
+  119:"Cristo é Já Ressuscitado",120:"Cristo Já Ressuscitou",121:"Mundo Feliz, Nasceu Jesus",
+  122:"Erguei-vos Cantando",123:"Lá na Judéia, Onde Cristo Nasceu",124:"Anjos Descem a Cantar",
+  125:"Ouvi os Sinos do Natal",126:"Noite Feliz",127:"Jesus num Presépe",
+  128:"Na Bela Noite se Ouviu",129:"Pequena Vila de Belém",131:"No Dia de Natal",
+  132:"Eis dos Anjos a Harmonia",133:"Quando o Anjo Proclamou",134:"Salvador, eu Quero Amar-te",
+  135:"Eu Devo Partilhar",136:"Neste Mundo",137:"Oh! Falemos Palavras Amáveis",
+  139:"Deus é Consolador sem Par",140:"Ama o Pastor seu Rebanho",141:"Trabalhemos Hoje",
+  142:"A Vida é Luta sem Quartel (v2)",143:"Pai, Inspira-me, eu Peço",
+  145:"Sempre que Alguém nos Faz o Bem",147:"Faze o Bem",
+  148:"Faze o Bem, Escolhendo o que é Certo",149:"A Alma é Livre",150:"Quem Segue ao Senhor?",
+  151:"Minha Alma Hoje Tem a Luz",152:"Prolongue os Bons Momentos",
+  153:"Deixa a Luz do Sol Entrar",154:"Enquanto o Sol Brilha",155:"Luz Espalhai",
+  157:"Amor que Cristo Demonstrou",158:"Tu Jesus, Ó Rocha Eterna",
+  159:"À Glória Nós Iremos",160:"Somos os Soldados",161:"As Hostes do Eterno",
+  162:"Com Valor Marchemos",165:"Semeando",166:"Somos Hoje Conclamados",
+  167:"Talvez Não Seja em Alto Mar",168:"Povos da Terra, Vinde, Escutai!",
+  169:"Eis os Teus Filhos, Ó Senhor",170:"Avante, ao Mundo Proclamai",
+  171:"A Verdade o que é?",172:"A Verdade é Nosso Guia",173:"Ao Raiar o Novo Dia",
+  174:"Sê Bem-vindo, Dia Santo",176:"Estudando as Escrituras",177:"Ó Meu Pai",
+  178:"Ó Quão Majestosa é a Obra de Deus",179:"Ó Jeová, Senhor do Céu",
+  180:"Já Refulge a Glória Eterna",181:"O Fim se Aproxima",182:"Juventude da Promessa",
+  183:"Deve Sião Fugir à Luta?",184:"Constantes Qual Firmes Montanhas",
+  186:"Levantai-vos, Ide ao Templo",188:"Tudo é Belo em Derredor",
+  189:"Pode o Lar ser Como o Céu",190:"Os Sei que Deus Vive",191:"Uma Família, Tenho Sim",
+  192:"Ó Crianças, Deus Vos Ama",193:"Sou um Filho de Deus",194:"Guarda os Mandamentos",
+  195:"Que Deus Vive eu Sei",196:"Nas Montanhas de Sião",197:"Amai-vos Uns aos Outros",
+  198:"Quando Vejo o Sol Raiar",199:"Quero Aprender a Seguir",200:"Irmãs em Sião",
+  201:"Ó Filhos do Senhor",203:"Ó Élderes de Israel",204:"Ó Vós que Sois Chamados",
+  // Novo hinário — Para o Lar e para a Igreja (lançamentos até fev/2026)
+  1001:"Ó Senhor de Toda Bênção",1002:"Getsêmani",1003:"Minha Alma Tem Paz",
+  1004:"Do Passarinho Cuida",1005:"Partido o Pão",1006:"Pão do Céu, Água Viva",
+  1007:"Este é o Cristo",1008:"Sublime Graça",1009:"O Amor de Deus",
+  1010:"O Profundo Amor de Cristo",1011:"O Meu Pastor vai me Amparar",
+  1012:"De Mãos Dadas em União",1013:"Olhai as Mãos do Redentor",
+  1019:"Desejo me Tornar como Cristo",1020:"O Salvador Ternamente nos Chama",
+  1021:"Que Cristo me Ama eu Sei",1022:"Fé a Cada Passo",1023:"Firme nas Promessas",
+  1024:"Tenho Fé em Jesus, meu Senhor",1025:"Consagro meu Coração em Retidão",
+  1026:"Lugares Santos",1027:"Ao Virmos, Hoje, Adorar",1028:"Tenho uma Luz em Mim",
+  1029:"Muitas Bênçãos Recebo",1030:"Tão Perto ao Orar",1031:"Ó, Vinde, Ouvi a Voz Divina",
+  1032:"Buscai a Cristo",1033:"Oh, que Grande Alegria é Servir",1034:"Pioneiros como Eu",
+  1035:"Neste Dia do Senhor",1036:"O Livro de Mórmon vou Ler",
+  1037:"Vou Viver para a Deus Servir",1038:"O meu Senhor é meu Pastor",
+  1039:"Porque",1040:"Sua Voz a Soar",1041:"Meu Coração é Teu, Jesus",
+  1042:"Bondoso Deus, que nos Conduz",1043:"Faz-nos Lembrar",
+  1044:"Cristo a Todos Ministrou",1045:"'Vinde a Mim', diz Jesus",
+  1046:"Há no Céu Muitas Estrelas",1047:"Ele me Conhece Bem",
+  1048:"A Ti Oramos, Pai Celeste",1049:"Posso Orar como Joseph Orou",
+  1050:"Oh, que Estejas Junto a Mim",1051:"Senhor, oh, que Dia Bom!",
+  1052:"Com Eterna Alegria e Paz",1053:"Meu Convênio",1054:"Quando eu for Batizado",
+  1055:"O Espírito Vem Testificar",1056:"Elias e a Mansa Voz",1057:"Meu Pastor é Jesus Cristo",
+  1058:"Na Noite, és Minha Canção",1059:"O Mundo Deus Criou",1060:"Uma Arca Hoje eu Construirei",
+  1061:"Nosso Lar Tem Amor",1062:"Que meu Jejum Venhas Aceitar",
+  1205:"Na Páscoa do Senhor",1206:"Você Viu?",1207:"Noite de Paz",
+  1208:"Ao Mundo Proclamai",1209:"Bebezinho no Presépio",1210:"Os Jardins"
+};
+
+/* ─── COL DEFINITIONS ───────────────────────────── */
+const COL_APOIOS = [
+  { type:'select', opts:['Apoio','Desobrigação','Sustentação','Reconhecimento'], w:'130px' },
+  { type:'text', ph:'Nome completo' },
+  { type:'text', ph:'Cargo / observação' },
+];
+const COL_ORD = [
+  { type:'select', opts:['Diácono','Mestre','Élder','Sumo Sacerdote','Setenta','Bispo'], w:'110px' },
+  { type:'text', ph:'Nome completo' },
+  { type:'text', ph:'Ordenado por' },
+  { type:'text', ph:'Aprovado por' },
+];
+const COL_CONF = [
+  { type:'select', opts:['Batismo','Confirmação'], w:'105px' },
+  { type:'text', ph:'Nome completo' },
+  { type:'text', ph:'Realizado por' },
+  { type:'text', ph:'Padrinho/Madrinha' },
+];
+const COL_BENCAO = [
+  { type:'text', ph:'Nome da criança' },
+  { type:'text', ph:'Pai / responsável portador do sacerdócio' },
+];
+const COL_DISC = [
+  { type:'text', ph:'Nome do discursante' },
+  { type:'text', ph:'Tema / assunto' },
+  { type:'number', ph:'min', w:'70px' },
+];
+
+/* ─── SECTION STATE ─────────────────────────────── */
+// Sections that can be toggled: 2,3,4,5,6
+const sectionEnabled = { '2':true,'3':true,'4':true,'5':true,'6':true };
+
+function toggleSection(id) {
+  const enabled = document.getElementById('chk-' + id).checked;
+  sectionEnabled[id] = enabled;
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('disabled-section', !enabled);
+  syncPrint();
+}
+
+/* ─── MODE: Testemunhos vs Discursantes ─────────── */
+// declared FIRST — before any HTML onclick references run
+let currentMode = 'test';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('pane-test').style.display = mode === 'test' ? '' : 'none';
+  document.getElementById('pane-disc').style.display = mode === 'disc' ? '' : 'none';
+  document.getElementById('btn-test').classList.toggle('active', mode === 'test');
+  document.getElementById('btn-disc').classList.toggle('active', mode === 'disc');
+  syncPrint();
+}
+
+/* ─── "OUTRO" LOGIC ─────────────────────────────── */
+function handleOtro(field) {
+  const sel = document.getElementById(field);
+  const wrap = document.getElementById(field + '-outro-wrap');
+  const isOutro = sel.value === '__outro__';
+  wrap.style.display = isOutro ? '' : 'none';
+  // show/hide the outer row if any outro is needed
+  const presOutro = document.getElementById('presidida').value === '__outro__';
+  const dirOutro  = document.getElementById('dirigida').value  === '__outro__';
+  document.getElementById('outro-row').style.display = (presOutro || dirOutro) ? '' : 'none';
+}
+
+function getSelectVal(id, outroId) {
+  const sel = document.getElementById(id);
+  if (sel.value === '__outro__') return document.getElementById(outroId).value;
+  return sel.value;
+}
+
+/* ─── HYMN LOOKUP ───────────────────────────────── */
+function lookupHymn(numId, nameId) {
+  const num  = parseInt(document.getElementById(numId).value, 10);
+  const nameEl = document.getElementById(nameId);
+  if (!num) { nameEl.value = ''; nameEl.style.color = ''; return; }
+  if (HYMNS[num]) {
+    nameEl.value = HYMNS[num];
+    nameEl.style.color = '#1B3A6B';
+  } else {
+    nameEl.value = '(não encontrado)';
+    nameEl.style.color = '#dc2626';
+  }
+}
+
+/* ─── MEMORY (localStorage) ─────────────────────── */
+const MEMORY_FIELDS = ['regente','pianista'];
+const MEM_KEY = 'ramo_imperatriz_memory';
+
+function loadMemory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MEM_KEY) || '{}');
+    MEMORY_FIELDS.forEach(f => {
+      if (saved[f]) {
+        const el = document.getElementById(f);
+        if (el && el.value === '') {
+          el.value = saved[f];
+          const badge = document.getElementById('badge-' + f);
+          if (badge) badge.textContent = '↑ Lembrado da última reunião';
+        }
+      }
+    });
+  } catch(e) {}
+}
+function saveMemory(field, value) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MEM_KEY) || '{}');
+    saved[field] = value;
+    localStorage.setItem(MEM_KEY, JSON.stringify(saved));
+    const badge = document.getElementById('badge-' + field);
+    if (badge) badge.textContent = value ? '✓ Salvo automaticamente' : '';
+  } catch(e) {}
+}
+
+/* ─── DYNAMIC TABLE ROWS ────────────────────────── */
+function addRow(tbodyId, cols) {
+  const tbody = document.getElementById(tbodyId);
+  const tr = document.createElement('tr');
+
+  cols.forEach(col => {
+    const td = document.createElement('td');
+    let el;
+    if (col.type === 'select') {
+      el = document.createElement('select');
+      const blank = document.createElement('option');
+      blank.value = ''; blank.textContent = '—';
+      el.appendChild(blank);
+      (col.opts || []).forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o; el.appendChild(opt);
+      });
+    } else {
+      el = document.createElement('input');
+      el.type = col.type || 'text';
+      el.placeholder = col.ph || '';
+    }
+    if (col.w) el.style.width = col.w;
+    el.addEventListener('input', syncPrint);
+    el.addEventListener('change', syncPrint);
+    td.appendChild(el);
+    tr.appendChild(td);
+  });
+
+  const tdDel = document.createElement('td');
+  const btn   = document.createElement('button');
+  btn.className = 'del-btn'; btn.innerHTML = '×';
+  btn.title = 'Remover linha';
+  btn.onclick = () => { tr.remove(); syncPrint(); };
+  tdDel.appendChild(btn);
+  tr.appendChild(tdDel);
+  tbody.appendChild(tr);
+  syncPrint();
+}
+
+/* ─── SYNC PRINT DOC ────────────────────────────── */
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho',
+               'julho','agosto','setembro','outubro','novembro','dezembro'];
+
+function fmtDate(v) {
+  if (!v) return '';
+  const [y,m,d] = v.split('-');
+  return `${parseInt(d,10)} de ${MESES[parseInt(m,10)-1]} de ${y}`;
+}
+function tv(id) { return (document.getElementById(id)||{}).value || ''; }
+function hymnLabel(numId, nameId) {
+  const n = tv(numId); const nm = tv(nameId);
+  return n ? `Nº ${n}${nm ? ' — ' + nm : ''}` : '';
+}
+
+function mirrorTableRows(srcBodyId, destBodyId) {
+  const dest = document.getElementById(destBodyId);
+  const src  = document.getElementById(srcBodyId);
+  if (!dest || !src) return;
+  dest.innerHTML = '';
+  const rows = src.querySelectorAll('tr');
+  if (rows.length === 0) {
+    dest.innerHTML = '<tr>' + '<td>&nbsp;</td>'.repeat(
+      (dest.closest('table')||{}).querySelectorAll('th')?.length || 3
+    ) + '</tr>';
+    return;
+  }
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('input, select');
+    const tr = document.createElement('tr');
+    cells.forEach(c => {
+      const td = document.createElement('td');
+      td.textContent = c.value || '';
+      tr.appendChild(td);
+    });
+    dest.appendChild(tr);
+  });
+}
+
+function setVisible(id, visible) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = visible ? '' : 'none';
+}
+
+function syncPrint() {
+  // 1. Informações Gerais
+  document.getElementById('p-data').textContent = fmtDate(tv('data'));
+  document.getElementById('p-freq').textContent = tv('frequencia');
+  document.getElementById('p-pres').textContent = getSelectVal('presidida','presidida-outro');
+  document.getElementById('p-dir').textContent  = getSelectVal('dirigida','dirigida-outro');
+  document.getElementById('p-reg').textContent  = tv('regente');
+  document.getElementById('p-pian').textContent = tv('pianista');
+
+  // Title
+  const isTest = currentMode === 'test';
+  document.getElementById('p-title').textContent =
+    'ATA DA REUNIÃO SACRAMENTAL — ' + (isTest ? 'JEJUM E TESTEMUNHOS' : 'COM DISCURSANTES');
+
+  // 2. Abertura
+  setVisible('p-sec2', sectionEnabled['2']);
+  document.getElementById('p-h-aber').textContent = hymnLabel('h-aber-num','h-aber-nome');
+  document.getElementById('p-or1').textContent    = tv('oracao1');
+  document.getElementById('p-anun').textContent   = tv('anuncios');
+
+  // 3. Apoios
+  setVisible('p-sec3', sectionEnabled['3']);
+  mirrorTableRows('body-apoios','p-body-apoios');
+
+  // 4. Ordenações
+  setVisible('p-sec4', sectionEnabled['4']);
+  mirrorTableRows('body-ord','p-body-ord');
+
+  // 5. Confirmações
+  setVisible('p-sec5', sectionEnabled['5']);
+  mirrorTableRows('body-conf','p-body-conf');
+
+  // 6. Bênção crianças
+  setVisible('p-sec6', sectionEnabled['6']);
+  mirrorTableRows('body-bencao','p-body-bencao');
+
+  // 7. Sacramento
+  document.getElementById('p-h-sacr').textContent = hymnLabel('h-sacr-num','h-sacr-nome');
+  document.getElementById('p-b-pao').textContent  = tv('bencao-pao');
+  document.getElementById('p-b-agua').textContent = tv('bencao-agua');
+
+  // 8. Mensagens (dynamic)
+  const sec8 = document.getElementById('p-sec8');
+  if (isTest) {
+    sec8.innerHTML = `
+      <div class="sec-title">8. Reunião de Jejum e Testemunhos</div>
+      <div class="fl">
+        <span class="lbl">Responsável pelo convite:</span>
+        <span class="val">${escHtml(tv('convite-test'))}</span>
+      </div>
+      <div style="margin-top:3pt;font-size:7pt;font-weight:700;color:#333">Observações:</div>
+      <div class="obs-line"></div>
+      <div class="obs-line"></div>
+      <div class="obs-line"></div>
+      ${tv('obs-test') ? '<div style="font-size:6.5pt;color:#555;font-style:italic;margin-top:2pt">'+escHtml(tv('obs-test'))+'</div>' : ''}
+    `;
+  } else {
+    const discBody = document.getElementById('body-disc');
+    let rows = '';
+    discBody.querySelectorAll('tr').forEach(row => {
+      const cells = row.querySelectorAll('input,select');
+      rows += '<tr>' + Array.from(cells).map(c=>`<td>${escHtml(c.value||'')}</td>`).join('') + '</tr>';
+    });
+    if (!rows) rows = '<tr><td>&nbsp;</td><td></td><td></td></tr><tr><td>&nbsp;</td><td></td><td></td></tr>';
+    sec8.innerHTML = `
+      <div class="sec-title">8. Mensagens do Evangelho</div>
+      <table>
+        <thead><tr><th>Discursante</th><th>Tema / Assunto</th><th style="width:12%">Tempo</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="two-col" style="margin-top:3pt">
+        <div class="fl"><span class="lbl">Nº Musical — Responsável:</span><span class="val">${escHtml(tv('num-mus-resp'))}</span></div>
+        <div class="fl"><span class="lbl">Título:</span><span class="val">${escHtml(tv('num-mus-titulo'))}</span></div>
+      </div>
+    `;
+  }
+
+  // 9. Encerramento
+  document.getElementById('p-h-enc').textContent  = hymnLabel('h-enc-num','h-enc-nome');
+  document.getElementById('p-or-enc').textContent = tv('oracao-enc');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ─── PRINT ─────────────────────────────────────── */
+function printDoc() {
+  syncPrint();
+  window.print();
+}
+
+/* ─── RESET ─────────────────────────────────────── */
+function resetForm() {
+  if (!confirm('Limpar todos os campos desta ata?')) return;
+  document.querySelectorAll(
+    '.form-wrap input:not(.hymn-name):not([type=checkbox]), .form-wrap select, .form-wrap textarea'
+  ).forEach(el => { el.value = ''; });
+  document.querySelectorAll('.hymn-name').forEach(el => { el.value = ''; el.style.color = ''; });
+
+  // reset dynamic tables
+  ['body-apoios','body-ord','body-conf','body-bencao','body-disc'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  addRow('body-apoios', COL_APOIOS);
+  addRow('body-ord',    COL_ORD);
+  addRow('body-conf',   COL_CONF);
+  addRow('body-bencao', COL_BENCAO);
+  addRow('body-disc',   COL_DISC);
+
+  // reset section toggles
+  ['2','3','4','5','6'].forEach(id => {
+    document.getElementById('chk-'+id).checked = true;
+    sectionEnabled[id] = true;
+    document.getElementById('card-'+id).classList.remove('disabled-section');
+  });
+
+  // reset "outro" rows
+  document.getElementById('outro-row').style.display = 'none';
+  document.getElementById('presidida-outro-wrap').style.display = 'none';
+  document.getElementById('dirigida-outro-wrap').style.display  = 'none';
+
+  // reload memory for regente/pianista
+  setTimeout(loadMemory, 50);
+  setMode('test');
+  syncPrint();
+}
+
+/* ─── INIT ──────────────────────────────────────── */
+// Add initial rows
+addRow('body-apoios', COL_APOIOS);
+addRow('body-ord',    COL_ORD);
+addRow('body-conf',   COL_CONF);
+addRow('body-bencao', COL_BENCAO);
+addRow('body-disc',   COL_DISC);
+
+loadMemory();
+syncPrint();
+</script>
+</body>
+</html>
