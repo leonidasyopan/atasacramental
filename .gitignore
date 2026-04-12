@@ -1,0 +1,11 @@
+# Firebase cache
+.firebase/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
