@@ -404,6 +404,51 @@ body {
   color: #444;
   text-align: center;
 }
+
+/* ── Clear section button ── */
+.clear-section-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.35);
+  color: rgba(255,255,255,.7);
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.clear-section-btn:hover {
+  background: rgba(255,255,255,.18);
+  color: white;
+}
+
+/* ── Toast notification ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: #1B3A6B;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(27,58,107,.35);
+}
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 </style>
 </head>
 <body>
@@ -430,22 +475,23 @@ body {
         <div class="num">1</div>
         <h2>Informações Gerais</h2>
       </div>
+      <button class="clear-section-btn" onclick="clearSectionDraft('1')" title="Limpar dados salvos desta seção do armazenamento local">🗑 Limpar dados</button>
     </div>
     <div class="card-body">
       <div class="field-row">
         <div class="field">
           <label>Data da Reunião</label>
-          <input type="date" id="data" oninput="syncPrint()">
+          <input type="date" id="data" oninput="saveDraft('data',this.value); syncPrint()">
         </div>
         <div class="field">
           <label>Frequência (nº de presentes)</label>
-          <input type="number" id="frequencia" placeholder="ex: 28" min="0" oninput="syncPrint()">
+          <input type="number" id="frequencia" placeholder="ex: 28" min="0" oninput="saveDraft('frequencia',this.value); syncPrint()">
         </div>
       </div>
       <div class="field-row">
         <div class="field">
           <label>Presidida por</label>
-          <select id="presidida" onchange="handleOtro('presidida'); syncPrint()">
+          <select id="presidida" onchange="saveDraft('presidida',this.value); handleOtro('presidida'); syncPrint()">
             <option value="">— Selecione —</option>
             <option>Leonidas Yopan</option>
             <option>Thiago Sodré Pimentel Santos</option>
@@ -455,7 +501,7 @@ body {
         </div>
         <div class="field">
           <label>Dirigida por</label>
-          <select id="dirigida" onchange="handleOtro('dirigida'); syncPrint()">
+          <select id="dirigida" onchange="saveDraft('dirigida',this.value); handleOtro('dirigida'); syncPrint()">
             <option value="">— Selecione —</option>
             <option>Leonidas Yopan</option>
             <option>Thiago Sodré Pimentel Santos</option>
@@ -468,24 +514,24 @@ body {
       <div class="field-row" id="outro-row" style="display:none">
         <div class="field" id="presidida-outro-wrap" style="display:none">
           <label>Nome — Presidida por</label>
-          <input type="text" id="presidida-outro" placeholder="Nome completo" oninput="syncPrint()">
+          <input type="text" id="presidida-outro" placeholder="Nome completo" oninput="saveDraft('presidida-outro',this.value); syncPrint()">
         </div>
         <div class="field" id="dirigida-outro-wrap" style="display:none">
           <label>Nome — Dirigida por</label>
-          <input type="text" id="dirigida-outro" placeholder="Nome completo" oninput="syncPrint()">
+          <input type="text" id="dirigida-outro" placeholder="Nome completo" oninput="saveDraft('dirigida-outro',this.value); syncPrint()">
         </div>
       </div>
       <div class="field-row">
         <div class="field">
           <label>Regente de Música</label>
           <input type="text" id="regente" placeholder="Nome do regente"
-            oninput="syncPrint(); saveMemory('regente', this.value)">
+            oninput="saveDraft('regente',this.value); saveMemory('regente',this.value); syncPrint()">
           <span class="remembered-badge" id="badge-regente"></span>
         </div>
         <div class="field">
           <label>Pianista / Organista</label>
           <input type="text" id="pianista" placeholder="Nome do pianista"
-            oninput="syncPrint(); saveMemory('pianista', this.value)">
+            oninput="saveDraft('pianista',this.value); saveMemory('pianista',this.value); syncPrint()">
           <span class="remembered-badge" id="badge-pianista"></span>
         </div>
       </div>
@@ -496,9 +542,12 @@ body {
   <div class="card" id="card-2">
     <div class="card-header">
       <div class="card-header-left"><div class="num">2</div><h2>Abertura</h2></div>
-      <label class="section-enable-toggle">
-        <input type="checkbox" id="chk-2" checked onchange="toggleSection('2')"> Incluir
-      </label>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <button class="clear-section-btn" onclick="clearSectionDraft('2')" title="Limpar dados salvos desta seção do armazenamento local">🗑 Limpar dados</button>
+        <label class="section-enable-toggle">
+          <input type="checkbox" id="chk-2" checked onchange="toggleSection('2')"> Incluir
+        </label>
+      </div>
     </div>
     <div class="card-body">
       <div class="field-row">
@@ -506,19 +555,19 @@ body {
           <label>Hino de Abertura</label>
           <div class="hymn-group">
             <input type="number" id="h-aber-num" placeholder="Nº" min="1" max="1210"
-              oninput="lookupHymn('h-aber-num','h-aber-nome'); syncPrint()">
+              oninput="saveDraft('h-aber-num',this.value); lookupHymn('h-aber-num','h-aber-nome'); syncPrint()">
             <input type="text" id="h-aber-nome" class="hymn-name" readonly placeholder="Nome do hino">
           </div>
         </div>
         <div class="field">
           <label>1ª Oração</label>
-          <input type="text" id="oracao1" placeholder="Nome do irmão/irmã" oninput="syncPrint()">
+          <input type="text" id="oracao1" placeholder="Nome do irmão/irmã" oninput="saveDraft('oracao1',this.value); syncPrint()">
         </div>
       </div>
       <div class="field-row single">
         <div class="field">
           <label>Anúncios / Reconhecimentos</label>
-          <textarea id="anuncios" placeholder="Anúncios, reconhecimentos, visitantes..." oninput="syncPrint()"></textarea>
+          <textarea id="anuncios" placeholder="Anúncios, reconhecimentos, visitantes..." oninput="saveDraft('anuncios',this.value); syncPrint()"></textarea>
         </div>
       </div>
     </div>
@@ -617,6 +666,7 @@ body {
   <div class="card" id="card-7">
     <div class="card-header">
       <div class="card-header-left"><div class="num">7</div><h2>Sacramento</h2></div>
+      <button class="clear-section-btn" onclick="clearSectionDraft('7')" title="Limpar dados salvos desta seção do armazenamento local">🗑 Limpar dados</button>
     </div>
     <div class="card-body">
       <div class="field-row">
@@ -624,7 +674,7 @@ body {
           <label>Hino Sacramental</label>
           <div class="hymn-group">
             <input type="number" id="h-sacr-num" placeholder="Nº" min="1" max="1210"
-              oninput="lookupHymn('h-sacr-num','h-sacr-nome'); syncPrint()">
+              oninput="saveDraft('h-sacr-num',this.value); lookupHymn('h-sacr-num','h-sacr-nome'); syncPrint()">
             <input type="text" id="h-sacr-nome" class="hymn-name" readonly placeholder="Nome do hino">
           </div>
         </div>
@@ -632,11 +682,11 @@ body {
       <div class="field-row">
         <div class="field">
           <label>Bênção do Pão</label>
-          <input type="text" id="bencao-pao" placeholder="Nome" oninput="syncPrint()">
+          <input type="text" id="bencao-pao" placeholder="Nome" oninput="saveDraft('bencao-pao',this.value); syncPrint()">
         </div>
         <div class="field">
           <label>Bênção da Água</label>
-          <input type="text" id="bencao-agua" placeholder="Nome" oninput="syncPrint()">
+          <input type="text" id="bencao-agua" placeholder="Nome" oninput="saveDraft('bencao-agua',this.value); syncPrint()">
         </div>
       </div>
     </div>
@@ -646,6 +696,7 @@ body {
   <div class="card" id="card-8">
     <div class="card-header">
       <div class="card-header-left"><div class="num">8</div><h2>Mensagens</h2></div>
+      <button class="clear-section-btn" onclick="clearSectionDraft('8')" title="Limpar dados salvos desta seção do armazenamento local">🗑 Limpar dados</button>
     </div>
     <div class="card-body">
       <div class="mode-toggle">
@@ -658,13 +709,13 @@ body {
         <div class="field-row single">
           <div class="field">
             <label>Responsável pelo convite aos testemunhos</label>
-            <input type="text" id="convite-test" placeholder="Nome de quem dirige e convida" oninput="syncPrint()">
+            <input type="text" id="convite-test" placeholder="Nome de quem dirige e convida" oninput="saveDraft('convite-test',this.value); syncPrint()">
           </div>
         </div>
         <div class="field-row single">
           <div class="field">
             <label>Observações</label>
-            <textarea id="obs-test" rows="3" placeholder="Observações gerais..." oninput="syncPrint()"></textarea>
+            <textarea id="obs-test" rows="3" placeholder="Observações gerais..." oninput="saveDraft('obs-test',this.value); syncPrint()"></textarea>
           </div>
         </div>
       </div>
@@ -684,11 +735,11 @@ body {
         <div class="field-row" style="margin-top:14px">
           <div class="field">
             <label>Nº Musical Especial — Responsável</label>
-            <input type="text" id="num-mus-resp" placeholder="Nome" oninput="syncPrint()">
+            <input type="text" id="num-mus-resp" placeholder="Nome" oninput="saveDraft('num-mus-resp',this.value); syncPrint()">
           </div>
           <div class="field">
             <label>Título / Peça</label>
-            <input type="text" id="num-mus-titulo" placeholder="Título da apresentação" oninput="syncPrint()">
+            <input type="text" id="num-mus-titulo" placeholder="Título da apresentação" oninput="saveDraft('num-mus-titulo',this.value); syncPrint()">
           </div>
         </div>
       </div>
@@ -699,6 +750,7 @@ body {
   <div class="card" id="card-9">
     <div class="card-header">
       <div class="card-header-left"><div class="num">9</div><h2>Encerramento</h2></div>
+      <button class="clear-section-btn" onclick="clearSectionDraft('9')" title="Limpar dados salvos desta seção do armazenamento local">🗑 Limpar dados</button>
     </div>
     <div class="card-body">
       <div class="field-row">
@@ -706,13 +758,13 @@ body {
           <label>Hino de Encerramento</label>
           <div class="hymn-group">
             <input type="number" id="h-enc-num" placeholder="Nº" min="1" max="1210"
-              oninput="lookupHymn('h-enc-num','h-enc-nome'); syncPrint()">
+              oninput="saveDraft('h-enc-num',this.value); lookupHymn('h-enc-num','h-enc-nome'); syncPrint()">
             <input type="text" id="h-enc-nome" class="hymn-name" readonly placeholder="Nome do hino">
           </div>
         </div>
         <div class="field">
           <label>Oração de Encerramento</label>
-          <input type="text" id="oracao-enc" placeholder="Nome do irmão/irmã" oninput="syncPrint()">
+          <input type="text" id="oracao-enc" placeholder="Nome do irmão/irmã" oninput="saveDraft('oracao-enc',this.value); syncPrint()">
         </div>
       </div>
     </div>
@@ -1004,14 +1056,84 @@ function lookupHymn(numId, nameId) {
   }
 }
 
-/* ─── MEMORY (localStorage) ─────────────────────── */
-const MEMORY_FIELDS = ['regente','pianista'];
+/* ─── DRAFT (localStorage — rascunho da ata) ────── */
+const DRAFT_KEY = 'ramo_ata_draft';
+
+// Fields grouped by section for the per-section "Limpar dados" buttons
+const SECTION_DRAFT_FIELDS = {
+  '1': ['data','frequencia','presidida','presidida-outro','dirigida','dirigida-outro','regente','pianista'],
+  '2': ['h-aber-num','oracao1','anuncios'],
+  '7': ['h-sacr-num','bencao-pao','bencao-agua'],
+  '8': ['convite-test','obs-test','num-mus-resp','num-mus-titulo'],
+  '9': ['h-enc-num','oracao-enc']
+};
+
+function saveDraft(field, value) {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+    draft[field] = value;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+    if (!Object.keys(draft).length) return;
+    Object.entries(draft).forEach(([field, value]) => {
+      const el = document.getElementById(field);
+      if (el && value !== undefined) el.value = value;
+    });
+    // Re-trigger hymn lookups so the name fields are populated
+    if (draft['h-aber-num']) lookupHymn('h-aber-num','h-aber-nome');
+    if (draft['h-sacr-num']) lookupHymn('h-sacr-num','h-sacr-nome');
+    if (draft['h-enc-num'])  lookupHymn('h-enc-num','h-enc-nome');
+    // Restore conditional "outro" field visibility
+    handleOtro('presidida');
+    handleOtro('dirigida');
+    // Show remembered badge for persistent fields loaded from draft
+    ['regente','pianista'].forEach(f => {
+      if (draft[f]) {
+        const badge = document.getElementById('badge-' + f);
+        if (badge) badge.textContent = '↑ Lembrado da última reunião';
+      }
+    });
+  } catch(e) {}
+}
+
+// Clears only the draft keys for a given section (does NOT touch the current UI)
+function clearSectionDraft(sectionId) {
+  try {
+    const fields = SECTION_DRAFT_FIELDS[sectionId] || [];
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+    fields.forEach(f => delete draft[f]);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    showToast('Dados salvos desta seção foram apagados do armazenamento local.');
+  } catch(e) {}
+}
+
+function showToast(msg) {
+  let t = document.getElementById('app-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'app-toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), 2800);
+}
+
+/* ─── MEMORY (localStorage — pianista/regente) ───── */
+// Permanent memory: survives global reset so pianista/regente persist across meetings
 const MEM_KEY = 'ramo_imperatriz_memory';
 
 function loadMemory() {
   try {
     const saved = JSON.parse(localStorage.getItem(MEM_KEY) || '{}');
-    MEMORY_FIELDS.forEach(f => {
+    ['regente','pianista'].forEach(f => {
       if (saved[f]) {
         const el = document.getElementById(f);
         if (el && el.value === '') {
@@ -1023,6 +1145,7 @@ function loadMemory() {
     });
   } catch(e) {}
 }
+
 function saveMemory(field, value) {
   try {
     const saved = JSON.parse(localStorage.getItem(MEM_KEY) || '{}');
@@ -1212,6 +1335,8 @@ function printDoc() {
 /* ─── RESET ─────────────────────────────────────── */
 function resetForm() {
   if (!confirm('Limpar todos os campos desta ata?')) return;
+  // Apaga o rascunho completo do armazenamento local
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
   document.querySelectorAll(
     '.form-wrap input:not(.hymn-name):not([type=checkbox]), .form-wrap select, .form-wrap textarea'
   ).forEach(el => { el.value = ''; });
@@ -1254,6 +1379,7 @@ addRow('body-conf',   COL_CONF);
 addRow('body-bencao', COL_BENCAO);
 addRow('body-disc',   COL_DISC);
 
+loadDraft();
 loadMemory();
 syncPrint();
 </script>
