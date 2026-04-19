@@ -994,6 +994,12 @@ body {
 .save-indicator[data-status="saved"]  { background: #16a34a; opacity: 1; }
 .save-indicator[data-status="error"]  { background: #dc2626; opacity: 1; }
 
+@media print {
+  .save-indicator,
+  .toast-notification,
+  .toast { display: none !important; }
+}
+
 .toast-notification {
   position: fixed;
   bottom: 24px;

@@ -25,6 +25,56 @@ function speakerLogRef(unitId) {
 }
 
 /**
+ * Firestore does not support nested arrays (array of arrays). The dynamic
+ * tables in the form store rows as 2D arrays (e.g. `[[col0, col1, col2], ...]`).
+ * These helpers convert every `rows*` field to/from an array of objects
+ * keyed by column index (`[{c0, c1, c2}, ...]`) at the Firestore boundary,
+ * keeping the in-memory shape unchanged for the UI.
+ */
+const ROW_FIELDS = ['rowsApoios', 'rowsOrd', 'rowsConf', 'rowsBencao', 'rowsDisc'];
+
+function rowsToObjects(rows) {
+  if (!Array.isArray(rows)) return [];
+  return rows.map((r) => {
+    const arr = Array.isArray(r) ? r : [];
+    const obj = {};
+    for (let i = 0; i < arr.length; i += 1) obj[`c${i}`] = arr[i] ?? '';
+    return obj;
+  });
+}
+
+function rowsToArrays(rows) {
+  if (!Array.isArray(rows)) return [];
+  return rows.map((r) => {
+    if (Array.isArray(r)) return r;
+    if (r && typeof r === 'object') {
+      const keys = Object.keys(r)
+        .filter((k) => /^c\d+$/.test(k))
+        .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+      return keys.map((k) => r[k] ?? '');
+    }
+    return [];
+  });
+}
+
+function serializeAtaForFirestore(data) {
+  const out = { ...data };
+  for (const key of ROW_FIELDS) {
+    if (out[key] !== undefined) out[key] = rowsToObjects(out[key]);
+  }
+  return out;
+}
+
+function deserializeAtaFromFirestore(data) {
+  if (!data || typeof data !== 'object') return data;
+  const out = { ...data };
+  for (const key of ROW_FIELDS) {
+    if (out[key] !== undefined) out[key] = rowsToArrays(out[key]);
+  }
+  return out;
+}
+
+/**
  * Returns the current active draft for a unit, or null.
  * Policy: at most one draft at a time per unit.
  */
@@ -38,7 +88,7 @@ export async function getCurrentDraft(unitId) {
   const snap = await getDocs(q);
   if (snap.empty) return null;
   const d = snap.docs[0];
-  return { id: d.id, ...d.data() };
+  return { id: d.id, ...deserializeAtaFromFirestore(d.data()) };
 }
 
 /**
@@ -50,7 +100,7 @@ export async function getCurrentDraft(unitId) {
  */
 export async function saveDraft(unitId, data, existingId = null) {
   const payload = {
-    ...data,
+    ...serializeAtaForFirestore(data),
     status: 'draft',
     updatedAt: serverTimestamp(),
   };
@@ -67,7 +117,9 @@ export async function saveDraft(unitId, data, existingId = null) {
 
 export async function getAta(unitId, ataId) {
   const snap = await getDoc(doc(atasRef(unitId), ataId));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  return snap.exists()
+    ? { id: snap.id, ...deserializeAtaFromFirestore(snap.data()) }
+    : null;
 }
 
 /**
@@ -81,7 +133,7 @@ export async function getAtaHistory(unitId, { max = 200 } = {}) {
     limit(max),
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...deserializeAtaFromFirestore(d.data()) }));
 }
 
 /**
