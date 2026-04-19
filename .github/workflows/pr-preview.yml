@@ -33,8 +33,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check Firebase secret
+        id: firebase
+        env:
+          FB_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SACRAMENTALMEETING }}
+        run: |
+          if [ -n "$FB_SA" ]; then
+            echo "has_secret=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_secret=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::FIREBASE_SERVICE_ACCOUNT_SACRAMENTALMEETING not configured; skipping preview deploy."
+          fi
+
       - name: Deploy to Firebase Hosting preview channel
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        if: steps.firebase.outputs.has_secret == 'true' && github.event.pull_request.head.repo.full_name == github.repository
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

@@ -31,6 +31,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check Firebase secret
+        id: firebase
+        env:
+          FB_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SACRAMENTALMEETING }}
+        run: |
+          if [ -n "$FB_SA" ]; then
+            echo "has_secret=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_secret=false" >> "$GITHUB_OUTPUT"
+            echo "::error::FIREBASE_SERVICE_ACCOUNT_SACRAMENTALMEETING is not configured in GitHub Secrets; cannot deploy."
+            exit 1
+          fi
+
       - name: Deploy to Firebase Hosting (live)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
