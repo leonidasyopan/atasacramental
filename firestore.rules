@@ -1,0 +1,126 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'leonidasyopan@gmail.com' ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+        )
+      );
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userUnitId() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? getUserData().unitId
+        : null;
+    }
+
+    function belongsToUnit(unitId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().unitId == unitId;
+    }
+
+    // ---- allowedUsers/{emailLower} ----
+    // Signed-in users may read their own allowlist record (used at login).
+    // Only superadmin may list or modify.
+    match /allowedUsers/{emailDoc} {
+      allow get: if isSignedIn() && request.auth.token.email.lower() == emailDoc;
+      allow get, list, create, update, delete: if isSuperAdmin();
+    }
+
+    // ---- users/{uid} ----
+    // Each user can read their own profile and upsert it on first login,
+    // but `role` and `unitId` must always match the authoritative values from
+    // the `allowedUsers` record (which is only writable by superadmin). This
+    // prevents a user from self-assigning role == 'superadmin' via a direct
+    // Firestore write from the browser. Superadmin bypasses these constraints.
+    function allowedUserDataFor(email) {
+      return get(/databases/$(database)/documents/allowedUsers/$(email)).data;
+    }
+    function matchesAllowedUser() {
+      return exists(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email.lower()))
+        && request.resource.data.role == allowedUserDataFor(request.auth.token.email.lower()).role
+        && request.resource.data.unitId == allowedUserDataFor(request.auth.token.email.lower()).unitId;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+
+      // Self-create: role and unitId must come from the allowedUsers doc
+      // (superadmin email is allowed as an emergency bootstrap).
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && (
+          request.auth.token.email == 'leonidasyopan@gmail.com'
+          || matchesAllowedUser()
+        );
+
+      // Self-update: role and unitId may not change (unchanged from existing doc
+      // or re-read from allowedUsers on refresh).
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && (
+          request.auth.token.email == 'leonidasyopan@gmail.com'
+          || matchesAllowedUser()
+          || (
+            request.resource.data.role == resource.data.role
+            && request.resource.data.unitId == resource.data.unitId
+          )
+        );
+
+      allow read, write, list: if isSuperAdmin();
+    }
+
+    // ---- units/{unitId} ----
+    match /units/{unitId} {
+      allow read: if belongsToUnit(unitId) || isSuperAdmin();
+      allow write: if isSuperAdmin();
+
+      match /leaders/{leaderId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if isSuperAdmin();
+      }
+
+      match /atas/{ataId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /members/{memberId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if belongsToUnit(unitId) || isSuperAdmin();
+      }
+
+      match /speakerLog/{logId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /discourseInvites/{inviteId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /settings/{doc} {
+        allow read, write: if belongsToUnit(unitId) || isSuperAdmin();
+      }
+    }
+  }
+}
