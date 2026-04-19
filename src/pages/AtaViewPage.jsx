@@ -51,10 +51,34 @@ export default function AtaViewPage() {
       />
       <div className="app-content">
         <div className="form-wrap">
-          <div style={{ marginBottom: 12 }}>
+          <div
+            style={{
+              marginBottom: 12,
+              display: 'flex',
+              gap: 8,
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+            }}
+          >
             <button className="btn btn-ghost" onClick={() => navigate('/historico')}>
               ← Voltar ao histórico
             </button>
+            {ata && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => window.print()}
+                >
+                  Imprimir / PDF
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate(`/historico/${id}/editar`)}
+                >
+                  Editar
+                </button>
+              </div>
+            )}
           </div>
           {loading && <p>Carregando...</p>}
           {!loading && !ata && <p>Ata não encontrada.</p>}

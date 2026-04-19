@@ -36,6 +36,7 @@ export default function App() {
         <Route path="/" element={<AtaFormPage />} />
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<AtaViewPage />} />
+        <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
       </Route>
 
       <Route element={<ProtectedRoute requireSuperAdmin />}>

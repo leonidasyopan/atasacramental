@@ -180,7 +180,7 @@ export async function deleteAta(unitId, ataId) {
 
 export async function updateAtaFields(unitId, ataId, data) {
   await updateDoc(doc(atasRef(unitId), ataId), {
-    ...data,
+    ...serializeAtaForFirestore(data),
     updatedAt: serverTimestamp(),
   });
 }
