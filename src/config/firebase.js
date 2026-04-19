@@ -1,6 +1,10 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBJDVSlfrjeG-YDO7gVpGQ08g2dlFOqyzQ',
@@ -16,12 +20,12 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 auth.languageCode = 'pt';
 
-export const db = getFirestore(app);
-
 // Offline cache — reduces Firestore reads (cost-effective) and enables offline use.
-// Fails silently if opened in multiple tabs or unsupported browsers.
-enableIndexedDbPersistence(db).catch(() => {
-  // Expected failure modes: multi-tab, unsupported browser. Non-fatal.
+// Uses the non-deprecated persistent cache API with multi-tab support.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
 });
 
 export default app;
