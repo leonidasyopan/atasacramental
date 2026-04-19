@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import AppHeader from '../components/layout/AppHeader';
 import SectionCard from '../components/ata/SectionCard';
 import DynamicTable from '../components/shared/DynamicTable';
@@ -17,9 +18,11 @@ import { useUnit } from '../hooks/useUnit';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useToast } from '../contexts/ToastContext';
 import {
+  getAta,
   getCurrentDraft,
   saveDraft,
   finalizarAta,
+  updateAtaFields,
 } from '../services/atas';
 import {
   getUnitSettings,
@@ -66,10 +69,13 @@ const DEFAULT_ATA = {
 const LS_DRAFT_KEY = (unitId) => `ata:draft:${unitId || 'none'}`;
 const LS_FONT_KEY = 'ata:fontSizePt';
 
-export default function AtaFormPage() {
+export default function AtaFormPage({ editMode = false }) {
   const { firebaseUser } = useAuth();
   const { unitId, unit, unitType, loading: unitLoading } = useUnit();
   const { showToast } = useToast();
+  const { id: routeAtaId } = useParams();
+  const navigate = useNavigate();
+  const isEditing = editMode && !!routeAtaId;
 
   const [ata, setAta] = useState(DEFAULT_ATA);
   const [ataId, setAtaId] = useState(null);
@@ -79,9 +85,10 @@ export default function AtaFormPage() {
     return Number.isFinite(stored) && stored >= 6 && stored <= 14 ? stored : 8;
   });
   const [finalizing, setFinalizing] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
   const hasLoaded = useRef(false);
 
-  // Load draft + memory once when unit is available
+  // Load draft (or finalized ata when editing) once unit is available.
   useEffect(() => {
     if (!unitId || unitLoading) return;
     if (hasLoaded.current) return;
@@ -90,6 +97,18 @@ export default function AtaFormPage() {
     (async () => {
       setLoading(true);
       try {
+        if (isEditing) {
+          const doc = await getAta(unitId, routeAtaId);
+          if (!doc) {
+            showToast('Ata não encontrada.');
+            navigate('/historico', { replace: true });
+            return;
+          }
+          setAta({ ...DEFAULT_ATA, ...doc });
+          setAtaId(doc.id);
+          return;
+        }
+
         // Try cached draft first for instant render
         const cached = localStorage.getItem(LS_DRAFT_KEY(unitId));
         if (cached) {
@@ -107,13 +126,9 @@ export default function AtaFormPage() {
         ]);
 
         if (draft) {
-          // `draft` is a flat object of Firestore doc fields (including `data`
-          // which is the meeting ISO date string). Spread the whole draft,
-          // not `draft.data`.
           setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...draft }));
           setAtaId(draft.id);
         } else {
-          // Preload Regente/Pianista memory into a fresh ata if missing
           setAta((prev) => ({
             ...prev,
             regente: prev.regente || memory?.regente || '',
@@ -121,12 +136,13 @@ export default function AtaFormPage() {
           }));
         }
       } catch (e) {
-        console.error('Failed to load draft:', e);
+        console.error('Failed to load ata:', e);
+        showToast('Erro ao carregar ata.');
       } finally {
         setLoading(false);
       }
     })();
-  }, [unitId, unitLoading]);
+  }, [unitId, unitLoading, isEditing, routeAtaId, navigate, showToast]);
 
   // Persist memory (regente/pianista) on change — debounced via useAutoSave.
   const [memoryValue, setMemoryValue] = useState({ regente: '', pianista: '' });
@@ -142,10 +158,11 @@ export default function AtaFormPage() {
       await saveUnitSettings(unitId, val);
     },
     delay: 1500,
-    enabled: !!unitId && !loading,
+    enabled: !!unitId && !loading && !isEditing,
   });
 
-  // Auto-save draft to Firestore (debounced) + localStorage cache instant
+  // Auto-save draft to Firestore (debounced) + localStorage cache instant.
+  // Disabled while editing a finalized ata — edits save explicitly via button.
   const autoSaveHandler = useCallback(
     async (value) => {
       if (!unitId) return;
@@ -160,7 +177,7 @@ export default function AtaFormPage() {
     onSave: autoSaveHandler,
     delay: 1500,
     localStorageKey: unitId ? LS_DRAFT_KEY(unitId) : null,
-    enabled: !!unitId && !loading,
+    enabled: !!unitId && !loading && !isEditing,
   });
 
   function update(patch) {
@@ -243,10 +260,37 @@ export default function AtaFormPage() {
     }
   }
 
+  async function onSaveEdit() {
+    if (!unitId || !ataId) return;
+    setSavingEdit(true);
+    try {
+      const fields = { ...ata };
+      delete fields.id;
+      await updateAtaFields(unitId, ataId, {
+        ...fields,
+        editedAt: new Date().toISOString(),
+        editedBy: firebaseUser?.uid || null,
+      });
+      showToast('Alterações salvas.');
+      navigate(`/historico/${ataId}`);
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao salvar alterações.');
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
   const ataForPrint = useMemo(
     () => ({ ...ata, unitType }),
     [ata, unitType],
   );
+
+  const saveIndicatorStatus = isEditing
+    ? savingEdit
+      ? 'saving'
+      : 'idle'
+    : saveStatus;
 
   if (loading || unitLoading) {
     return (
@@ -272,12 +316,46 @@ export default function AtaFormPage() {
       />
 
       <div className="app-content">
-        <div className="save-indicator" data-status={saveStatus}>
-          {saveStatus === 'saving' && 'Salvando...'}
-          {saveStatus === 'saved' && 'Salvo'}
-          {saveStatus === 'error' && 'Erro ao salvar'}
-          {saveStatus === 'idle' && ataId && 'Rascunho'}
+        <div className="save-indicator" data-status={saveIndicatorStatus}>
+          {!isEditing && saveStatus === 'saving' && 'Salvando...'}
+          {!isEditing && saveStatus === 'saved' && 'Salvo'}
+          {!isEditing && saveStatus === 'error' && 'Erro ao salvar'}
+          {!isEditing && saveStatus === 'idle' && ataId && 'Rascunho'}
+          {isEditing && savingEdit && 'Salvando...'}
         </div>
+
+        {isEditing && (
+          <div className="form-wrap" style={{ marginBottom: 0 }}>
+            <div
+              className="edit-banner"
+              style={{
+                background: '#fef3c7',
+                border: '1px solid #fcd34d',
+                color: '#78350f',
+                padding: '10px 14px',
+                borderRadius: 8,
+                marginBottom: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span>
+                Editando ata finalizada. As alterações serão registradas quando
+                você clicar em <strong>Salvar alterações</strong>.
+              </span>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => navigate(`/historico/${ataId}`)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="form-wrap">
           {/* 1. Informações Gerais */}
@@ -635,14 +713,34 @@ export default function AtaFormPage() {
             className="form-actions"
             style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 }}
           >
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={!ataId || finalizing}
-              onClick={onFinalizar}
-            >
-              {finalizing ? 'Finalizando...' : 'Finalizar Ata'}
-            </button>
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => navigate(`/historico/${ataId}`)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={savingEdit}
+                  onClick={onSaveEdit}
+                >
+                  {savingEdit ? 'Salvando...' : 'Salvar alterações'}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!ataId || finalizing}
+                onClick={onFinalizar}
+              >
+                {finalizing ? 'Finalizando...' : 'Finalizar Ata'}
+              </button>
+            )}
           </div>
         </div>
       </div>
