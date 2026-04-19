@@ -43,10 +43,45 @@ service cloud.firestore {
     }
 
     // ---- users/{uid} ----
-    // Each user can read/upsert their own profile; superadmin can read/write all.
+    // Each user can read their own profile and upsert it on first login,
+    // but `role` and `unitId` must always match the authoritative values from
+    // the `allowedUsers` record (which is only writable by superadmin). This
+    // prevents a user from self-assigning role == 'superadmin' via a direct
+    // Firestore write from the browser. Superadmin bypasses these constraints.
+    function allowedUserDataFor(email) {
+      return get(/databases/$(database)/documents/allowedUsers/$(email)).data;
+    }
+    function matchesAllowedUser() {
+      return exists(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email.lower()))
+        && request.resource.data.role == allowedUserDataFor(request.auth.token.email.lower()).role
+        && request.resource.data.unitId == allowedUserDataFor(request.auth.token.email.lower()).unitId;
+    }
+
     match /users/{userId} {
       allow read: if isSignedIn() && request.auth.uid == userId;
-      allow create, update: if isSignedIn() && request.auth.uid == userId;
+
+      // Self-create: role and unitId must come from the allowedUsers doc
+      // (superadmin email is allowed as an emergency bootstrap).
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && (
+          request.auth.token.email == 'leonidasyopan@gmail.com'
+          || matchesAllowedUser()
+        );
+
+      // Self-update: role and unitId may not change (unchanged from existing doc
+      // or re-read from allowedUsers on refresh).
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && (
+          request.auth.token.email == 'leonidasyopan@gmail.com'
+          || matchesAllowedUser()
+          || (
+            request.resource.data.role == resource.data.role
+            && request.resource.data.unitId == resource.data.unitId
+          )
+        );
+
       allow read, write, list: if isSuperAdmin();
     }
 

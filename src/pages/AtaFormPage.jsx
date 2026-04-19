@@ -107,7 +107,10 @@ export default function AtaFormPage() {
         ]);
 
         if (draft) {
-          setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...draft.data }));
+          // `draft` is a flat object of Firestore doc fields (including `data`
+          // which is the meeting ISO date string). Spread the whole draft,
+          // not `draft.data`.
+          setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...draft }));
           setAtaId(draft.id);
         } else {
           // Preload Regente/Pianista memory into a fresh ata if missing

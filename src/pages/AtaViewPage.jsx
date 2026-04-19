@@ -38,7 +38,7 @@ export default function AtaViewPage() {
   }
 
   const ataForPrint = useMemo(
-    () => (ata ? { ...(ata.data || ata), unitType } : null),
+    () => (ata ? { ...ata, unitType } : null),
     [ata, unitType],
   );
 
