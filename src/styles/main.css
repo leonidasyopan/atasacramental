@@ -973,3 +973,108 @@ body {
 @media print {
   .cd-overlay { display: none !important; }
 }
+
+/* ============ React additions: save indicator, toast, admin, table helpers ============ */
+.save-indicator {
+  position: fixed;
+  top: 74px;
+  right: 16px;
+  z-index: 40;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+  transition: background 160ms ease, opacity 160ms ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.save-indicator[data-status="saving"] { background: #6b7280; opacity: 1; }
+.save-indicator[data-status="saved"]  { background: #16a34a; opacity: 1; }
+.save-indicator[data-status="error"]  { background: #dc2626; opacity: 1; }
+
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: .9rem;
+  z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0,0,0,.25);
+}
+
+/* dynamic table — remove row button + chamado picker */
+.row-del-btn {
+  background: transparent;
+  border: none;
+  color: #b91c1c;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.row-del-btn:hover { background: #fee2e2; }
+
+.chamado-pick-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .85rem;
+  color: var(--blue, #1B3A6B);
+}
+.chamado-pick-btn:hover { background: rgba(27,58,107,.08); }
+.dyn-table td { position: relative; }
+
+/* chamados dialog — category pills + list items */
+.cd-cat-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: .8rem;
+  cursor: pointer;
+  color: #374151;
+}
+.cd-cat-btn.active { background: var(--blue, #1B3A6B); color: #fff; border-color: var(--blue, #1B3A6B); }
+.cd-cat-btn:hover:not(.active) { background: #e5e7eb; }
+
+.cd-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.cd-item:hover { background: #f8fafc; border-color: var(--blue, #1B3A6B); }
+.cd-item-name { font-weight: 500; color: #111827; }
+.cd-item-cat { font-size: .75rem; color: #6b7280; }
+
+/* form actions row */
+.form-actions .btn { min-width: 160px; }
+
+/* nav-links container */
+.nav-links { gap: 4px; flex-shrink: 0; }
+
+/* disabled section visual hint */
+.card.disabled-section .card-body {
+  opacity: .55;
+  pointer-events: none;
+}
+

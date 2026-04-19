@@ -1,5 +1,19 @@
 # Firebase cache
 .firebase/
+firebase-debug.log
+firebase-debug.*.log
+serviceAccountKey.json
+firebase-adminsdk*.json
+
+# Node / Vite
+node_modules
+dist
+coverage
+
+# Environment
+.env
+.env.local
+.env.*.local
 
 # OS
 .DS_Store
@@ -9,6 +23,5 @@ Thumbs.db
 *.swp
 *.swo
 *~
-
-# Dev artifacts
-CURRENT_TAKS.md
+.vscode
+.idea

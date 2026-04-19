@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'leonidasyopan@gmail.com' ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+        )
+      );
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userUnitId() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? getUserData().unitId
+        : null;
+    }
+
+    function belongsToUnit(unitId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().unitId == unitId;
+    }
+
+    // ---- allowedUsers/{emailLower} ----
+    // Signed-in users may read their own allowlist record (used at login).
+    // Only superadmin may list or modify.
+    match /allowedUsers/{emailDoc} {
+      allow get: if isSignedIn() && request.auth.token.email.lower() == emailDoc;
+      allow get, list, create, update, delete: if isSuperAdmin();
+    }
+
+    // ---- users/{uid} ----
+    // Each user can read/upsert their own profile; superadmin can read/write all.
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow read, write, list: if isSuperAdmin();
+    }
+
+    // ---- units/{unitId} ----
+    match /units/{unitId} {
+      allow read: if belongsToUnit(unitId) || isSuperAdmin();
+      allow write: if isSuperAdmin();
+
+      match /leaders/{leaderId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if isSuperAdmin();
+      }
+
+      match /atas/{ataId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /members/{memberId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if belongsToUnit(unitId) || isSuperAdmin();
+      }
+
+      match /speakerLog/{logId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /discourseInvites/{inviteId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /settings/{doc} {
+        allow read, write: if belongsToUnit(unitId) || isSuperAdmin();
+      }
+    }
+  }
+}
