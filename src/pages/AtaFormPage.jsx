@@ -272,7 +272,7 @@ export default function AtaFormPage({ editMode = false }) {
         editedBy: firebaseUser?.uid || null,
       });
       showToast('Alterações salvas.');
-      navigate(`/historico/${ataId}`);
+      navigate("/historico");
     } catch (e) {
       console.error(e);
       showToast('Erro ao salvar alterações.');
@@ -349,7 +349,7 @@ export default function AtaFormPage({ editMode = false }) {
               <button
                 type="button"
                 className="btn btn-ghost"
-                onClick={() => navigate(`/historico/${ataId}`)}
+                onClick={() => navigate("/historico")}
               >
                 Cancelar
               </button>
@@ -718,7 +718,7 @@ export default function AtaFormPage({ editMode = false }) {
                 <button
                   type="button"
                   className="btn btn-ghost"
-                  onClick={() => navigate(`/historico/${ataId}`)}
+                  onClick={() => navigate("/historico")}
                 >
                   Cancelar
                 </button>
