@@ -75,8 +75,11 @@ export default function AtaHistoryPage() {
                           <td>{dir || ''}</td>
                           <td>{a.frequencia || ''}</td>
                           <td>
-                            <Link className="btn btn-ghost btn-sm" to={`/historico/${a.id}`}>
-                              Ver
+                            <Link
+                              className="btn btn-primary btn-sm"
+                              to={`/historico/${a.id}/editar`}
+                            >
+                              Editar
                             </Link>
                           </td>
                         </tr>
