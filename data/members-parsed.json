@@ -1,0 +1,2698 @@
+{
+  "summary": {
+    "source": "/home/ubuntu/attachments/4a3c4dde-aa66-48a6-8ecc-2031f4145fdb/Familias-do-Ramo-Abril-2026.pdf",
+    "parsedAt": "2026-04-20T19:45:56.546Z",
+    "householdCount": 67,
+    "memberCount": 149,
+    "needsReviewCount": 0
+  },
+  "households": [
+    {
+      "householdIndex": 1,
+      "familyName": "Alcântara",
+      "displayName": "Alcântara, Mariele Silva",
+      "headNames": [
+        "Mariele Silva"
+      ],
+      "phone": "(48) 99947-3969",
+      "address": "Servidão Antônio Germano Schurhaus | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Mariele Silva Alcântara",
+          "givenName": "Mariele Silva",
+          "familyName": "Alcântara",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 2,
+      "familyName": "Alves",
+      "displayName": "Alves, Danilo Simões",
+      "headNames": [
+        "Danilo Simões"
+      ],
+      "phone": "(47) 98872-6856",
+      "address": "Rua do Ipê, 193 | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Danilo Simões Alves",
+          "givenName": "Danilo Simões",
+          "familyName": "Alves",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 3,
+      "familyName": "Amorim",
+      "displayName": "Amorim, José Eduardo de & Elisandra Concelina Martins de",
+      "headNames": [
+        "José Eduardo de",
+        "Elisandra Concelina Martins de"
+      ],
+      "phone": "(48) 93300-7316",
+      "address": "R Prof. Sávio João Broering, 45 - Centro | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "José Eduardo de Amorim",
+          "givenName": "José Eduardo de",
+          "familyName": "Amorim",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Elisandra Concelina Martins de Amorim",
+          "givenName": "Elisandra Concelina Martins de",
+          "familyName": "Amorim",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Eduardo Nathan de Amorim",
+          "givenName": "Eduardo Nathan de",
+          "familyName": "Amorim",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Daniel Martins de Amorim",
+          "givenName": "Daniel Martins de",
+          "familyName": "Amorim",
+          "gender": "male",
+          "age": 6,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 4,
+      "familyName": "Barbosa",
+      "displayName": "Barbosa, Bruno Henrique Barbosa & Natalia Da Silva",
+      "headNames": [
+        "Bruno Henrique Barbosa",
+        "Natalia Da Silva"
+      ],
+      "phone": "(44) 99869-0269",
+      "address": "Reta dos Pilões, S/N - | Bairro Sul do Rio | 88140000 Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Bruno Henrique Barbosa Silva",
+          "givenName": "Bruno Henrique Barbosa",
+          "familyName": "Silva",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Natalia Da Silva Costa",
+          "givenName": "Natalia Da Silva",
+          "familyName": "Costa",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 5,
+      "familyName": "Bastos",
+      "displayName": "Bastos, Paulo Víctor Carvalho",
+      "headNames": [
+        "Paulo Víctor Carvalho"
+      ],
+      "phone": "(91) 98246-8099",
+      "address": "Rua Mansur Elías, 303 | Centro | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Paulo Víctor Carvalho Bastos",
+          "givenName": "Paulo Víctor Carvalho",
+          "familyName": "Bastos",
+          "gender": "male",
+          "age": 15,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Izabel Xavier Bastos",
+          "givenName": "Izabel Xavier",
+          "familyName": "Bastos",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 6,
+      "familyName": "Beppelr",
+      "displayName": "Beppelr, Rafael Padilha",
+      "headNames": [
+        "Rafael Padilha"
+      ],
+      "phone": null,
+      "address": "Sem endereço exato | 88152-000 Águas Mornas - SC",
+      "members": [
+        {
+          "fullName": "Rafael Padilha Beppelr",
+          "givenName": "Rafael Padilha",
+          "familyName": "Beppelr",
+          "gender": "male",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 7,
+      "familyName": "Búrigo",
+      "displayName": "Búrigo, Tatiane",
+      "headNames": [
+        "Tatiane"
+      ],
+      "phone": "(48) 99104-3665",
+      "address": "R. Santana, 5115 | Centro - Apto 202 | Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Tatiane Búrigo",
+          "givenName": "Tatiane",
+          "familyName": "Búrigo",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 8,
+      "familyName": "Caetano",
+      "displayName": "Caetano, Sergio & Marlete",
+      "headNames": [
+        "Sergio",
+        "Marlete"
+      ],
+      "phone": null,
+      "address": "R: santana 4897 Santo Amaro da Imperatri | 88140-000 Santo Amaro da Imperatris - SC",
+      "members": [
+        {
+          "fullName": "Marlete Caetano",
+          "givenName": "Marlete",
+          "familyName": "Caetano",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 9,
+      "familyName": "Campos",
+      "displayName": "Campos, Avanir Juvenal & Maria Anete Veneski",
+      "headNames": [
+        "Avanir Juvenal",
+        "Maria Anete Veneski"
+      ],
+      "phone": "4891064478",
+      "address": "Do Ipê, 397 | 88740-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Avanir Juvenal Campos",
+          "givenName": "Avanir Juvenal",
+          "familyName": "Campos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Maria Anete Veneski Campos",
+          "givenName": "Maria Anete Veneski",
+          "familyName": "Campos",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Lucas Veneski De Campos",
+          "givenName": "Lucas Veneski De",
+          "familyName": "Campos",
+          "gender": "male",
+          "age": 17,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Rafael Veneski De Campos",
+          "givenName": "Rafael Veneski De",
+          "familyName": "Campos",
+          "gender": "male",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 10,
+      "familyName": "Campos",
+      "displayName": "Campos, Gabriel Emanuel Piane",
+      "headNames": [
+        "Gabriel Emanuel Piane"
+      ],
+      "phone": null,
+      "address": "RUA MANSUR ELIAS 303 | 88140-000 SANTO AMARO DA IMPERATRIZ - SC",
+      "members": [
+        {
+          "fullName": "Gabriel Emanuel Piane Campos",
+          "givenName": "Gabriel Emanuel Piane",
+          "familyName": "Campos",
+          "gender": "male",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 11,
+      "familyName": "Carvalho",
+      "displayName": "Carvalho, Carla Nazaré Xavier",
+      "headNames": [
+        "Carla Nazaré Xavier"
+      ],
+      "phone": "(48) 98879-2141",
+      "address": "RUA PREFEITO JOSÉ KEHRIG 5575 | 88140-000 SANTO AMARO DA IMPERATRIZ - SC",
+      "members": [
+        {
+          "fullName": "Carla Nazaré Xavier Carvalho",
+          "givenName": "Carla Nazaré Xavier",
+          "familyName": "Carvalho",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Izadora Xavier Carvalho da Conceição",
+          "givenName": "Izadora Xavier Carvalho da",
+          "familyName": "Conceição",
+          "gender": "female",
+          "age": 10,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 12,
+      "familyName": "Carvalho",
+      "displayName": "Carvalho, Pablo Willame Xavier & Carla Beatriz Gonçalves Ferreira",
+      "headNames": [
+        "Pablo Willame Xavier",
+        "Carla Beatriz Gonçalves Ferreira"
+      ],
+      "phone": "(11) 97897-0018",
+      "address": "Rua do Ipê, 193 | São Francisco | 88140-000 Santo Amaro - SC",
+      "members": [
+        {
+          "fullName": "Pablo Willame Xavier Carvalho",
+          "givenName": "Pablo Willame Xavier",
+          "familyName": "Carvalho",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Carla Beatriz Gonçalves Ferreira Xavier",
+          "givenName": "Carla Beatriz Gonçalves Ferreira",
+          "familyName": "Xavier",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "José Lucas Ferreira Xavier",
+          "givenName": "José Lucas Ferreira",
+          "familyName": "Xavier",
+          "gender": "male",
+          "age": 3,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 13,
+      "familyName": "Conceição",
+      "displayName": "Conceição, Gabriel da & Aline Denise Corrêa da",
+      "headNames": [
+        "Gabriel da",
+        "Aline Denise Corrêa da"
+      ],
+      "phone": "(48) 98500-1010",
+      "address": "Estrada Geral Sítio de Dentro, S/N | Sítio de Dentro | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Gabriel da Conceição",
+          "givenName": "Gabriel da",
+          "familyName": "Conceição",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Aline Denise Corrêa da Conceição",
+          "givenName": "Aline Denise Corrêa da",
+          "familyName": "Conceição",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Miguel da Conceição",
+          "givenName": "Miguel da",
+          "familyName": "Conceição",
+          "gender": "male",
+          "age": 17,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Thiago da Conceição",
+          "givenName": "Thiago da",
+          "familyName": "Conceição",
+          "gender": "male",
+          "age": 12,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Gabrielly da Conceição",
+          "givenName": "Gabrielly da",
+          "familyName": "Conceição",
+          "gender": "female",
+          "age": 9,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "José da Conceição",
+          "givenName": "José da",
+          "familyName": "Conceição",
+          "gender": "male",
+          "age": 0,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 14,
+      "familyName": "Cordeiro",
+      "displayName": "Cordeiro, Carlos Alberto & Dilva Machado",
+      "headNames": [
+        "Carlos Alberto",
+        "Dilva Machado"
+      ],
+      "phone": "(48) 3252-0038",
+      "address": "Praça Principal, SN - | Proximo Delegacia de Polícia | São Bonifácio - SC",
+      "members": [
+        {
+          "fullName": "Carlos Alberto Cordeiro",
+          "givenName": "Carlos Alberto",
+          "familyName": "Cordeiro",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Dilva Machado Cordeiro",
+          "givenName": "Dilva Machado",
+          "familyName": "Cordeiro",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 15,
+      "familyName": "Costa",
+      "displayName": "Costa, Bruna Albuquerque",
+      "headNames": [
+        "Bruna Albuquerque"
+      ],
+      "phone": "(99) 99202-0028",
+      "address": "Rua Augusto Pedro Schmitz, 129 - | Sul do Rio | 88140-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Bruna Albuquerque Costa",
+          "givenName": "Bruna Albuquerque",
+          "familyName": "Costa",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 16,
+      "familyName": "Costa",
+      "displayName": "Costa, Rhaffizza Maura Gonçalves",
+      "headNames": [
+        "Rhaffizza Maura Gonçalves"
+      ],
+      "phone": "(48) 3245-2962",
+      "address": "Rua. Ip nº 28 Loteamento Tereza Cristina | 88140-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Rhaffizza Maura Gonçalves Costa",
+          "givenName": "Rhaffizza Maura Gonçalves",
+          "familyName": "Costa",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Deyvisson Luis Costa Brandão",
+          "givenName": "Deyvisson Luis Costa",
+          "familyName": "Brandão",
+          "gender": "male",
+          "age": 17,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Cristina Costa Brandão",
+          "givenName": "Cristina Costa",
+          "familyName": "Brandão",
+          "gender": "female",
+          "age": 16,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 17,
+      "familyName": "Ferreira",
+      "displayName": "Ferreira, Edson Francisco & Nélia Luiza Gomes Gonçalves",
+      "headNames": [
+        "Edson Francisco",
+        "Nélia Luiza Gomes Gonçalves"
+      ],
+      "phone": "(48) 99863-2450",
+      "address": "Rua do Ipê, 193 | São Francisco | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Edson Francisco Ferreira",
+          "givenName": "Edson Francisco",
+          "familyName": "Ferreira",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Nélia Luiza Gomes Gonçalves Ferreira",
+          "givenName": "Nélia Luiza Gomes Gonçalves",
+          "familyName": "Ferreira",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Rhayssa Luiza Gonçalves Ferreira",
+          "givenName": "Rhayssa Luiza Gonçalves",
+          "familyName": "Ferreira",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "John Gonçalves Ferreira",
+          "givenName": "John Gonçalves",
+          "familyName": "Ferreira",
+          "gender": "male",
+          "age": 7,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 18,
+      "familyName": "Garcia",
+      "displayName": "Garcia, Everton Fábio Pereira & Jenifer Gonçalves Machado",
+      "headNames": [
+        "Everton Fábio Pereira",
+        "Jenifer Gonçalves Machado"
+      ],
+      "phone": "(51) 98955-5240",
+      "address": "Estrada Geral | Rio das Pedras - S/N | 88475-000 Anitapolis - SC",
+      "members": [
+        {
+          "fullName": "Everton Fábio Pereira Garcia",
+          "givenName": "Everton Fábio Pereira",
+          "familyName": "Garcia",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Jenifer Gonçalves Machado Garcia",
+          "givenName": "Jenifer Gonçalves Machado",
+          "familyName": "Garcia",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Benjamin Garcia Machado",
+          "givenName": "Benjamin Garcia",
+          "familyName": "Machado",
+          "gender": "male",
+          "age": 5,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Cecília Garcia Machado",
+          "givenName": "Cecília Garcia",
+          "familyName": "Machado",
+          "gender": "female",
+          "age": 4,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Dominic Machado Garcia",
+          "givenName": "Dominic Machado",
+          "familyName": "Garcia",
+          "gender": "male",
+          "age": 2,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Estevan Machado Garcia",
+          "givenName": "Estevan Machado",
+          "familyName": "Garcia",
+          "gender": "male",
+          "age": 0,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 19,
+      "familyName": "Gerber",
+      "displayName": "Gerber, Juliano & Lourdes Marcondes de",
+      "headNames": [
+        "Juliano",
+        "Lourdes Marcondes de"
+      ],
+      "phone": "4999161225",
+      "address": "Desconhecido | Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Juliano Gerber",
+          "givenName": "Juliano",
+          "familyName": "Gerber",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Lourdes Marcondes de Castro",
+          "givenName": "Lourdes Marcondes de",
+          "familyName": "Castro",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Lucas Souza",
+          "givenName": "Lucas",
+          "familyName": "Souza",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 20,
+      "familyName": "Giordani",
+      "displayName": "Giordani, Arthur Bitencourt",
+      "headNames": [
+        "Arthur Bitencourt"
+      ],
+      "phone": "(51) 98540-2720",
+      "address": "R. Vicente Silveira, 208 | Centro - Santo Amaro da Imperatriz",
+      "members": [
+        {
+          "fullName": "Arthur Bitencourt Giordani",
+          "givenName": "Arthur Bitencourt",
+          "familyName": "Giordani",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 21,
+      "familyName": "Joseph",
+      "displayName": "Joseph, Wadner",
+      "headNames": [
+        "Wadner"
+      ],
+      "phone": null,
+      "address": "Santana, 101 Santa | Santa Carolina | Santo Amaro - SC",
+      "members": [
+        {
+          "fullName": "Wadner Joseph",
+          "givenName": "Wadner",
+          "familyName": "Joseph",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 22,
+      "familyName": "Júnior",
+      "displayName": "Júnior, Irani José de Souza",
+      "headNames": [
+        "Irani José de Souza"
+      ],
+      "phone": null,
+      "address": "Rua Major Joaquim Antonio de Campos, 584 | Centro | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Irani José de Souza Júnior",
+          "givenName": "Irani José de Souza",
+          "familyName": "Júnior",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 23,
+      "familyName": "Lopes",
+      "displayName": "Lopes, Tiago Batista & Miriã Marçal",
+      "headNames": [
+        "Tiago Batista",
+        "Miriã Marçal"
+      ],
+      "phone": null,
+      "address": "RUA DAS BARREIRAS, 149 | 88135-752 PALHOÇA - SC",
+      "members": [
+        {
+          "fullName": "Tiago Batista Lopes",
+          "givenName": "Tiago Batista",
+          "familyName": "Lopes",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Miriã Marçal Lopes",
+          "givenName": "Miriã Marçal",
+          "familyName": "Lopes",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Alehandro Marçal Lopes",
+          "givenName": "Alehandro Marçal",
+          "familyName": "Lopes",
+          "gender": "male",
+          "age": 16,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Ketni Marçal Lopes",
+          "givenName": "Ketni Marçal",
+          "familyName": "Lopes",
+          "gender": "female",
+          "age": 12,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 24,
+      "familyName": "Machado",
+      "displayName": "Machado, Angela Maria Fuck",
+      "headNames": [
+        "Angela Maria Fuck"
+      ],
+      "phone": "(48) 3286-6187",
+      "address": "Rua Frederico ramlow , 141 | Apto 405 | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Angela Maria Fuck Machado",
+          "givenName": "Angela Maria Fuck",
+          "familyName": "Machado",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Emelly Alves Machado",
+          "givenName": "Emelly Alves",
+          "familyName": "Machado",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 25,
+      "familyName": "Machado",
+      "displayName": "Machado, Camilli Alves",
+      "headNames": [
+        "Camilli Alves"
+      ],
+      "phone": "(48) 3286-6187",
+      "address": "RUA PROCOPIO LOHN, SN | VARGINHA | SANTO AMARO DA IMPERATRIZ - SC",
+      "members": [
+        {
+          "fullName": "Camilli Alves Machado",
+          "givenName": "Camilli Alves",
+          "familyName": "Machado",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 26,
+      "familyName": "Maciel",
+      "displayName": "Maciel, Lucas Felipe Matias",
+      "headNames": [
+        "Lucas Felipe Matias"
+      ],
+      "phone": "(48) 99110-2343",
+      "address": "Rua do Ipê,380 | São Francisco | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Lucas Felipe Matias Maciel",
+          "givenName": "Lucas Felipe Matias",
+          "familyName": "Maciel",
+          "gender": "male",
+          "age": 8,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Isabella Caroline Matias Maciel",
+          "givenName": "Isabella Caroline Matias",
+          "familyName": "Maciel",
+          "gender": "female",
+          "age": 7,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 27,
+      "familyName": "Magalhães",
+      "displayName": "Magalhães, Agda Regina Machado Cordeiro",
+      "headNames": [
+        "Agda Regina Machado Cordeiro"
+      ],
+      "phone": null,
+      "address": "Praça Principal S/N | Próximo Delegacia de Polícia | São Bonifácio - SC",
+      "members": [
+        {
+          "fullName": "Agda Regina Machado Cordeiro Magalhães",
+          "givenName": "Agda Regina Machado Cordeiro",
+          "familyName": "Magalhães",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Oliver Magalhães",
+          "givenName": "Oliver",
+          "familyName": "Magalhães",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 28,
+      "familyName": "Martendal",
+      "displayName": "Martendal, Antônio & Daniela Cristina da Silva",
+      "headNames": [
+        "Antônio",
+        "Daniela Cristina da Silva"
+      ],
+      "phone": "4891161860",
+      "address": "R. CESAR RENE WAGNER, AO LADO DO Nº1329 | ALTO ARIRIU | 88135-720 PALHOÇA - SC",
+      "members": [
+        {
+          "fullName": "Antônio Martendal",
+          "givenName": "Antônio",
+          "familyName": "Martendal",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Daniela Cristina da Silva Martendal",
+          "givenName": "Daniela Cristina da Silva",
+          "familyName": "Martendal",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Gabriel Bernardo Martendal",
+          "givenName": "Gabriel Bernardo",
+          "familyName": "Martendal",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 29,
+      "familyName": "Matos",
+      "displayName": "Matos, Gabriel Pereira de",
+      "headNames": [
+        "Gabriel Pereira de"
+      ],
+      "phone": "(79) 98858-1480",
+      "address": "rua paulo becker -220 | vila becker | santo amaro da imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Gabriel Pereira de Matos",
+          "givenName": "Gabriel Pereira de",
+          "familyName": "Matos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 30,
+      "familyName": "Morfim",
+      "displayName": "Morfim, Janice Burigo",
+      "headNames": [
+        "Janice Burigo"
+      ],
+      "phone": "4896885590",
+      "address": "R. Prefeito José Kehrig, 5550 | apto 201 | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Janice Burigo Morfim",
+          "givenName": "Janice Burigo",
+          "familyName": "Morfim",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 31,
+      "familyName": "Oliveira",
+      "displayName": "Oliveira, Alisson Bryan Silva de",
+      "headNames": [
+        "Alisson Bryan Silva de"
+      ],
+      "phone": null,
+      "address": "R. Urussanga, 72 | P. Vinte",
+      "members": [
+        {
+          "fullName": "Alisson Bryan Silva de Oliveira",
+          "givenName": "Alisson Bryan Silva de",
+          "familyName": "Oliveira",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Raphael Kauan Silva de Oliveira",
+          "givenName": "Raphael Kauan Silva de",
+          "familyName": "Oliveira",
+          "gender": "male",
+          "age": 18,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 32,
+      "familyName": "Parrella",
+      "displayName": "Parrella, Adelmo de Paula & Adriana Clarice Silva",
+      "headNames": [
+        "Adelmo de Paula",
+        "Adriana Clarice Silva"
+      ],
+      "phone": "(48) 99680-0219",
+      "address": "ESTRADA GERAL DO RIO DO OURO, SN | MUNICIPIO DE ANITAPOLIS | ANITAPOLIS - SC",
+      "members": [
+        {
+          "fullName": "Adelmo de Paula Parrella",
+          "givenName": "Adelmo de Paula",
+          "familyName": "Parrella",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Adriana Clarice Silva Parrella",
+          "givenName": "Adriana Clarice Silva",
+          "familyName": "Parrella",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 33,
+      "familyName": "Paz",
+      "displayName": "Paz, Ronaldo Rocha & Natália Vicari Faleiro",
+      "headNames": [
+        "Ronaldo Rocha",
+        "Natália Vicari Faleiro"
+      ],
+      "phone": null,
+      "address": "99140-0502 | Rua Estrada geral sítio de dentro s/n | 8814000 Sano Amaro da imperatriz, - SC",
+      "members": [
+        {
+          "fullName": "Ronaldo Rocha Paz",
+          "givenName": "Ronaldo Rocha",
+          "familyName": "Paz",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Natália Vicari Faleiro Paz",
+          "givenName": "Natália Vicari Faleiro",
+          "familyName": "Paz",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Sara Faleiro Paz",
+          "givenName": "Sara",
+          "familyName": "Faleiro Paz",
+          "gender": "female",
+          "age": 8,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 34,
+      "familyName": "Paz",
+      "displayName": "Paz, Ronaldo Rocha & Rosa Lucy de Maria Horwath",
+      "headNames": [
+        "Ronaldo Rocha",
+        "Rosa Lucy de Maria Horwath"
+      ],
+      "phone": "(48) 99116-2567",
+      "address": "R. estrada geral sitio de dentro, s/n | Santo Amaro da Imperatriz | 88140-000 Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Ronaldo Rocha Paz",
+          "givenName": "Ronaldo Rocha",
+          "familyName": "Paz",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Rosa Lucy de Maria Horwath Paz",
+          "givenName": "Rosa Lucy de Maria Horwath",
+          "familyName": "Paz",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 35,
+      "familyName": "Prado",
+      "displayName": "Prado, Nilson Adriano Pinheiro do",
+      "headNames": [
+        "Nilson Adriano Pinheiro do"
+      ],
+      "phone": "(47) 98914-5147",
+      "address": "Rua do Ipê, 193 | São Francisco | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Nilson Adriano Pinheiro do Prado",
+          "givenName": "Nilson Adriano Pinheiro do",
+          "familyName": "Prado",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "David Felipe Costa Brandão",
+          "givenName": "David Felipe Costa",
+          "familyName": "Brandão",
+          "gender": "male",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Nayla Rafaelly Costa Brandão",
+          "givenName": "Nayla Rafaelly Costa",
+          "familyName": "Brandão",
+          "gender": "female",
+          "age": 11,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 36,
+      "familyName": "Purcotes",
+      "displayName": "Purcotes, Ivan da Silva",
+      "headNames": [
+        "Ivan da Silva"
+      ],
+      "phone": "4184562151",
+      "address": "R. Pedro Kuhnen, 1140-1556, Águas Mornas | Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Ivan da Silva Purcotes",
+          "givenName": "Ivan da Silva",
+          "familyName": "Purcotes",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 37,
+      "familyName": "Ribas",
+      "displayName": "Ribas, Isaias Josué Aguiar & Cláudia Borchardt",
+      "headNames": [
+        "Isaias Josué Aguiar",
+        "Cláudia Borchardt"
+      ],
+      "phone": "(11) 95636-7832",
+      "address": "Santo Amaro | 88130-000 Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Isaias Josué Aguiar Ribas",
+          "givenName": "Isaias Josué Aguiar",
+          "familyName": "Ribas",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Cláudia Borchardt Ribas",
+          "givenName": "Cláudia Borchardt",
+          "familyName": "Ribas",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Catarine Mello Ribas",
+          "givenName": "Catarine Mello",
+          "familyName": "Ribas",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Isis Nefertari Borchardt Ribas",
+          "givenName": "Isis Nefertari Borchardt",
+          "familyName": "Ribas",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Isaias Josué Borchardt Ribas",
+          "givenName": "Isaias Josué Borchardt",
+          "familyName": "Ribas",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 38,
+      "familyName": "Ribas",
+      "displayName": "Ribas, Osíris Mello",
+      "headNames": [
+        "Osíris Mello"
+      ],
+      "phone": null,
+      "address": "Santo Amaro | 88130-000 Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Osíris Mello Ribas",
+          "givenName": "Osíris Mello",
+          "familyName": "Ribas",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 39,
+      "familyName": "Ribeiro",
+      "displayName": "Ribeiro, Alessandro Gonçalves",
+      "headNames": [
+        "Alessandro Gonçalves"
+      ],
+      "phone": "(48) 98831-3039",
+      "address": "Praça Principal, SN | Próximo Delegacia de Polícia | São Bonifácio - SC",
+      "members": [
+        {
+          "fullName": "Alessandro Gonçalves Ribeiro",
+          "givenName": "Alessandro Gonçalves",
+          "familyName": "Ribeiro",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 40,
+      "familyName": "Ribeiro",
+      "displayName": "Ribeiro, João Vilmar Junior",
+      "headNames": [
+        "João Vilmar Junior"
+      ],
+      "phone": "4884473098",
+      "address": "Osvaldo de Souza, 103 | Aririu | 88135-028 Palhoça - SC",
+      "members": [
+        {
+          "fullName": "João Vilmar Ribeiro",
+          "givenName": "João Vilmar",
+          "familyName": "Ribeiro",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 41,
+      "familyName": "Rodrigues",
+      "displayName": "Rodrigues, Lázaro de Oliveira & Juliane Luiza Gonçalves Ferreira de",
+      "headNames": [
+        "Lázaro de Oliveira",
+        "Juliane Luiza Gonçalves Ferreira de"
+      ],
+      "phone": "(77) 98117-5397",
+      "address": "Rua do Ypê, 193 - | São Francisco | 88140-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Lázaro de Oliveira Rodrigues",
+          "givenName": "Lázaro de Oliveira",
+          "familyName": "Rodrigues",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Juliane Luiza Gonçalves Ferreira de Oliveira",
+          "givenName": "Juliane Luiza Gonçalves Ferreira de",
+          "familyName": "Oliveira",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 42,
+      "familyName": "Rodrigues",
+      "displayName": "Rodrigues, Willian Victor Tavares",
+      "headNames": [
+        "Willian Victor Tavares"
+      ],
+      "phone": "(48) 3245-2096",
+      "address": "Rua Candida Rita da Cunha, 297 | Santo Amaro - SC",
+      "members": [
+        {
+          "fullName": "Willian Victor Tavares Rodrigues",
+          "givenName": "Willian Victor Tavares",
+          "familyName": "Rodrigues",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 43,
+      "familyName": "Salvador",
+      "displayName": "Salvador, Maycon Vinicius da Silva & Helisangela Maria Lobato",
+      "headNames": [
+        "Maycon Vinicius da Silva",
+        "Helisangela Maria Lobato"
+      ],
+      "phone": "(44) 99820-6967",
+      "address": "R. do Ipê, 380 | São Francisco | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Maycon Vinicius da Silva Salvador",
+          "givenName": "Maycon Vinicius da Silva",
+          "familyName": "Salvador",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Helisangela Maria Lobato Salvador",
+          "givenName": "Helisangela Maria Lobato",
+          "familyName": "Salvador",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 44,
+      "familyName": "Sangaletto",
+      "displayName": "Sangaletto, Cirlene da Silva",
+      "headNames": [
+        "Cirlene da Silva"
+      ],
+      "phone": "(48) 99649-7835",
+      "address": "Servidão da amizade,110 | Vila Santana | 88140-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Cirlene da Silva Sangaletto",
+          "givenName": "Cirlene da Silva",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 45,
+      "familyName": "Sangaletto",
+      "displayName": "Sangaletto, Diogo Silva",
+      "headNames": [
+        "Diogo Silva"
+      ],
+      "phone": null,
+      "address": "Rua Francisco Turnes s/n | Sertão | 88104-500 São José - SC",
+      "members": [
+        {
+          "fullName": "Diogo Silva Sangaletto",
+          "givenName": "Diogo Silva",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 46,
+      "familyName": "Sangaletto",
+      "displayName": "Sangaletto, Edivan Da Silva & Pâmela Moreira Nascimento",
+      "headNames": [
+        "Edivan Da Silva",
+        "Pâmela Moreira Nascimento"
+      ],
+      "phone": "(48) 99914-7687",
+      "address": "Rua Servidão da Amizade, 110 (fundos)) | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Edivan Da Silva Sangaletto",
+          "givenName": "Edivan Da Silva",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Pâmela Moreira Nascimento Sangaletto",
+          "givenName": "Pâmela Moreira Nascimento",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Beatriz Moreira Hipólito da Silva",
+          "givenName": "Beatriz Moreira Hipólito da",
+          "familyName": "Silva",
+          "gender": "female",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Mateus Moreira Sangaletto",
+          "givenName": "Mateus Moreira",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": 6,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Lucas Nascimento Sangaletto",
+          "givenName": "Lucas Nascimento",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": 5,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 47,
+      "familyName": "Sangaletto",
+      "displayName": "Sangaletto, Edivanes Da Silva & Luliani da Silva",
+      "headNames": [
+        "Edivanes Da Silva",
+        "Luliani da Silva"
+      ],
+      "phone": "(48) 99644-5958",
+      "address": "Servidão Da Amizade, 110 | Vila Santana | 88140000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Edivanes Da Silva Sangaletto",
+          "givenName": "Edivanes Da Silva",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Luliani da Silva Sangaletto",
+          "givenName": "Luliani da Silva",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Dominick da Silva Sangaletto",
+          "givenName": "Dominick da Silva",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": 10,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Jamily da Silva Sangaletto",
+          "givenName": "Jamily da Silva",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": 0,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 48,
+      "familyName": "Sangaletto",
+      "displayName": "Sangaletto, Eloi Roque & Neli de Fatima Silva",
+      "headNames": [
+        "Eloi Roque",
+        "Neli de Fatima Silva"
+      ],
+      "phone": "(48) 99826-6639",
+      "address": "88140-000 SANTO AMARO DA IMPERATRIZ - SC",
+      "members": [
+        {
+          "fullName": "Eloi Roque Sangaletto",
+          "givenName": "Eloi Roque",
+          "familyName": "Sangaletto",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Neli de Fatima Silva Sangaletto",
+          "givenName": "Neli de Fatima Silva",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 49,
+      "familyName": "Santos",
+      "displayName": "Santos, Guilherme Gonçalves dos",
+      "headNames": [
+        "Guilherme Gonçalves dos"
+      ],
+      "phone": "(48) 99126-6228",
+      "address": "R. Maria Catarina da Silva 42 São Franci | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Guilherme Gonçalves dos Santos",
+          "givenName": "Guilherme Gonçalves dos",
+          "familyName": "Santos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 50,
+      "familyName": "Santos",
+      "displayName": "Santos, Robson Alessandre dos & Cristina Da Silva",
+      "headNames": [
+        "Robson Alessandre dos",
+        "Cristina Da Silva"
+      ],
+      "phone": "(48) 99106-3538",
+      "address": "Rua Francisco Turnês 1279 | Bloco B ap 203 Bairro Sul do Rio | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Robson Alessandre dos Santos",
+          "givenName": "Robson Alessandre dos",
+          "familyName": "Santos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Cristina Da Silva Sangaletto",
+          "givenName": "Cristina Da Silva",
+          "familyName": "Sangaletto",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Alisson Alessandre dos Santos",
+          "givenName": "Alisson Alessandre dos",
+          "familyName": "Santos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Iuri Sangaletto dos Santos",
+          "givenName": "Iuri Sangaletto dos",
+          "familyName": "Santos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 51,
+      "familyName": "Santos",
+      "displayName": "Santos, Sonia Lazzaretti Dos",
+      "headNames": [
+        "Sonia Lazzaretti Dos"
+      ],
+      "phone": "4884036562",
+      "address": "Estrada Geral Braço Do São João | 88140-000 Santo Amaro da Imperatri, - SC",
+      "members": [
+        {
+          "fullName": "Sonia Lazzaretti Dos Santos",
+          "givenName": "Sonia Lazzaretti Dos",
+          "familyName": "Santos",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 52,
+      "familyName": "Santos",
+      "displayName": "Santos, Thiago Sodré Pimentel & Barbara Horwath",
+      "headNames": [
+        "Thiago Sodré Pimentel",
+        "Barbara Horwath"
+      ],
+      "phone": "(48) 99661-1606",
+      "address": "Rua João Marconilo Costa, 333, bloco 2 a | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Thiago Sodré Pimentel Santos",
+          "givenName": "Thiago Sodré Pimentel",
+          "familyName": "Santos",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Barbara Horwath Paz",
+          "givenName": "Barbara Horwath",
+          "familyName": "Paz",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Clarice Paz Sodré",
+          "givenName": "Clarice",
+          "familyName": "Paz Sodré",
+          "gender": "female",
+          "age": 8,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Isabela Paz Sodré",
+          "givenName": "Isabela Paz",
+          "familyName": "Sodré",
+          "gender": "female",
+          "age": 6,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Paz Sodré Heloisa",
+          "givenName": "Paz Sodré",
+          "familyName": "Heloisa",
+          "gender": "female",
+          "age": 3,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 53,
+      "familyName": "Silva",
+      "displayName": "Silva, Celso da",
+      "headNames": [
+        "Celso da"
+      ],
+      "phone": null,
+      "address": "96861518 | Rua das Palmeiras, 37 | centro | Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Celso da Silva",
+          "givenName": "Celso da",
+          "familyName": "Silva",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Fabiana Oliveira da Silva",
+          "givenName": "Fabiana Oliveira da",
+          "familyName": "Silva",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 54,
+      "familyName": "Silva",
+      "displayName": "Silva, Helena Rodrigues da",
+      "headNames": [
+        "Helena Rodrigues da"
+      ],
+      "phone": "(51) 99384-1892",
+      "address": "Rua Delfinio 35 | bela vista | Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Helena Rodrigues da Silva",
+          "givenName": "Helena Rodrigues da",
+          "familyName": "Silva",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 55,
+      "familyName": "Silva",
+      "displayName": "Silva, Jason Lima Rodrigues da & Silvia Rosane",
+      "headNames": [
+        "Jason Lima Rodrigues da",
+        "Silvia Rosane"
+      ],
+      "phone": "(11) 94192-0916",
+      "address": "Santo Amaro | Santo Amaro - SC",
+      "members": [
+        {
+          "fullName": "Jason Lima Rodrigues da Silva",
+          "givenName": "Jason Lima Rodrigues da",
+          "familyName": "Silva",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Silvia Rosane Scheunemann",
+          "givenName": "Silvia Rosane",
+          "familyName": "Scheunemann",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 56,
+      "familyName": "Silva",
+      "displayName": "Silva, Maria Tecilia Da",
+      "headNames": [
+        "Maria Tecilia Da"
+      ],
+      "phone": "(48) 99928-2896",
+      "address": "Estrada Geral da Varginha, S/N | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Maria Tecilia Da Silva",
+          "givenName": "Maria Tecilia Da",
+          "familyName": "Silva",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 57,
+      "familyName": "Souza",
+      "displayName": "Souza, Edite Julia de",
+      "headNames": [
+        "Edite Julia de"
+      ],
+      "phone": null,
+      "address": "Estr. Geral Furadinho, 1042 | Palhoça - SC",
+      "members": [
+        {
+          "fullName": "Edite Julia de Souza",
+          "givenName": "Edite Julia de",
+          "familyName": "Souza",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 58,
+      "familyName": "Souza",
+      "displayName": "Souza, Tomaz Albino & Gabriela Machado Cordeiro",
+      "headNames": [
+        "Tomaz Albino",
+        "Gabriela Machado Cordeiro"
+      ],
+      "phone": "(48) 3252-0038",
+      "address": "Praça Principal SN | Próximo Delegacia de Polícia | São Bonifácio - SC",
+      "members": [
+        {
+          "fullName": "Tomaz Albino Souza",
+          "givenName": "Tomaz Albino",
+          "familyName": "Souza",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Gabriela Machado Cordeiro Souza",
+          "givenName": "Gabriela Machado Cordeiro",
+          "familyName": "Souza",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Bernardo Cordeiro Souza",
+          "givenName": "Bernardo Cordeiro",
+          "familyName": "Souza",
+          "gender": "male",
+          "age": 18,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 59,
+      "familyName": "Steinheuser",
+      "displayName": "Steinheuser, João Henrique",
+      "headNames": [
+        "João Henrique"
+      ],
+      "phone": "(55) 99155-9075",
+      "address": "estrada geral da sorocaba,grameira do be | 88490-000 paulo lopes - SC",
+      "members": [
+        {
+          "fullName": "João Henrique Steinheuser",
+          "givenName": "João Henrique",
+          "familyName": "Steinheuser",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 60,
+      "familyName": "Sumar",
+      "displayName": "Sumar, Michel Àvila & Leatrice Carmelli Da",
+      "headNames": [
+        "Michel Àvila",
+        "Leatrice Carmelli Da"
+      ],
+      "phone": "(48) 3245-7332",
+      "address": "Av. Princesa Leopoldina,1331 | Caldas da Imperatriz | 88140-000 Santo Amaro - SC",
+      "members": [
+        {
+          "fullName": "Michel Àvila Sumar",
+          "givenName": "Michel Àvila",
+          "familyName": "Sumar",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Leatrice Carmelli Da Sumar",
+          "givenName": "Leatrice Carmelli Da",
+          "familyName": "Sumar",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 61,
+      "familyName": "Thiesen",
+      "displayName": "Thiesen, João Vianey",
+      "headNames": [
+        "João Vianey"
+      ],
+      "phone": null,
+      "address": "451380 | R Joaquim Campos 5901 | Sto Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "João Vianey Thiesen",
+          "givenName": "João Vianey",
+          "familyName": "Thiesen",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 62,
+      "familyName": "Thiesen",
+      "displayName": "Thiesen, Zeleide",
+      "headNames": [
+        "Zeleide"
+      ],
+      "phone": null,
+      "address": "Rua Fabricio 392 | Sul do Rio - SC",
+      "members": [
+        {
+          "fullName": "Zeleide Thiesen",
+          "givenName": "Zeleide",
+          "familyName": "Thiesen",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 63,
+      "familyName": "Toledo",
+      "displayName": "Toledo, Graziela da Silva",
+      "headNames": [
+        "Graziela da Silva"
+      ],
+      "phone": "4899886783",
+      "address": "R.Servidão Bernadet Goulart Aguas Mórna | 88150-000 Santo Amaro Da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Graziela da Silva Toledo",
+          "givenName": "Graziela da Silva",
+          "familyName": "Toledo",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Sofia Faria de Toledo",
+          "givenName": "Sofia Faria de",
+          "familyName": "Toledo",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 64,
+      "familyName": "Valente",
+      "displayName": "Valente, Marilene Lucia",
+      "headNames": [
+        "Marilene Lucia"
+      ],
+      "phone": null,
+      "address": "Rua Geral, s/n,Santo Amaro da Imperatriz | Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Marilene Lucia Valente",
+          "givenName": "Marilene Lucia",
+          "familyName": "Valente",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Maevi Valente",
+          "givenName": "Maevi",
+          "familyName": "Valente",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Mariany Valente",
+          "givenName": "Mariany",
+          "familyName": "Valente",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Matheus Jal Valente",
+          "givenName": "Matheus Jal",
+          "familyName": "Valente",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 65,
+      "familyName": "Viera",
+      "displayName": "Viera, Maria Cipriano",
+      "headNames": [
+        "Maria Cipriano"
+      ],
+      "phone": null,
+      "address": "Santa Catarina",
+      "members": [
+        {
+          "fullName": "Maria Cipriano Viera",
+          "givenName": "Maria Cipriano",
+          "familyName": "Viera",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 66,
+      "familyName": "Yopán",
+      "displayName": "Yopán, Leônidas & Larissa Machado Motta",
+      "headNames": [
+        "Leônidas",
+        "Larissa Machado Motta"
+      ],
+      "phone": "(48) 99823-5707",
+      "address": "Rua Bernardinho João Machado, Casa 30 | Bairro Sul do Rio | 88140-000 Santo Amaro da Imperatriz - SC",
+      "members": [
+        {
+          "fullName": "Leônidas Yopán",
+          "givenName": "Leônidas",
+          "familyName": "Yopán",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Larissa Machado Motta Yopán",
+          "givenName": "Larissa Machado Motta",
+          "familyName": "Yopán",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Arthur Motta Yopán",
+          "givenName": "Arthur Motta",
+          "familyName": "Yopán",
+          "gender": "male",
+          "age": 14,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Julia Motta Yopán",
+          "givenName": "Julia Motta",
+          "familyName": "Yopán",
+          "gender": "female",
+          "age": 12,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Sofia Motta Yopán",
+          "givenName": "Sofia Motta",
+          "familyName": "Yopán",
+          "gender": "female",
+          "age": 8,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Erick Motta Yopán",
+          "givenName": "Erick Motta",
+          "familyName": "Yopán",
+          "gender": "male",
+          "age": 2,
+          "ageAsOf": "2026-04-01",
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    },
+    {
+      "householdIndex": 67,
+      "familyName": "Zaboski",
+      "displayName": "Zaboski, Adilson & Rosangela Fabiane Gonçalves",
+      "headNames": [
+        "Adilson",
+        "Rosangela Fabiane Gonçalves"
+      ],
+      "phone": "(48) 99131-6207",
+      "address": "88475-000 Anitápolis - SC",
+      "members": [
+        {
+          "fullName": "Adilson Zaboski",
+          "givenName": "Adilson",
+          "familyName": "Zaboski",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "head",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Rosangela Fabiane Gonçalves Zaboski",
+          "givenName": "Rosangela Fabiane Gonçalves",
+          "familyName": "Zaboski",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "spouse",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Gabriele Zaboski",
+          "givenName": "Gabriele",
+          "familyName": "Zaboski",
+          "gender": "female",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        },
+        {
+          "fullName": "Gabriel Zaboski",
+          "givenName": "Gabriel",
+          "familyName": "Zaboski",
+          "gender": "male",
+          "age": null,
+          "ageAsOf": null,
+          "birthDate": null,
+          "householdRole": "child",
+          "active": true,
+          "needsReview": false
+        }
+      ],
+      "needsReview": false
+    }
+  ]
+}
