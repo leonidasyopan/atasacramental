@@ -5,6 +5,7 @@ import SectionCard from '../components/ata/SectionCard';
 import DynamicTable from '../components/shared/DynamicTable';
 import HymnLookup from '../components/shared/HymnLookup';
 import LeaderSelect, { OTHER } from '../components/shared/LeaderSelect';
+import MembersDatalist from '../components/shared/MembersDatalist';
 import PrintDocument from '../components/print/PrintDocument';
 import {
   COL_APOIOS,
@@ -316,6 +317,7 @@ export default function AtaFormPage({ editMode = false }) {
       />
 
       <div className="app-content">
+        <MembersDatalist />
         <div className="save-indicator" data-status={saveIndicatorStatus}>
           {!isEditing && saveStatus === 'saving' && 'Salvando...'}
           {!isEditing && saveStatus === 'saved' && 'Salvo'}
@@ -472,6 +474,8 @@ export default function AtaFormPage({ editMode = false }) {
                   placeholder="Nome do irmão/irmã"
                   value={ata.oracao1}
                   onChange={(e) => update({ oracao1: e.target.value })}
+                  list="members-datalist"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -575,6 +579,8 @@ export default function AtaFormPage({ editMode = false }) {
                   placeholder="Nome"
                   value={ata.bencaoPao}
                   onChange={(e) => update({ bencaoPao: e.target.value })}
+                  list="members-datalist"
+                  autoComplete="off"
                 />
               </div>
               <div className="field">
@@ -584,6 +590,8 @@ export default function AtaFormPage({ editMode = false }) {
                   placeholder="Nome"
                   value={ata.bencaoAgua}
                   onChange={(e) => update({ bencaoAgua: e.target.value })}
+                  list="members-datalist"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -689,6 +697,8 @@ export default function AtaFormPage({ editMode = false }) {
                   placeholder="Nome do irmão/irmã"
                   value={ata.oracaoEnc}
                   onChange={(e) => update({ oracaoEnc: e.target.value })}
+                  list="members-datalist"
+                  autoComplete="off"
                 />
               </div>
             </div>
