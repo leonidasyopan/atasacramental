@@ -129,7 +129,9 @@ async function main() {
   }
 
   console.log(`Reading ${plannedOps.length} existing docs to preserve createdAt...`);
-  const snaps = await db.getAll(...plannedOps.map((op) => op.ref));
+  const snaps = plannedOps.length
+    ? await db.getAll(...plannedOps.map((op) => op.ref))
+    : [];
   let newCount = 0;
   let updateCount = 0;
   for (let i = 0; i < plannedOps.length; i += 1) {
