@@ -25,3 +25,10 @@ Thumbs.db
 *~
 .vscode
 .idea
+
+# Dados confidenciais / Confidential data
+# PDFs e JSONs de membros nunca devem ser commitados.
+*.pdf
+scripts/import-members/parsed.json
+scripts/import-members/parsed.csv
+scripts/import-members/parsed.reviewed.json

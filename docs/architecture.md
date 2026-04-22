@@ -51,12 +51,19 @@ allowedUsers/{emailLower}              { email, unitId, role: 'user'|'superadmin
 users/{uid}                            { email, displayName, unitId, role }
 units/{unitId}                         { name, type: 'Ramo'|'Ala', estacaNome, ... }
   leaders/{leaderId}                   { name, calling, order }
-  members/{memberId}                   { name, active, ... }
+  households/{householdId}             { name, displayName, headNames[], phone, address,
+                                         active, source }
+  members/{memberId}                   { name, fullName, givenName, familyName, gender,
+                                         age, ageAsOf, birthDate, householdId,
+                                         householdRole: 'head'|'spouse'|'child'|'other',
+                                         active, source }
   atas/{ataId}                         { status: 'draft'|'finalized', data, presidida, rowsApoios[], ... }
   speakerLog/{logId}                   (reservado — PR futuro)
   discourseInvites/{inviteId}          (reservado — PR futuro)
   settings/{docId}                     { ... }
 ```
+
+Membros e famílias têm relação 1:N via `members.householdId → households.{id}`. O campo `name` em `members` é mantido por compatibilidade (usado pelo `MemberPicker` e pelo auto-save das atas). O schema enriquecido (`givenName`, `familyName`, `gender`, `age`, `householdRole`) foi introduzido pelo import inicial (`scripts/import-members/`) e alimenta as telas de admin + ordenação no `MemberPicker`.
 
 Regras completas em [`firestore.rules`](../firestore.rules).
 
@@ -152,12 +159,19 @@ allowedUsers/{emailLower}              { email, unitId, role: 'user'|'superadmin
 users/{uid}                            { email, displayName, unitId, role }
 units/{unitId}                         { name, type: 'Ramo'|'Ala', estacaNome, ... }
   leaders/{leaderId}                   { name, calling, order }
-  members/{memberId}                   { name, active, ... }
+  households/{householdId}             { name, displayName, headNames[], phone, address,
+                                         active, source }
+  members/{memberId}                   { name, fullName, givenName, familyName, gender,
+                                         age, ageAsOf, birthDate, householdId,
+                                         householdRole: 'head'|'spouse'|'child'|'other',
+                                         active, source }
   atas/{ataId}                         { status: 'draft'|'finalized', data, presidida, rowsApoios[], ... }
   speakerLog/{logId}                   (reserved — future PR)
   discourseInvites/{inviteId}          (reserved — future PR)
   settings/{docId}                     { ... }
 ```
+
+Members and households have a 1:N relationship via `members.householdId → households.{id}`. The `name` field on `members` is kept for backwards compatibility (consumed by `MemberPicker` and ata auto-save). The enriched schema (`givenName`, `familyName`, `gender`, `age`, `householdRole`) was introduced by the initial import (`scripts/import-members/`) and powers the admin screens + `MemberPicker` sorting.
 
 Full rules in [`firestore.rules`](../firestore.rules).
 
