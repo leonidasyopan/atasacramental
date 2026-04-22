@@ -95,7 +95,7 @@ export default function DynamicTable({
                     </td>
                   );
                 }
-                // text (optionally with chamado picker)
+                // text (optionally with chamado picker / member autocomplete)
                 return (
                   <td key={colIdx}>
                     <input
@@ -103,6 +103,8 @@ export default function DynamicTable({
                       placeholder={col.ph}
                       value={value}
                       onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
+                      list={col.datalistId || undefined}
+                      autoComplete={col.datalistId ? 'off' : undefined}
                     />
                     {col.chamadoPicker && (
                       <button
