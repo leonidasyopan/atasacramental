@@ -81,6 +81,69 @@ async function main() {
   initializeApp({ credential, projectId: PROJECT_ID });
   const db = getFirestore();
 
+  // Collect refs first, then read them in parallel to decide which docs
+  // already exist. For existing docs we omit `createdAt` so re-running the
+  // script doesn't overwrite the original creation timestamp (mirrors the
+  // pattern in src/services/users.js).
+  const plannedOps = [];
+  for (const h of households) {
+    const householdId = householdIdFor(h);
+    plannedOps.push({
+      kind: 'household',
+      ref: db.doc(`units/${UNIT_ID}/households/${householdId}`),
+      data: {
+        name: h.familyName,
+        displayName: h.displayName,
+        headNames: h.headNames,
+        phone: h.phone || null,
+        address: h.address || null,
+        active: true,
+        source: SOURCE_TAG,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+    });
+    for (const m of h.members) {
+      const memberId = memberIdFor(householdId, m);
+      plannedOps.push({
+        kind: 'member',
+        ref: db.doc(`units/${UNIT_ID}/members/${memberId}`),
+        data: {
+          // Back-compat: existing UI + MemberPicker read `name` + `active`.
+          name: m.fullName,
+          active: m.active !== false,
+          // New fields
+          fullName: m.fullName,
+          givenName: m.givenName || null,
+          familyName: m.familyName || null,
+          gender: m.gender || null,
+          age: m.age ?? null,
+          ageAsOf: m.ageAsOf || null,
+          birthDate: m.birthDate || null,
+          householdId,
+          householdRole: m.householdRole || 'other',
+          source: SOURCE_TAG,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+      });
+    }
+  }
+
+  console.log(`Reading ${plannedOps.length} existing docs to preserve createdAt...`);
+  const snaps = plannedOps.length
+    ? await db.getAll(...plannedOps.map((op) => op.ref))
+    : [];
+  let newCount = 0;
+  let updateCount = 0;
+  for (let i = 0; i < plannedOps.length; i += 1) {
+    if (snaps[i].exists) {
+      updateCount += 1;
+    } else {
+      plannedOps[i].data.createdAt = FieldValue.serverTimestamp();
+      newCount += 1;
+    }
+  }
+  console.log(`new=${newCount}, update=${updateCount}`);
+
   let batch = db.batch();
   let opCount = 0;
   let householdOps = 0;
@@ -98,59 +161,14 @@ async function main() {
     opCount = 0;
   }
 
-  for (const h of households) {
-    const householdId = householdIdFor(h);
-    const householdRef = db.doc(
-      `units/${UNIT_ID}/households/${householdId}`,
-    );
-    const householdData = {
-      name: h.familyName,
-      displayName: h.displayName,
-      headNames: h.headNames,
-      phone: h.phone || null,
-      address: h.address || null,
-      active: true,
-      source: SOURCE_TAG,
-      updatedAt: FieldValue.serverTimestamp(),
-      createdAt: FieldValue.serverTimestamp(),
-    };
+  for (const op of plannedOps) {
     if (!DRY_RUN) {
-      batch.set(householdRef, householdData, { merge: true });
+      batch.set(op.ref, op.data, { merge: true });
     }
     opCount += 1;
-    householdOps += 1;
+    if (op.kind === 'household') householdOps += 1;
+    else memberOps += 1;
     if (opCount >= 450) await flush();
-
-    for (const m of h.members) {
-      const memberId = memberIdFor(householdId, m);
-      const memberRef = db.doc(
-        `units/${UNIT_ID}/members/${memberId}`,
-      );
-      const memberData = {
-        // Back-compat: existing UI + MemberPicker read `name` + `active`.
-        name: m.fullName,
-        active: m.active !== false,
-        // New fields
-        fullName: m.fullName,
-        givenName: m.givenName || null,
-        familyName: m.familyName || null,
-        gender: m.gender || null,
-        age: m.age ?? null,
-        ageAsOf: m.ageAsOf || null,
-        birthDate: m.birthDate || null,
-        householdId,
-        householdRole: m.householdRole || 'other',
-        source: SOURCE_TAG,
-        updatedAt: FieldValue.serverTimestamp(),
-        createdAt: FieldValue.serverTimestamp(),
-      };
-      if (!DRY_RUN) {
-        batch.set(memberRef, memberData, { merge: true });
-      }
-      opCount += 1;
-      memberOps += 1;
-      if (opCount >= 450) await flush();
-    }
   }
   await flush();
 
