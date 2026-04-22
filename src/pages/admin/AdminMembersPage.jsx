@@ -1,28 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AdminLayout from './AdminLayout';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
 import {
   getMembers,
+  getHouseholds,
   addMember,
   updateMember,
   deactivateMember,
   activateMember,
 } from '../../services/members';
 
+const ROLE_LABELS = {
+  head: 'Chefe',
+  spouse: 'Cônjuge',
+  child: 'Filho(a)',
+  other: 'Outro',
+};
+
 export default function AdminMembersPage() {
   const { unitId } = useUnit();
   const { showToast } = useToast();
   const [list, setList] = useState([]);
+  const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [includeInactive, setIncludeInactive] = useState(false);
+
+  const householdsById = useMemo(() => {
+    const map = new Map();
+    for (const h of households) map.set(h.id, h);
+    return map;
+  }, [households]);
 
   async function reload() {
     if (!unitId) return;
     setLoading(true);
     try {
-      setList(await getMembers(unitId, { includeInactive }));
+      const [members, hh] = await Promise.all([
+        getMembers(unitId, { includeInactive }),
+        getHouseholds(unitId, { includeInactive: true }),
+      ]);
+      setList(members);
+      setHouseholds(hh);
     } finally {
       setLoading(false);
     }
@@ -117,32 +137,49 @@ export default function AdminMembersPage() {
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th style={{ width: '15%' }}>Status</th>
-                  <th style={{ width: '15%' }} />
+                  <th style={{ width: '28%' }}>Família</th>
+                  <th style={{ width: '10%' }}>Papel</th>
+                  <th style={{ width: '6%' }}>Idade</th>
+                  <th style={{ width: '10%' }}>Status</th>
+                  <th style={{ width: '12%' }} />
                 </tr>
               </thead>
               <tbody>
-                {list.map((m) => (
-                  <tr key={m.id}>
-                    <td>
-                      <input
-                        type="text"
-                        defaultValue={m.name}
-                        onBlur={(e) => onRename(m, e.target.value.trim())}
-                      />
-                    </td>
-                    <td>{m.active === false ? 'Inativo' : 'Ativo'}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => onToggleActive(m)}
-                      >
-                        {m.active === false ? 'Ativar' : 'Desativar'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {list.map((m) => {
+                  const household = m.householdId
+                    ? householdsById.get(m.householdId)
+                    : null;
+                  return (
+                    <tr key={m.id}>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={m.name}
+                          onBlur={(e) => onRename(m, e.target.value.trim())}
+                        />
+                      </td>
+                      <td style={{ color: '#4b5563' }}>
+                        {household?.displayName || household?.name || '—'}
+                      </td>
+                      <td style={{ color: '#4b5563' }}>
+                        {ROLE_LABELS[m.householdRole] || '—'}
+                      </td>
+                      <td style={{ color: '#4b5563' }}>
+                        {m.age ?? '—'}
+                      </td>
+                      <td>{m.active === false ? 'Inativo' : 'Ativo'}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => onToggleActive(m)}
+                        >
+                          {m.active === false ? 'Ativar' : 'Desativar'}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

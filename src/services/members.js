@@ -15,6 +15,32 @@ function membersRef(unitId) {
   return collection(db, 'units', unitId, 'members');
 }
 
+function householdsRef(unitId) {
+  return collection(db, 'units', unitId, 'households');
+}
+
+export async function getHouseholds(unitId, { includeInactive = false } = {}) {
+  const q = includeInactive
+    ? query(householdsRef(unitId), orderBy('name'))
+    : query(
+        householdsRef(unitId),
+        where('active', '==', true),
+        orderBy('name'),
+      );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function getMembersByHousehold(unitId, householdId) {
+  const q = query(
+    membersRef(unitId),
+    where('householdId', '==', householdId),
+    orderBy('name'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
 export async function getMembers(unitId, { includeInactive = false } = {}) {
   const q = includeInactive
     ? query(membersRef(unitId), orderBy('name'))

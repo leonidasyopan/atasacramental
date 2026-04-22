@@ -10,10 +10,15 @@ Lista viva de features **planejadas mas ainda não entregues**. Ordem sugerida d
 
 ### Em avaliação (próximos candidatos)
 
-#### 1. Importação em massa de membros (CSV)
-- **Status:** Não iniciado.
-- **Escopo proposto:** Tela em `/admin/membros` com botão "Importar CSV". Parseia arquivo com colunas `name, active`, valida duplicatas (mesmo nome), mostra preview antes de commitar batch em `units/{unitId}/members/`.
-- **Critérios de aceite:** idempotente (reimportar não duplica); relatório ao final (X criados, Y atualizados, Z ignorados).
+#### 1. CRUD de households + members na UI
+- **Status:** Parcial. O import inicial via `scripts/import-members/` já populou `households/` + `members/` com sobrenome, gênero, idade (menores) e papel na família. A tela `/admin/membros` mostra tudo em modo leitura + permite ativar/desativar.
+- **Faltando:** criar nova família, mover membro entre famílias, editar campos estruturados (`familyName`, `gender`, `birthDate`), preenchimento das datas de nascimento dos adultos.
+- **Estimativa:** 1 dia.
+
+#### 1b. Importação em massa adicional (CSV)
+- **Status:** Não iniciado (o import inicial foi feito via script one-off).
+- **Escopo proposto:** Tela em `/admin/membros` com botão "Importar CSV" para incrementos futuros (novas famílias que entram no ramo). Valida duplicatas via `householdId` determinístico, mostra preview antes do batch.
+- **Critérios de aceite:** idempotente; relatório ao final (X criados, Y atualizados, Z ignorados).
 - **Estimativa:** meio-dia.
 
 #### 2. `/convites` — Convites de discurso
@@ -60,10 +65,15 @@ Botão para superadmin exportar todas as atas da unidade como ZIP de PDFs (ou JS
 
 ### Under evaluation (next candidates)
 
-#### 1. Bulk member import (CSV)
-- **Status:** Not started.
-- **Proposed scope:** `/admin/membros` screen with "Import CSV" button. Parses a file with columns `name, active`, validates duplicates (same name), shows preview before committing a batch to `units/{unitId}/members/`.
-- **Acceptance:** idempotent (re-importing doesn't duplicate); final report (X created, Y updated, Z ignored).
+#### 1. Household + member CRUD UI
+- **Status:** Partial. The initial import via `scripts/import-members/` seeded `households/` + `members/` with family name, gender, age (for minors) and household role. `/admin/membros` surfaces everything read-only plus activate/deactivate.
+- **Remaining:** create new household, move member across households, edit structured fields (`familyName`, `gender`, `birthDate`), backfill adult birth dates.
+- **Estimate:** 1 day.
+
+#### 1b. Additional bulk import (CSV)
+- **Status:** Not started (initial import was a one-off script).
+- **Proposed scope:** `/admin/membros` screen with "Import CSV" button for future increments (new families joining the branch). Dedupes via deterministic `householdId`, preview before batch commit.
+- **Acceptance:** idempotent; final report (X created, Y updated, Z ignored).
 - **Estimate:** half a day.
 
 #### 2. `/convites` — Discourse invites
