@@ -148,6 +148,7 @@ export default function DetailedAttendancePage() {
     setVisitors((prev) => prev.filter((_, i) => i !== idx));
   }, []);
 
+  const checkedMemberIds = useMemo(() => Array.from(presentIds), [presentIds]);
   const memberCount = presentIds.size;
   const visitorCount = visitorsTotal(visitors);
   const total = memberCount + visitorCount;
@@ -239,7 +240,7 @@ export default function DetailedAttendancePage() {
                 key={h.id}
                 household={h}
                 members={membersByHousehold[h.id] || []}
-                checkedMemberIds={Array.from(presentIds)}
+                checkedMemberIds={checkedMemberIds}
                 onToggleHousehold={(checked) =>
                   toggleHousehold(membersByHousehold[h.id] || [], checked)
                 }
@@ -254,7 +255,7 @@ export default function DetailedAttendancePage() {
                   name: 'Sem família cadastrada',
                 }}
                 members={visibleUnassigned}
-                checkedMemberIds={Array.from(presentIds)}
+                checkedMemberIds={checkedMemberIds}
                 onToggleHousehold={(checked) =>
                   toggleHousehold(visibleUnassigned, checked)
                 }
