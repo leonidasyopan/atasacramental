@@ -37,7 +37,7 @@ export default function App() {
         <Route path="/frequencia/simples" element={<SimpleAttendancePage />} />
       </Route>
 
-      <Route element={<ProtectedRoute allowedRoles={['user', 'superadmin']} />}>
+      <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'superadmin']} />}>
         <Route path="/" element={<AtaFormPage />} />
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
