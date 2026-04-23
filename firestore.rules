@@ -126,6 +126,12 @@ service cloud.firestore {
       match /settings/{doc} {
         allow read, write: if belongsToUnit(unitId) || isSuperAdmin();
       }
+
+      match /attendance/{attendanceId} {
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update: if belongsToUnit(unitId);
+        allow delete: if isSuperAdmin();
+      }
     }
   }
 }

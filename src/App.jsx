@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage';
 import DeniedPage from './pages/DeniedPage';
 import AtaFormPage from './pages/AtaFormPage';
 import AtaHistoryPage from './pages/AtaHistoryPage';
+import SimpleAttendancePage from './pages/SimpleAttendancePage';
+import DetailedAttendancePage from './pages/DetailedAttendancePage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminUnitsPage from './pages/admin/AdminUnitsPage';
 import AdminMembersPage from './pages/admin/AdminMembersPage';
@@ -32,10 +34,15 @@ export default function App() {
       <Route path="/denied" element={<DeniedPage />} />
 
       <Route element={<ProtectedRoute />}>
+        <Route path="/frequencia/simples" element={<SimpleAttendancePage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={['user', 'superadmin']} />}>
         <Route path="/" element={<AtaFormPage />} />
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
+        <Route path="/frequencia/detalhado" element={<DetailedAttendancePage />} />
       </Route>
 
       <Route element={<ProtectedRoute requireSuperAdmin />}>
