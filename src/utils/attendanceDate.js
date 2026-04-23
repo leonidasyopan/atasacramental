@@ -6,8 +6,6 @@
  * count can still be entered on Monday/Tuesday.
  */
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
 export function toIsoDate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -18,7 +16,8 @@ export function toIsoDate(date) {
 export function currentSundayIso(now = new Date()) {
   const day = now.getDay();
   if (day === 0) return toIsoDate(now);
-  const lastSunday = new Date(now.getTime() - day * MS_PER_DAY);
+  const lastSunday = new Date(now);
+  lastSunday.setDate(now.getDate() - day);
   return toIsoDate(lastSunday);
 }
 

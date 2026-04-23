@@ -73,10 +73,11 @@ export default function DetailedAttendancePage() {
         ]);
         if (cancelled) return;
 
+        const activeHouseholdIds = new Set(householdsList.map((h) => h.id));
         const byHousehold = {};
         const unassigned = [];
         for (const m of membersList) {
-          if (m.householdId) {
+          if (m.householdId && activeHouseholdIds.has(m.householdId)) {
             (byHousehold[m.householdId] ||= []).push(m);
           } else {
             unassigned.push(m);
