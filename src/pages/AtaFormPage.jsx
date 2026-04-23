@@ -7,6 +7,7 @@ import HymnLookup from '../components/shared/HymnLookup';
 import LeaderSelect, { OTHER } from '../components/shared/LeaderSelect';
 import MembersDatalist from '../components/shared/MembersDatalist';
 import PrintDocument from '../components/print/PrintDocument';
+import AttendancePicker from '../components/ata/AttendancePicker';
 import {
   COL_APOIOS,
   COL_ORD,
@@ -378,12 +379,10 @@ export default function AtaFormPage({ editMode = false }) {
               </div>
               <div className="field">
                 <label>Frequência (nº de presentes)</label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="ex: 28"
+                <AttendancePicker
+                  date={ata.data}
                   value={ata.frequencia}
-                  onChange={(e) => update({ frequencia: e.target.value })}
+                  onChange={(v) => update({ frequencia: v })}
                 />
               </div>
             </div>

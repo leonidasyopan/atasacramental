@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext.jsx';
 import { UnitProvider } from './contexts/UnitContext.jsx';
 import { ToastProvider } from './contexts/ToastContext.jsx';
 import './styles/main.css';
+import './styles/attendance.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

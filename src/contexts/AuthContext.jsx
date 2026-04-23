@@ -78,6 +78,7 @@ export function AuthProvider({ children }) {
       deniedEmail,
       isSuperAdmin:
         userData?.role === 'superadmin' || isSuperAdminEmail(firebaseUser?.email),
+      userRole: userData?.role || 'user',
       isAuthorized: authState === 'ok',
       loading: authState === 'loading',
     }),

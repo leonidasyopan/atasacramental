@@ -11,8 +11,9 @@ export default function AppHeader({
   onReset,
   onPrint,
 }) {
-  const { firebaseUser, isSuperAdmin } = useAuth();
+  const { firebaseUser, isSuperAdmin, userRole } = useAuth();
   const { unit } = useUnit();
+  const isCounterOnly = !isSuperAdmin && userRole === 'counter';
 
   const unitLabel = unit?.name || 'Unidade';
   const stakeLabel = unit?.stake || unit?.estaca || '';
@@ -26,8 +27,18 @@ export default function AppHeader({
       </div>
       <div className="header-actions">
         <nav className="nav-links" style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-          <NavLink to="/" end className="btn btn-ghost btn-sm">Ata</NavLink>
-          <NavLink to="/historico" className="btn btn-ghost btn-sm">Histórico</NavLink>
+          {!isCounterOnly && (
+            <>
+              <NavLink to="/" end className="btn btn-ghost btn-sm">Ata</NavLink>
+              <NavLink to="/historico" className="btn btn-ghost btn-sm">Histórico</NavLink>
+              <NavLink to="/frequencia/detalhado" className="btn btn-ghost btn-sm">
+                Frequência
+              </NavLink>
+            </>
+          )}
+          <NavLink to="/frequencia/simples" className="btn btn-ghost btn-sm">
+            Contagem
+          </NavLink>
           {isSuperAdmin && (
             <NavLink to="/admin/allowed-users" className="btn btn-ghost btn-sm">Admin</NavLink>
           )}

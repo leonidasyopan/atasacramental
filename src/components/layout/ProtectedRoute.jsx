@@ -1,8 +1,11 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function ProtectedRoute({ requireSuperAdmin = false }) {
-  const { authState, isSuperAdmin } = useAuth();
+export default function ProtectedRoute({
+  requireSuperAdmin = false,
+  allowedRoles = null,
+}) {
+  const { authState, isSuperAdmin, userData } = useAuth();
   const location = useLocation();
 
   if (authState === 'loading') return null;
@@ -15,5 +18,13 @@ export default function ProtectedRoute({ requireSuperAdmin = false }) {
   if (requireSuperAdmin && !isSuperAdmin) {
     return <Navigate to="/" replace />;
   }
+
+  if (allowedRoles && !isSuperAdmin) {
+    const userRole = userData?.role || 'user';
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/frequencia/simples" replace />;
+    }
+  }
+
   return <Outlet />;
 }
