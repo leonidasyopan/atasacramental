@@ -65,11 +65,14 @@ export default function AttendancePicker({ date, value, onChange }) {
 
   function handleSelectSource(next) {
     setSource(next);
-    lastSyncedSourceValue.current = null;
     if (next === 'simple' && hasSimple) {
+      lastSyncedSourceValue.current = attendance.simpleCount;
       onChange(String(attendance.simpleCount));
     } else if (next === 'detailed' && hasDetailed) {
+      lastSyncedSourceValue.current = attendance.detailedTotal;
       onChange(String(attendance.detailedTotal));
+    } else {
+      lastSyncedSourceValue.current = null;
     }
   }
 
