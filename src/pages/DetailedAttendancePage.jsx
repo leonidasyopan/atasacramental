@@ -16,6 +16,7 @@ import {
   visitorsTotal,
 } from '../services/attendance';
 import { currentSundayIso, formatPtBrDate } from '../utils/attendanceDate';
+import { normalizeForSearch } from '../utils/textSearch';
 
 function sortHouseholds(households) {
   return [...households].sort((a, b) => {
@@ -28,19 +29,16 @@ function sortHouseholds(households) {
 
 function membersMatchSearch(member, term) {
   if (!term) return true;
-  return (member.name || '').toLowerCase().includes(term);
+  return normalizeForSearch(member.name).includes(term);
 }
 
 function householdMatchesSearch(household, members, term) {
   if (!term) return true;
-  const haystack = [
-    household.name,
-    household.displayName,
-    household.headNames,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
+  const haystack = normalizeForSearch(
+    [household.name, household.displayName, household.headNames]
+      .filter(Boolean)
+      .join(' '),
+  );
   if (haystack.includes(term)) return true;
   return members.some((m) => membersMatchSearch(m, term));
 }
@@ -166,7 +164,7 @@ export default function DetailedAttendancePage() {
   const visitorCount = visitorsTotal(visitors);
   const total = memberCount + visitorCount;
 
-  const searchTerm = search.trim().toLowerCase();
+  const searchTerm = normalizeForSearch(search.trim());
 
   const visibleHouseholds = useMemo(() => {
     return households.filter((h) =>
