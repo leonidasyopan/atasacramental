@@ -8,6 +8,7 @@ import LeaderSelect, { OTHER } from '../components/shared/LeaderSelect';
 import MembersDatalist from '../components/shared/MembersDatalist';
 import PrintDocument from '../components/print/PrintDocument';
 import AttendancePicker from '../components/ata/AttendancePicker';
+import KebabMenu from '../components/layout/KebabMenu';
 import {
   COL_APOIOS,
   COL_ORD,
@@ -310,21 +311,68 @@ export default function AtaFormPage({ editMode = false }) {
 
   return (
     <>
-      <AppHeader
-        fontSizePt={fontSizePt}
-        onFontSizeChange={onFontSizeChange}
-        onReset={onReset}
-        onPrint={onPrint}
-      />
+      <AppHeader />
 
       <div className="app-content">
         <MembersDatalist />
-        <div className="save-indicator" data-status={saveIndicatorStatus}>
-          {!isEditing && saveStatus === 'saving' && 'Salvando...'}
-          {!isEditing && saveStatus === 'saved' && 'Salvo'}
-          {!isEditing && saveStatus === 'error' && 'Erro ao salvar'}
-          {!isEditing && saveStatus === 'idle' && ataId && 'Rascunho'}
-          {isEditing && savingEdit && 'Salvando...'}
+        <div className="ata-toolbar">
+          <div
+            className="save-indicator save-indicator-inline"
+            data-status={saveIndicatorStatus}
+          >
+            {!isEditing && saveStatus === 'saving' && 'Salvando...'}
+            {!isEditing && saveStatus === 'saved' && 'Salvo'}
+            {!isEditing && saveStatus === 'error' && 'Erro ao salvar'}
+            {!isEditing && saveStatus === 'idle' && ataId && 'Rascunho'}
+            {isEditing && savingEdit && 'Salvando...'}
+          </div>
+          <div className="ata-toolbar-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={onPrint}
+            >
+              ⇩ Imprimir / PDF
+            </button>
+            <KebabMenu label="Mais ações da ata">
+              {({ close }) => (
+                <>
+                  <button
+                    type="button"
+                    className="kebab-item"
+                    onClick={() => {
+                      close();
+                      onReset();
+                    }}
+                  >
+                    ↺ Limpar tudo
+                  </button>
+                  <div className="kebab-group" role="group" aria-label="Tamanho da fonte">
+                    <span className="kebab-group-label">Fonte</span>
+                    <div className="kebab-group-actions">
+                      <button
+                        type="button"
+                        className="kebab-icon-btn"
+                        onClick={() => onFontSizeChange(-1)}
+                        aria-label="Diminuir fonte"
+                      >
+                        A−
+                      </button>
+                      <span className="kebab-group-value">{fontSizePt}pt</span>
+                      <button
+                        type="button"
+                        className="kebab-icon-btn"
+                        onClick={() => onFontSizeChange(+1)}
+                        aria-label="Aumentar fonte"
+                      >
+                        A+
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </KebabMenu>
+          </div>
         </div>
 
         {isEditing && (
