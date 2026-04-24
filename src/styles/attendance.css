@@ -382,9 +382,10 @@
   min-width: 0;
 }
 
-.attendance-picker-select {
+.attendance-picker-row .attendance-picker-select {
   flex: 0 0 auto;
   min-width: 140px;
+  width: auto;
   padding: 0 10px;
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -395,7 +396,7 @@
   cursor: pointer;
 }
 
-.attendance-picker-select:focus {
+.attendance-picker-row .attendance-picker-select:focus {
   outline: none;
   border-color: var(--blue);
   box-shadow: 0 0 0 2px rgba(46, 95, 171, 0.2);
@@ -405,7 +406,7 @@
   .attendance-picker-row {
     flex-direction: column;
   }
-  .attendance-picker-select {
+  .attendance-picker-row .attendance-picker-select {
     width: 100%;
   }
 }
