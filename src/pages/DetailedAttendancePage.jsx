@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AppHeader from '../components/layout/AppHeader';
 import AttendanceSummary from '../components/attendance/AttendanceSummary';
 import HouseholdCard from '../components/attendance/HouseholdCard';
 import VisitorEntry from '../components/attendance/VisitorEntry';
+import OtherCountCard from '../components/attendance/OtherCountCard';
 import { useAuth } from '../hooks/useAuth';
 import { useUnit } from '../hooks/useUnit';
 import { useToast } from '../contexts/ToastContext';
@@ -47,8 +49,12 @@ export default function DetailedAttendancePage() {
   const { firebaseUser } = useAuth();
   const { unitId, loading: unitLoading } = useUnit();
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
 
-  const todayDate = useMemo(() => currentSundayIso(), []);
+  const todayIso = useMemo(() => currentSundayIso(), []);
+  const queryDate = searchParams.get('date');
+  const targetDate = queryDate || todayIso;
+  const isHistorical = Boolean(queryDate) && queryDate !== todayIso;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,6 +65,7 @@ export default function DetailedAttendancePage() {
   const [visitors, setVisitors] = useState([]);
   const [search, setSearch] = useState('');
   const [hadExistingDetailed, setHadExistingDetailed] = useState(false);
+  const [simpleCount, setSimpleCount] = useState(null);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -69,7 +76,7 @@ export default function DetailedAttendancePage() {
         const [householdsList, membersList, existing] = await Promise.all([
           getHouseholds(unitId),
           getMembers(unitId),
-          getAttendance(unitId, todayDate),
+          getAttendance(unitId, targetDate),
         ]);
         if (cancelled) return;
 
@@ -109,6 +116,11 @@ export default function DetailedAttendancePage() {
           Boolean(existing?.detailedCountAt) ||
             Boolean(existing?.detailedTotal),
         );
+        setSimpleCount(
+          Number.isFinite(existing?.simpleCount)
+            ? existing.simpleCount
+            : null,
+        );
       } catch (err) {
         console.error('Falha ao carregar frequência detalhada:', err);
         showToast('Erro ao carregar dados.');
@@ -119,7 +131,7 @@ export default function DetailedAttendancePage() {
     return () => {
       cancelled = true;
     };
-  }, [unitId, unitLoading, todayDate, showToast]);
+  }, [unitId, unitLoading, targetDate, showToast]);
 
   const toggleMember = useCallback((memberId, checked) => {
     setPresentIds((prev) => {
@@ -174,7 +186,7 @@ export default function DetailedAttendancePage() {
       const presentMemberIds = Array.from(presentIds);
       await saveDetailedAttendance(
         unitId,
-        todayDate,
+        targetDate,
         { presentMemberIds, visitors, detailedTotal: total },
         firebaseUser?.uid,
       );
@@ -221,12 +233,24 @@ export default function DetailedAttendancePage() {
       <div className="app-content">
         <div className="attendance-detailed">
           <AttendanceSummary
-            date={formatPtBrDate(todayDate)}
+            date={formatPtBrDate(targetDate)}
             memberCount={memberCount}
             visitorCount={visitorCount}
             total={total}
             searchValue={search}
             onSearchChange={setSearch}
+          />
+
+          {isHistorical && (
+            <p className="attendance-historical-hint attendance-historical-hint-top">
+              Editando frequência de um domingo passado.
+            </p>
+          )}
+
+          <OtherCountCard
+            currentMode="detailed"
+            otherValue={simpleCount}
+            date={targetDate}
           />
 
           <div className="attendance-households">

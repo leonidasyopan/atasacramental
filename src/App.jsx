@@ -6,6 +6,7 @@ import AtaFormPage from './pages/AtaFormPage';
 import AtaHistoryPage from './pages/AtaHistoryPage';
 import SimpleAttendancePage from './pages/SimpleAttendancePage';
 import DetailedAttendancePage from './pages/DetailedAttendancePage';
+import AttendanceHistoryPage from './pages/AttendanceHistoryPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminUnitsPage from './pages/admin/AdminUnitsPage';
 import AdminMembersPage from './pages/admin/AdminMembersPage';
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
         <Route path="/frequencia/detalhado" element={<DetailedAttendancePage />} />
+        <Route path="/frequencia/historico" element={<AttendanceHistoryPage />} />
       </Route>
 
       <Route element={<ProtectedRoute requireSuperAdmin />}>

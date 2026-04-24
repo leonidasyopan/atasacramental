@@ -1,113 +1,28 @@
-import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useUnit } from '../../hooks/useUnit';
-import { signOutUser } from '../../services/auth';
 
-export default function AppHeader({
-  unitType,
-  onUnitTypeChange,
-  fontSizePt,
-  onFontSizeChange,
-  onReset,
-  onPrint,
-}) {
-  const { firebaseUser, isSuperAdmin, userRole } = useAuth();
+/**
+ * Compact top bar with the app title and the unit/stake subtitle. Navigation
+ * links and the user menu now live in the sidebar (`AppSidebar`), and
+ * page-specific actions render within each page itself (e.g. the kebab menu
+ * on `AtaFormPage`).
+ */
+export default function AppHeader() {
+  const { firebaseUser } = useAuth();
   const { unit } = useUnit();
-  const isCounterOnly = !isSuperAdmin && userRole === 'counter';
 
   const unitLabel = unit?.name || 'Unidade';
   const stakeLabel = unit?.stake || unit?.estaca || '';
   const subtitle = stakeLabel ? `${unitLabel} · ${stakeLabel}` : unitLabel;
 
+  // Expose the user's email to assistive tech via the aria label only.
+  const userEmail = firebaseUser?.email || '';
+
   return (
-    <header className="app-header">
-      <div>
+    <header className="app-header" aria-label={userEmail}>
+      <div className="app-header-brand">
         <h1>Ata da Reunião Sacramental</h1>
         <small>{subtitle}</small>
-      </div>
-      <div className="header-actions">
-        <nav className="nav-links" style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-          {!isCounterOnly && (
-            <>
-              <NavLink to="/" end className="btn btn-ghost btn-sm">Ata</NavLink>
-              <NavLink to="/historico" className="btn btn-ghost btn-sm">Histórico</NavLink>
-              <NavLink to="/frequencia/detalhado" className="btn btn-ghost btn-sm">
-                Frequência
-              </NavLink>
-            </>
-          )}
-          <NavLink to="/frequencia/simples" className="btn btn-ghost btn-sm">
-            Contagem
-          </NavLink>
-          {isSuperAdmin && (
-            <NavLink to="/admin/allowed-users" className="btn btn-ghost btn-sm">Admin</NavLink>
-          )}
-        </nav>
-
-        {onUnitTypeChange && (
-          <div className="unit-toggle" title="Tipo de unidade">
-            <button
-              className={`unit-btn${unitType === 'ramo' ? ' active' : ''}`}
-              onClick={() => onUnitTypeChange('ramo')}
-              type="button"
-            >
-              Ramo
-            </button>
-            <button
-              className={`unit-btn${unitType === 'ala' ? ' active' : ''}`}
-              onClick={() => onUnitTypeChange('ala')}
-              type="button"
-            >
-              Ala
-            </button>
-          </div>
-        )}
-
-        {onFontSizeChange && (
-          <div className="font-size-ctrl" title="Ajustar tamanho da fonte do documento impresso">
-            <button
-              className="btn btn-ghost"
-              onClick={() => onFontSizeChange(-1)}
-              title="Diminuir fonte (1pt)"
-              type="button"
-            >
-              A−
-            </button>
-            <span className="fs-label">{fontSizePt}pt</span>
-            <button
-              className="btn btn-ghost"
-              onClick={() => onFontSizeChange(+1)}
-              title="Aumentar fonte (1pt)"
-              type="button"
-            >
-              A+
-            </button>
-          </div>
-        )}
-
-        {onReset && (
-          <button className="btn btn-ghost" onClick={onReset} type="button">
-            ↺ Limpar
-          </button>
-        )}
-        {onPrint && (
-          <button className="btn btn-primary" onClick={onPrint} type="button">
-            ⇩ Imprimir / PDF
-          </button>
-        )}
-
-        <div className="user-info">
-          <span className="user-name" title={firebaseUser?.email || ''}>
-            {firebaseUser?.displayName || firebaseUser?.email || ''}
-          </span>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => signOutUser()}
-            type="button"
-          >
-            Sair
-          </button>
-        </div>
       </div>
     </header>
   );

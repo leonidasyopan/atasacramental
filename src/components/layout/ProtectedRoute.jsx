@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import AppSidebar from './AppSidebar';
 
 export default function ProtectedRoute({
   requireSuperAdmin = false,
@@ -26,5 +27,10 @@ export default function ProtectedRoute({
     }
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <AppSidebar />
+      <Outlet />
+    </>
+  );
 }
