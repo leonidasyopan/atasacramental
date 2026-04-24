@@ -1,5 +1,44 @@
 import ChamadosDialog from './ChamadosDialog';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+/**
+ * Single-line-by-default textarea that grows to fit wrapped text. Used in
+ * place of `<input type="text">` for dynamic-table cells without native
+ * datalist autocomplete, so long values (e.g. chamado names) wrap instead
+ * of truncating horizontally.
+ *
+ * Note: columns bound to a `<datalist>` keep using `<input type="text">`
+ * because the `list` attribute is ignored on `<textarea>`.
+ */
+function AutoGrowTextarea({ value, onChange, placeholder, className }) {
+  const ref = useRef(null);
+
+  const resize = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  useEffect(() => {
+    resize();
+  }, [value, resize]);
+
+  return (
+    <textarea
+      ref={ref}
+      className={className}
+      rows={1}
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => {
+        onChange(e);
+        resize();
+      }}
+      onInput={resize}
+    />
+  );
+}
 
 /**
  * Generic table with add/remove rows.
@@ -95,17 +134,30 @@ export default function DynamicTable({
                     </td>
                   );
                 }
-                // text (optionally with chamado picker / member autocomplete)
+                // text (optionally with chamado picker / member autocomplete).
+                // Columns bound to a datalist keep <input> so the native
+                // autocomplete dropdown keeps working; others use an
+                // auto-growing textarea so long content wraps instead of
+                // truncating horizontally.
                 return (
                   <td key={colIdx}>
-                    <input
-                      type="text"
-                      placeholder={col.ph}
-                      value={value}
-                      onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
-                      list={col.datalistId || undefined}
-                      autoComplete={col.datalistId ? 'off' : undefined}
-                    />
+                    {col.datalistId ? (
+                      <input
+                        type="text"
+                        placeholder={col.ph}
+                        value={value}
+                        onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
+                        list={col.datalistId}
+                        autoComplete="off"
+                      />
+                    ) : (
+                      <AutoGrowTextarea
+                        className="dyn-table-textarea"
+                        placeholder={col.ph}
+                        value={value}
+                        onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
+                      />
+                    )}
                     {col.chamadoPicker && (
                       <button
                         type="button"

@@ -7,6 +7,22 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 export default [
   { ignores: ['dist', 'node_modules', 'coverage'] },
   {
+    files: ['**/*.test.{js,jsx}', 'test/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2022,

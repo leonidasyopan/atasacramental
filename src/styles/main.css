@@ -167,7 +167,7 @@ body {
   overflow: hidden;
   transition: opacity .2s, transform .2s;
 }
-.card.disabled-section {
+.card.disabled-section .card-body {
   opacity: .45;
   pointer-events: none;
 }
@@ -322,7 +322,8 @@ body {
   text-align: left;
 }
 .dyn-table td { padding: 3px 3px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.dyn-table td input, .dyn-table td select {
+.dyn-table td:has(.dyn-table-textarea) { vertical-align: top; }
+.dyn-table td input, .dyn-table td select, .dyn-table td .dyn-table-textarea {
   border: 1px solid transparent;
   border-radius: 5px;
   padding: 6px 7px;
@@ -332,7 +333,7 @@ body {
   background: transparent;
   color: var(--text);
 }
-.dyn-table td input:focus, .dyn-table td select:focus {
+.dyn-table td input:focus, .dyn-table td select:focus, .dyn-table td .dyn-table-textarea:focus {
   outline: none;
   border-color: var(--blue);
   background: var(--light-blue);
@@ -1037,8 +1038,7 @@ body {
 .chamado-pick-btn {
   position: absolute;
   right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1049,6 +1049,20 @@ body {
 }
 .chamado-pick-btn:hover { background: rgba(27,58,107,.08); }
 .dyn-table td { position: relative; }
+
+/* Auto-grow textarea used in place of text inputs in dynamic tables,
+   so long content wraps instead of truncating horizontally. */
+.dyn-table-textarea {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  min-height: 28px;
+}
 
 /* chamados dialog — category pills + list items */
 .cd-cat-btn {
@@ -1086,11 +1100,7 @@ body {
 /* nav-links container */
 .nav-links { gap: 4px; flex-shrink: 0; }
 
-/* disabled section visual hint */
-.card.disabled-section .card-body {
-  opacity: .55;
-  pointer-events: none;
-}
+
 
 /* ═══════════════════════════════════════════
    APP SIDEBAR (persistent on desktop, drawer on mobile)

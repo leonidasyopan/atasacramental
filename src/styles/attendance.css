@@ -371,6 +371,45 @@
 }
 
 /* --- AttendancePicker (embedded in Ata form) --- */
+.attendance-picker-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.attendance-picker-row input[type='number'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.attendance-picker-select {
+  flex: 0 0 auto;
+  min-width: 140px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.attendance-picker-select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(46, 95, 171, 0.2);
+}
+
+@media (max-width: 520px) {
+  .attendance-picker-row {
+    flex-direction: column;
+  }
+  .attendance-picker-select {
+    width: 100%;
+  }
+}
+
 .attendance-picker {
   display: flex;
   flex-direction: column;
