@@ -22,7 +22,8 @@ export default function OtherCountCard({
     ? 'Registrar contagem simples'
     : 'Registrar contagem detalhada';
 
-  const hasValue = Number.isFinite(Number(otherValue));
+  const hasValue =
+    otherValue != null && Number.isFinite(Number(otherValue));
   const url = date
     ? `${otherPath}?date=${encodeURIComponent(date)}`
     : otherPath;
