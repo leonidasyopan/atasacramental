@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getAttendance } from '../../services/attendance';
 import { useUnit } from '../../hooks/useUnit';
 
@@ -9,14 +9,16 @@ import { useUnit } from '../../hooks/useUnit';
  *  - simpleCount: quick tally from the counter role
  *  - detailedTotal: members + visitors from the detailed flow
  *
- * When both exist, the secretary picks which value to copy onto the Ata;
- * the input always remains editable as a manual override.
+ * Layout: a number input with an inline compact dropdown. Selecting
+ * "Detalhada" or "Simples" copies that value into the input; "Manual"
+ * keeps the current number editable and doesn't change it.
  */
 export default function AttendancePicker({ date, value, onChange }) {
   const { unitId } = useUnit();
   const [loading, setLoading] = useState(false);
   const [attendance, setAttendance] = useState(null);
   const [source, setSource] = useState('manual');
+  const lastSyncedSourceValue = useRef(null);
 
   useEffect(() => {
     if (!unitId || !date) {
@@ -45,67 +47,80 @@ export default function AttendancePicker({ date, value, onChange }) {
   const hasSimple = Number.isFinite(attendance?.simpleCount);
   const hasDetailed = Number.isFinite(attendance?.detailedTotal);
 
-  function applyValue(raw) {
-    const str = raw === null || raw === undefined ? '' : String(raw);
-    onChange(str);
-  }
+  // If the selected source's count gets updated server-side (e.g. counter
+  // saves a new simpleCount), reflect that in the input automatically.
+  useEffect(() => {
+    if (source === 'manual') return;
+    const next =
+      source === 'simple' && hasSimple
+        ? attendance.simpleCount
+        : source === 'detailed' && hasDetailed
+          ? attendance.detailedTotal
+          : null;
+    if (next == null) return;
+    if (lastSyncedSourceValue.current === next) return;
+    lastSyncedSourceValue.current = next;
+    onChange(String(next));
+  }, [source, hasSimple, hasDetailed, attendance, onChange]);
 
   function handleSelectSource(next) {
     setSource(next);
-    if (next === 'simple' && hasSimple) applyValue(attendance.simpleCount);
-    else if (next === 'detailed' && hasDetailed)
-      applyValue(attendance.detailedTotal);
+    lastSyncedSourceValue.current = null;
+    if (next === 'simple' && hasSimple) {
+      onChange(String(attendance.simpleCount));
+    } else if (next === 'detailed' && hasDetailed) {
+      onChange(String(attendance.detailedTotal));
+    }
   }
+
+  const sourceOptions = [];
+  if (hasDetailed) {
+    sourceOptions.push({
+      value: 'detailed',
+      label: `Detalhada (${attendance.detailedTotal})`,
+    });
+  }
+  if (hasSimple) {
+    sourceOptions.push({
+      value: 'simple',
+      label: `Simples (${attendance.simpleCount})`,
+    });
+  }
+  sourceOptions.push({ value: 'manual', label: 'Manual' });
+
+  const showDropdown = !loading && (hasSimple || hasDetailed);
 
   return (
     <div className="attendance-picker">
-      <input
-        type="number"
-        min="0"
-        placeholder="ex: 28"
-        value={value}
-        onChange={(e) => {
-          setSource('manual');
-          onChange(e.target.value);
-        }}
-      />
+      <div className="attendance-picker-row">
+        <input
+          type="number"
+          min="0"
+          placeholder="ex: 28"
+          value={value}
+          onChange={(e) => {
+            setSource('manual');
+            lastSyncedSourceValue.current = null;
+            onChange(e.target.value);
+          }}
+        />
+        {showDropdown && (
+          <select
+            className="attendance-picker-select"
+            value={source}
+            onChange={(e) => handleSelectSource(e.target.value)}
+            aria-label="Fonte da contagem"
+          >
+            {sourceOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
       {loading && (
         <p className="attendance-picker-hint">Carregando contagens salvas...</p>
-      )}
-      {!loading && (hasSimple || hasDetailed) && (
-        <div className="attendance-picker-options">
-          {hasSimple && (
-            <label className="attendance-picker-option">
-              <input
-                type="radio"
-                name="attendance-picker"
-                checked={source === 'simple'}
-                onChange={() => handleSelectSource('simple')}
-              />
-              Contagem simples: <strong>{attendance.simpleCount}</strong>
-            </label>
-          )}
-          {hasDetailed && (
-            <label className="attendance-picker-option">
-              <input
-                type="radio"
-                name="attendance-picker"
-                checked={source === 'detailed'}
-                onChange={() => handleSelectSource('detailed')}
-              />
-              Contagem detalhada: <strong>{attendance.detailedTotal}</strong>
-            </label>
-          )}
-          <label className="attendance-picker-option">
-            <input
-              type="radio"
-              name="attendance-picker"
-              checked={source === 'manual'}
-              onChange={() => setSource('manual')}
-            />
-            Manual
-          </label>
-        </div>
       )}
       {!loading && !hasSimple && !hasDetailed && date && (
         <p className="attendance-picker-hint">

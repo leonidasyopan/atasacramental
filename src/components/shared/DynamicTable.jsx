@@ -1,5 +1,43 @@
 import ChamadosDialog from './ChamadosDialog';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+/**
+ * Single-line-by-default textarea that grows to fit wrapped text. Used in
+ * place of `<input type="text">` for dynamic-table cells so long values
+ * (e.g. chamado names) are fully visible instead of horizontally truncated.
+ */
+function AutoGrowTextarea({ value, onChange, placeholder, list, autoComplete, className }) {
+  const ref = useRef(null);
+
+  const resize = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  useEffect(() => {
+    resize();
+  }, [value, resize]);
+
+  return (
+    <textarea
+      ref={ref}
+      className={className}
+      rows={1}
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => {
+        onChange(e);
+        resize();
+      }}
+      onInput={resize}
+      // Allow the browser to fall back to input-like behavior where it can.
+      list={list}
+      autoComplete={autoComplete}
+    />
+  );
+}
 
 /**
  * Generic table with add/remove rows.
@@ -98,8 +136,8 @@ export default function DynamicTable({
                 // text (optionally with chamado picker / member autocomplete)
                 return (
                   <td key={colIdx}>
-                    <input
-                      type="text"
+                    <AutoGrowTextarea
+                      className="dyn-table-textarea"
                       placeholder={col.ph}
                       value={value}
                       onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
