@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getCallings, CALLING_GROUP_LABELS } from '../../data/callings';
+import { normalizeForSearch } from '../../utils/textSearch';
 
 export default function ChamadosDialog({ unitType = 'ramo', onPick, onClose }) {
   const [search, setSearch] = useState('');
@@ -19,9 +20,10 @@ export default function ChamadosDialog({ unitType = 'ramo', onPick, onClose }) {
     Object.entries(callings).forEach(([key, list]) => {
       list.forEach((name) => all.push({ category: key, name }));
     });
+    const needle = normalizeForSearch(search);
     const filtered = all.filter((e) => {
       if (category !== 'all' && e.category !== category) return false;
-      if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (needle && !normalizeForSearch(e.name).includes(needle)) return false;
       return true;
     });
     return filtered;
