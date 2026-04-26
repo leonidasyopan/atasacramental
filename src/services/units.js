@@ -51,6 +51,7 @@ export async function addLeader(unitId, leader) {
   await setDoc(ref, {
     name: leader.name,
     calling: leader.calling || '',
+    phone: leader.phone || '',
     order: leader.order ?? 0,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

@@ -22,7 +22,9 @@ const STATUS_ACTIONS = {
   concluido: [],
 };
 
-export default function InviteCard({ invite, onStatusChange, onEdit }) {
+const POSITION_LABELS = { '1': '1º Orador', '2': '2º Orador', '3': '3º Orador' };
+
+export default function InviteCard({ invite, onStatusChange, onEdit, onGenerateLetter }) {
   const actions = STATUS_ACTIONS[invite.status] || [];
 
   return (
@@ -43,6 +45,16 @@ export default function InviteCard({ invite, onStatusChange, onEdit }) {
         {invite.topic && (
           <div className="invite-card-detail">
             <span className="invite-card-label">Tema:</span> {invite.topic}
+          </div>
+        )}
+        {invite.position && (
+          <div className="invite-card-detail">
+            <span className="invite-card-label">Posição:</span> {POSITION_LABELS[invite.position] || invite.position}
+          </div>
+        )}
+        {invite.duration && (
+          <div className="invite-card-detail">
+            <span className="invite-card-label">Tempo:</span> {invite.duration} min
           </div>
         )}
         {invite.notes && (
@@ -70,6 +82,15 @@ export default function InviteCard({ invite, onStatusChange, onEdit }) {
             onClick={() => onEdit(invite)}
           >
             Editar
+          </button>
+        )}
+        {onGenerateLetter && (
+          <button
+            type="button"
+            className="btn btn-ghost-dark btn-sm"
+            onClick={() => onGenerateLetter(invite)}
+          >
+            Gerar Carta
           </button>
         )}
       </div>

@@ -1,0 +1,151 @@
+/* ═══════════════════════════════════════════
+   INVITE LETTER – PRINT STYLES
+═══════════════════════════════════════════ */
+
+/* Hidden on screen */
+.print-invite-letter {
+  display: none;
+}
+
+/* ── Print overrides ── */
+@media print {
+  @page { size: A4; margin: 15mm 18mm; }
+
+  /* Hide everything except the letter */
+  body, html { background: white !important; }
+  .app-header,
+  .form-wrap,
+  .print-doc,
+  .invite-form-overlay { display: none !important; }
+  .print-invite-letter { display: block !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+/* ── Letter layout ── */
+.print-invite-letter {
+  font-family: 'Lato', sans-serif;
+  font-size: 11pt;
+  color: #111;
+  line-height: 1.5;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.print-invite-letter .letter-header {
+  text-align: center;
+  border-bottom: 2.5pt solid #1B3A6B;
+  padding-bottom: 8pt;
+  margin-bottom: 14pt;
+}
+.print-invite-letter .church-name {
+  font-size: 7pt;
+  color: #1B3A6B;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 3pt;
+}
+.print-invite-letter .letter-stake {
+  font-size: 9pt;
+  color: #2E5FAB;
+  letter-spacing: .04em;
+  margin-bottom: 2pt;
+}
+.print-invite-letter .letter-unit {
+  font-family: 'EB Garamond', serif;
+  font-size: 16pt;
+  font-weight: 700;
+  color: #1B3A6B;
+}
+
+/* ── Title ── */
+.print-invite-letter .letter-title {
+  text-align: center;
+  font-size: 12pt;
+  font-weight: 700;
+  color: #2E5FAB;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 16pt;
+}
+
+/* ── Body ── */
+.print-invite-letter .letter-body {
+  margin-bottom: 14pt;
+}
+.print-invite-letter .letter-body p {
+  margin: 0 0 8pt 0;
+  text-align: justify;
+}
+
+/* ── Section ("Como se preparar") ── */
+.print-invite-letter .letter-section {
+  margin-bottom: 12pt;
+}
+.print-invite-letter .letter-section-title {
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #1B3A6B;
+  border-bottom: 1.5pt solid #2E5FAB;
+  padding-bottom: 3pt;
+  margin-bottom: 8pt;
+}
+.print-invite-letter .letter-prep-list {
+  margin: 0;
+  padding-left: 18pt;
+}
+.print-invite-letter .letter-prep-list li {
+  margin-bottom: 4pt;
+  line-height: 1.4;
+}
+
+/* ── Citation ── */
+.print-invite-letter .letter-citation {
+  background: #f5f8ff;
+  border-left: 3pt solid #2E5FAB;
+  padding: 8pt 12pt;
+  margin-bottom: 14pt;
+  font-size: 9pt;
+  font-style: italic;
+  color: #333;
+  line-height: 1.4;
+}
+.print-invite-letter .letter-citation p {
+  margin: 0;
+}
+
+/* ── Closing ── */
+.print-invite-letter .letter-closing {
+  margin-bottom: 20pt;
+}
+.print-invite-letter .letter-closing p {
+  margin: 0 0 6pt 0;
+}
+
+/* ── Signatures ── */
+.print-invite-letter .letter-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32pt;
+  margin-top: 24pt;
+}
+.print-invite-letter .letter-sig-block {
+  text-align: center;
+}
+.print-invite-letter .letter-sig-line {
+  border-top: 0.7pt solid #333;
+  width: 100%;
+  margin-bottom: 4pt;
+}
+.print-invite-letter .letter-sig-name {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #111;
+}
+.print-invite-letter .letter-sig-calling {
+  font-size: 8pt;
+  color: #555;
+  letter-spacing: .02em;
+}

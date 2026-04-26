@@ -8,6 +8,8 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
   const [isExternal, setIsExternal] = useState(initial.isExternal || false);
   const [memberName, setMemberName] = useState(initial.memberName || '');
   const [dataAlvo, setDataAlvo] = useState(initial.dataAlvo || getNextSunday());
+  const [position, setPosition] = useState(initial.position || '');
+  const [duration, setDuration] = useState(initial.duration || '');
   const [topic, setTopic] = useState(initial.topic || '');
   const [notes, setNotes] = useState(initial.notes || '');
   const [saving, setSaving] = useState(false);
@@ -30,6 +32,8 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
         memberId: memberId || null,
         memberName: memberName.trim(),
         dataAlvo,
+        position: position || null,
+        duration: duration ? Number(duration) : null,
         topic: topic.trim() || null,
         notes: notes.trim() || null,
         isExternal,
@@ -97,6 +101,28 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
             value={dataAlvo}
             onChange={(e) => setDataAlvo(e.target.value)}
           />
+        </div>
+
+        <div className="field-row" style={{ marginBottom: 14, gap: 12 }}>
+          <div className="field">
+            <label>Posição</label>
+            <select value={position} onChange={(e) => setPosition(e.target.value)}>
+              <option value="">—</option>
+              <option value="1">1º Orador</option>
+              <option value="2">2º Orador</option>
+              <option value="3">3º Orador</option>
+            </select>
+          </div>
+          <div className="field">
+            <label>Tempo de discurso</label>
+            <select value={duration} onChange={(e) => setDuration(e.target.value)}>
+              <option value="">—</option>
+              <option value="5">5 min</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="20">20 min</option>
+            </select>
+          </div>
         </div>
 
         <div className="field" style={{ marginBottom: 14 }}>
