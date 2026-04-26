@@ -214,6 +214,117 @@
   min-width: 0;
 }
 
+/* ── Search and Filter Bar ── */
+.speakers-search-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.speakers-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-height: 44px; /* Touch target minimum */
+}
+.speakers-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 150px;
+  min-height: 44px; /* Touch target minimum */
+}
+
+/* ── Shared SearchFilterBar Component ── */
+.search-filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-filter-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-height: 44px; /* Touch target minimum */
+}
+.search-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 150px;
+  min-height: 44px; /* Touch target minimum */
+}
+
+/* ── Bulk Actions Bar ── */
+.speakers-bulk-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+/* ── Pagination ── */
+.speakers-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+/* ── Shared Pagination Component ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+}
+.pagination-info {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ── Keyboard Shortcuts Hint ── */
+.speakers-shortcuts-hint {
+  margin-top: 24px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Loading Skeleton ── */
+.speakers-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.speakers-skeleton-row {
+  height: 44px;
+  margin-bottom: 8px;
+}
+.speakers-skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+  width: 60%;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .speakers-tabs,
@@ -229,5 +340,19 @@
   }
   .speakers-cards-grid {
     grid-template-columns: 1fr;
+  }
+  .speakers-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .speakers-search-input,
+  .speakers-filter-select {
+    width: 100%;
+  }
+  .speakers-bulk-actions {
+    flex-wrap: wrap;
+  }
+  .speakers-pagination {
+    flex-wrap: wrap;
   }
 }
