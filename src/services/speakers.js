@@ -20,16 +20,6 @@ export async function getSpeakerLog(unitId, { max = 500 } = {}) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function getMemberSpeakingHistory(unitId, memberName) {
-  const q = query(
-    speakerLogRef(unitId),
-    where('name', '==', memberName),
-    orderBy('data', 'desc'),
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
 export async function getSpeakerLogByMemberId(unitId, memberId) {
   const q = query(
     speakerLogRef(unitId),
