@@ -35,17 +35,27 @@ export default function TopicManager({ topics, reload }) {
   }
 
   async function handleRemove(index) {
-    const updated = topics.filter((_, i) => i !== index);
-    await saveDiscourseTopics(unitId, updated);
-    showToast('Tema removido.');
-    await reload();
+    try {
+      const updated = topics.filter((_, i) => i !== index);
+      await saveDiscourseTopics(unitId, updated);
+      showToast('Tema removido.');
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao remover tema.');
+    }
   }
 
   async function handleClearAll() {
     if (!confirm('Remover todos os temas? Esta ação não pode ser desfeita.')) return;
-    await saveDiscourseTopics(unitId, []);
-    showToast('Todos os temas foram removidos.');
-    await reload();
+    try {
+      await saveDiscourseTopics(unitId, []);
+      showToast('Todos os temas foram removidos.');
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao remover temas.');
+    }
   }
 
   return (
