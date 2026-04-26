@@ -135,16 +135,16 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   const upcoming = useMemo(() => getUpcomingInvites(invites), [invites]);
 
-  // Get unique topics from speaker log for theme filter
+  // Get unique topics from period-filtered data for theme filter.
+  // Derived from `alreadySpoke` (not raw `speakerLog`) so the dropdown only
+  // shows topics that actually match items in the current period view.
   const availableTopics = useMemo(() => {
     const topicSet = new Set();
-    if (Array.isArray(speakerLog)) {
-      speakerLog.forEach(entry => {
-        if (entry.topic) topicSet.add(entry.topic);
-      });
-    }
+    alreadySpoke.forEach(({ lastSpeech }) => {
+      if (lastSpeech?.topic) topicSet.add(lastSpeech.topic);
+    });
     return Array.from(topicSet).sort();
-  }, [speakerLog]);
+  }, [alreadySpoke]);
 
   // Filter and sort data based on current tab, search, and filters
   const filteredData = useMemo(() => {
@@ -230,7 +230,9 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
         e.target.tagName === 'SELECT'
       ) return;
       
-      if (e.key === '/' || (e.key === 'f' && (e.ctrlKey || e.metaKey))) {
+      // Only intercept `/` for search; leave Ctrl+F / Cmd+F to the browser's
+      // native find-in-page so users can still search arbitrary page text.
+      if (e.key === '/') {
         e.preventDefault();
         document.getElementById('speaker-search-input')?.focus();
       } else if (e.key === 'c' && !e.ctrlKey && !e.metaKey) {
@@ -370,12 +372,6 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
       console.error(e);
       showToast('Erro ao atualizar status.');
     }
-  }
-
-  function handleEditInvite(invite) {
-    setEditingInvite(invite);
-    setPrefillMember(null);
-    setShowForm(true);
   }
 
   return (
