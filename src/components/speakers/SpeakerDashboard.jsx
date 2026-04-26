@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import PeriodFilter from './PeriodFilter';
 import InviteCard from './InviteCard';
 import InviteForm from './InviteForm';
-import { classifyMembers, getUpcomingInvites, formatDateBR, findMemberId } from '../../utils/speakerHelpers';
+import { classifyMembers, getUpcomingInvites, formatDateBR } from '../../utils/speakerHelpers';
 import { createInvite } from '../../services/invites';
 import { updateInviteStatus } from '../../services/invites';
 import { useUnit } from '../../hooks/useUnit';
@@ -300,7 +300,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
         try {
           await createInvite(unitId, {
             memberName: item.member.name,
-            memberId: findMemberId(item.member.name, members) || null,
+            memberId: item.member.id || null,
             isExternal: false,
             dataAlvo: null,
             topic: '',
