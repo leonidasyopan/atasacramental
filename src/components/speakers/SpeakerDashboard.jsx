@@ -212,6 +212,14 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
     setSelectedMembers(new Set());
   }, [searchTerm, themeFilter, dashboardTab, period]);
 
+  // Clamp currentPage when underlying data shrinks (e.g. after reload()).
+  // Without this, currentPage can exceed totalPages, leaving paginatedData
+  // empty while the Pagination component hides itself (totalPages <= 1).
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
+    if (currentPage > maxPage) setCurrentPage(maxPage);
+  }, [filteredData.length, currentPage]);
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e) {
@@ -302,11 +310,11 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
       }
 
       if (errorCount === 0) {
-        showToast(`${successCount} convite(s) criado(s) com sucesso.`);
+        showToast(`${successCount} convite(s) criado(s) sem data. Defina a data na aba Convites.`);
         setSelectedMembers(new Set());
         await reload();
       } else if (successCount > 0) {
-        showToast(`${successCount} convite(s) criado(s) com sucesso, ${errorCount} falhou(ram).`);
+        showToast(`${successCount} convite(s) criado(s) sem data (defina na aba Convites), ${errorCount} falhou(ram).`);
         setSelectedMembers(new Set());
         await reload();
       } else {
