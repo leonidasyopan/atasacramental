@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useUnit } from '../../hooks/useUnit';
 import { normalizeForSearch } from '../../utils/textSearch';
-import { splitName, sortMemberNames } from '../../utils/memberNames';
+import { sortMemberNames } from '../../utils/memberNames';
 
 /**
  * Custom autocomplete for member selection with accent-insensitive search.
@@ -26,6 +26,7 @@ export default function MemberAutocomplete({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const listboxId = `member-autocomplete-list-${useId()}`;
 
   const names = useMemo(() => {
     if (!members?.length) return [];
@@ -44,6 +45,13 @@ export default function MemberAutocomplete({
     if (!searchTerm) return names;
     return names.filter((name) => normalizeForSearch(name).includes(searchTerm));
   }, [names, searchTerm]);
+
+  // Reset highlight when the filtered list changes so the highlighted index
+  // can never point past the end of the new list (would otherwise break
+  // ArrowDown/Enter after typing).
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [filteredNames]);
 
   useEffect(() => {
     if (autoFocus) {
@@ -124,14 +132,14 @@ export default function MemberAutocomplete({
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        aria-controls="member-autocomplete-list"
+        aria-controls={listboxId}
         aria-autocomplete="list"
       />
       {isOpen && filteredNames.length > 0 && (
         <div
           ref={dropdownRef}
           className="member-autocomplete-dropdown"
-          id="member-autocomplete-list"
+          id={listboxId}
           role="listbox"
         >
           {filteredNames.map((name, index) => (
