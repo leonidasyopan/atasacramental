@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react';
 import { findMemberId, getNextSunday } from '../../utils/speakerHelpers';
 
-export default function InviteForm({ onSave, onCancel, invite, members, topics }) {
+export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics }) {
   const isEdit = !!invite;
+  const initial = invite || defaultValues || {};
 
-  const [isExternal, setIsExternal] = useState(invite?.isExternal || false);
-  const [memberName, setMemberName] = useState(invite?.memberName || '');
-  const [dataAlvo, setDataAlvo] = useState(invite?.dataAlvo || getNextSunday());
-  const [topic, setTopic] = useState(invite?.topic || '');
-  const [notes, setNotes] = useState(invite?.notes || '');
+  const [isExternal, setIsExternal] = useState(initial.isExternal || false);
+  const [memberName, setMemberName] = useState(initial.memberName || '');
+  const [dataAlvo, setDataAlvo] = useState(initial.dataAlvo || getNextSunday());
+  const [topic, setTopic] = useState(initial.topic || '');
+  const [notes, setNotes] = useState(initial.notes || '');
   const [saving, setSaving] = useState(false);
 
   const sorted = useMemo(() => {

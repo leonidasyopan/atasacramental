@@ -63,7 +63,7 @@ export default function InviteCard({ invite, onStatusChange, onEdit }) {
             {a.label}
           </button>
         ))}
-        {invite.status !== 'concluido' && (
+        {invite.status !== 'concluido' && onEdit && (
           <button
             type="button"
             className="btn btn-ghost-dark btn-sm"

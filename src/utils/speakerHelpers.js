@@ -5,6 +5,14 @@
 
 const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
 
+function todayLocal() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 /**
  * Match a name against the members list (case-insensitive).
  * Compares against `m.name` and `m.fullName`.
@@ -29,7 +37,10 @@ export function filterLogByPeriod(log, months) {
   if (months == null) return log;
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - months);
-  const cutoffISO = cutoff.toISOString().slice(0, 10);
+  const y = cutoff.getFullYear();
+  const m = String(cutoff.getMonth() + 1).padStart(2, '0');
+  const d = String(cutoff.getDate()).padStart(2, '0');
+  const cutoffISO = `${y}-${m}-${d}`;
   return log.filter((entry) => entry.data >= cutoffISO);
 }
 
@@ -93,7 +104,7 @@ export function classifyMembers(members, speakerLog, periodMonths) {
  */
 export function getUpcomingInvites(invites) {
   if (!Array.isArray(invites)) return [];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   return invites.filter(
     (inv) => inv.dataAlvo >= today && (inv.status === 'pendente' || inv.status === 'aceito'),
   );
@@ -119,5 +130,8 @@ export function getNextSunday() {
   const diff = day === 0 ? 7 : 7 - day;
   const next = new Date(now);
   next.setDate(now.getDate() + diff);
-  return next.toISOString().slice(0, 10);
+  const y = next.getFullYear();
+  const m = String(next.getMonth() + 1).padStart(2, '0');
+  const d = String(next.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }

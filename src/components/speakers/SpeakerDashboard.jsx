@@ -58,7 +58,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
                 key={inv.id}
                 invite={inv}
                 onStatusChange={handleStatusChange}
-                onEdit={() => {}}
+                onEdit={null}
               />
             ))}
           </div>
@@ -149,7 +149,8 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
         <InviteForm
           onSave={handleSaveInvite}
           onCancel={() => { setShowForm(false); setPrefillMember(null); }}
-          invite={prefillMember ? { memberName: prefillMember.name, isExternal: false } : null}
+          invite={null}
+          defaultValues={prefillMember ? { memberName: prefillMember.name, isExternal: false } : null}
           members={members}
           topics={topics}
         />
