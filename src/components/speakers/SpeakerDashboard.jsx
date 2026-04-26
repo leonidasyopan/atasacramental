@@ -1,6 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import PeriodFilter from './PeriodFilter';
-import MemberSpeakerRow from './MemberSpeakerRow';
 import InviteCard from './InviteCard';
 import InviteForm from './InviteForm';
 import { classifyMembers, getUpcomingInvites, formatDateBR } from '../../utils/speakerHelpers';
@@ -36,7 +35,8 @@ function SpeakerTable({
 }) {
   if (data.length === 0) return null;
 
-  const allSelected = data.length > 0 && selectedMembers.size === data.length;
+  const allSelected =
+    data.length > 0 && data.every((item) => item.member?.id && selectedMembers.has(item.member.id));
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '16px' }}>
@@ -254,29 +254,34 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   const toggleAllSelection = useCallback(() => {
     setSelectedMembers(prev => {
-      if (prev.size === paginatedData.length) {
-        return new Set();
+      const currentPageIds = paginatedData.map(item => item.member?.id).filter(Boolean);
+      const allCurrentSelected =
+        currentPageIds.length > 0 && currentPageIds.every(id => prev.has(id));
+      const next = new Set(prev);
+      if (allCurrentSelected) {
+        currentPageIds.forEach(id => next.delete(id));
       } else {
-        return new Set(paginatedData.map(item => item.member?.id).filter(Boolean));
+        currentPageIds.forEach(id => next.add(id));
       }
+      return next;
     });
   }, [paginatedData]);
 
   // Bulk invite handler
   async function handleBulkInvite() {
     if (selectedMembers.size === 0) return;
-    
+
     setIsBulkInviting(true);
-    let mounted = true;
     let successCount = 0;
     let errorCount = 0;
-    
+
     try {
-      const selectedData = paginatedData.filter(item => item.member?.id && selectedMembers.has(item.member.id));
-      
+      // Operate on the full filtered dataset so selections from any page are processed.
+      const selectedData = filteredData.filter(
+        item => item.member?.id && selectedMembers.has(item.member.id),
+      );
+
       for (const item of selectedData) {
-        if (!mounted) return;
-        
         try {
           await createInvite(unitId, {
             memberName: item.member.name,
@@ -290,32 +295,24 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
           errorCount++;
         }
       }
-      
-      if (mounted) {
-        if (errorCount === 0) {
-          showToast(`${successCount} convite(s) criado(s) com sucesso.`);
-          setSelectedMembers(new Set());
-          await reload();
-        } else if (successCount > 0) {
-          showToast(`${successCount} convite(s) criado(s) com sucesso, ${errorCount} falhou(ram).`);
-          setSelectedMembers(new Set());
-          await reload();
-        } else {
-          showToast('Erro ao criar convites em massa.');
-        }
+
+      if (errorCount === 0) {
+        showToast(`${successCount} convite(s) criado(s) com sucesso.`);
+        setSelectedMembers(new Set());
+        await reload();
+      } else if (successCount > 0) {
+        showToast(`${successCount} convite(s) criado(s) com sucesso, ${errorCount} falhou(ram).`);
+        setSelectedMembers(new Set());
+        await reload();
+      } else {
+        showToast('Erro ao criar convites em massa.');
       }
     } catch (e) {
       console.error(e);
-      if (mounted) {
-        showToast('Erro ao criar convites em massa.');
-      }
+      showToast('Erro ao criar convites em massa.');
     } finally {
-      if (mounted) {
-        setIsBulkInviting(false);
-      }
+      setIsBulkInviting(false);
     }
-    
-    return () => { mounted = false; };
   }
 
   const handleInvite = useCallback((member) => {
@@ -413,7 +410,9 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
             onClick={toggleAllSelection}
             disabled={paginatedData.length === 0}
           >
-            {selectedMembers.size === paginatedData.length ? 'Desmarcar todos' : 'Marcar todos'}
+            {paginatedData.every(item => item.member?.id && selectedMembers.has(item.member.id))
+              ? 'Desmarcar todos'
+              : 'Marcar todos'}
           </button>
           
           {selectedMembers.size > 0 && (
