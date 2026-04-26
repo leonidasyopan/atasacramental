@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useUnit } from '../../hooks/useUnit';
+import { splitName, sortMemberNames } from '../../utils/memberNames';
 
 /**
  * Renders a single <datalist> populated with the active members of the unit.
@@ -15,20 +16,13 @@ export default function MembersDatalist({ id = 'members-datalist' }) {
 
   const names = useMemo(() => {
     if (!members?.length) return [];
-    const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
     const uniq = new Set();
     for (const m of members) {
       if (m.active === false) continue;
       const name = m.name || m.fullName;
       if (name) uniq.add(name);
     }
-    return Array.from(uniq).sort((a, b) => {
-      const [ga = '', fa = ''] = splitName(a);
-      const [gb = '', fb = ''] = splitName(b);
-      const cmp = collator.compare(fa, fb);
-      if (cmp !== 0) return cmp;
-      return collator.compare(ga, gb);
-    });
+    return sortMemberNames(Array.from(uniq));
   }, [members]);
 
   return (
@@ -38,12 +32,4 @@ export default function MembersDatalist({ id = 'members-datalist' }) {
       ))}
     </datalist>
   );
-}
-
-function splitName(full) {
-  const parts = full.trim().split(/\s+/);
-  if (parts.length < 2) return [full, ''];
-  const given = parts[0];
-  const family = parts.slice(1).join(' ');
-  return [given, family];
 }

@@ -5,7 +5,7 @@ import SectionCard from '../components/ata/SectionCard';
 import DynamicTable from '../components/shared/DynamicTable';
 import HymnLookup from '../components/shared/HymnLookup';
 import LeaderSelect, { OTHER } from '../components/shared/LeaderSelect';
-import MembersDatalist from '../components/shared/MembersDatalist';
+import MemberAutocomplete from '../components/shared/MemberAutocomplete';
 import PrintDocument from '../components/print/PrintDocument';
 import AttendancePicker from '../components/ata/AttendancePicker';
 import KebabMenu from '../components/layout/KebabMenu';
@@ -314,7 +314,6 @@ export default function AtaFormPage({ editMode = false }) {
       <AppHeader />
 
       <div className="app-content">
-        <MembersDatalist />
         <div className="ata-toolbar">
           <div
             className="save-indicator save-indicator-inline"
@@ -516,13 +515,10 @@ export default function AtaFormPage({ editMode = false }) {
               </div>
               <div className="field">
                 <label>1ª Oração</label>
-                <input
-                  type="text"
-                  placeholder="Nome do irmão/irmã"
+                <MemberAutocomplete
                   value={ata.oracao1}
-                  onChange={(e) => update({ oracao1: e.target.value })}
-                  list="members-datalist"
-                  autoComplete="off"
+                  onChange={(v) => update({ oracao1: v })}
+                  placeholder="Nome do irmão/irmã"
                 />
               </div>
             </div>
@@ -621,24 +617,18 @@ export default function AtaFormPage({ editMode = false }) {
             <div className="field-row">
               <div className="field">
                 <label>Bênção do Pão</label>
-                <input
-                  type="text"
-                  placeholder="Nome"
+                <MemberAutocomplete
                   value={ata.bencaoPao}
-                  onChange={(e) => update({ bencaoPao: e.target.value })}
-                  list="members-datalist"
-                  autoComplete="off"
+                  onChange={(v) => update({ bencaoPao: v })}
+                  placeholder="Nome"
                 />
               </div>
               <div className="field">
                 <label>Bênção da Água</label>
-                <input
-                  type="text"
-                  placeholder="Nome"
+                <MemberAutocomplete
                   value={ata.bencaoAgua}
-                  onChange={(e) => update({ bencaoAgua: e.target.value })}
-                  list="members-datalist"
-                  autoComplete="off"
+                  onChange={(v) => update({ bencaoAgua: v })}
+                  placeholder="Nome"
                 />
               </div>
             </div>
@@ -739,13 +729,10 @@ export default function AtaFormPage({ editMode = false }) {
               </div>
               <div className="field">
                 <label>Oração de Encerramento</label>
-                <input
-                  type="text"
-                  placeholder="Nome do irmão/irmã"
+                <MemberAutocomplete
                   value={ata.oracaoEnc}
-                  onChange={(e) => update({ oracaoEnc: e.target.value })}
-                  list="members-datalist"
-                  autoComplete="off"
+                  onChange={(v) => update({ oracaoEnc: v })}
+                  placeholder="Nome do irmão/irmã"
                 />
               </div>
             </div>

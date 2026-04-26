@@ -1114,6 +1114,39 @@ body {
 .cd-item-name { font-weight: 500; color: #111827; }
 .cd-item-cat { font-size: .75rem; color: #6b7280; }
 
+/* ═══════════════════════════════════════════
+   MEMBER AUTOCOMPLETE
+═══════════════════════════════════════════ */
+.member-autocomplete {
+  position: relative;
+}
+.member-autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+}
+.member-autocomplete-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  background: white;
+  transition: background-color 0.15s;
+}
+.member-autocomplete-option.highlighted {
+  background: #f3f4f6;
+}
+.member-autocomplete-option:hover {
+  background: #f3f4f6;
+}
+
 /* form actions row */
 .form-actions .btn { min-width: 160px; }
 

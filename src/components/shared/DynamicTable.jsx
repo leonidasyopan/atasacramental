@@ -1,4 +1,5 @@
 import ChamadosDialog from './ChamadosDialog';
+import MemberAutocomplete from './MemberAutocomplete';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
@@ -135,20 +136,16 @@ export default function DynamicTable({
                   );
                 }
                 // text (optionally with chamado picker / member autocomplete).
-                // Columns bound to a datalist keep <input> so the native
-                // autocomplete dropdown keeps working; others use an
-                // auto-growing textarea so long content wraps instead of
-                // truncating horizontally.
+                // Columns with member autocomplete use MemberAutocomplete for
+                // accent-insensitive search; others use auto-growing textarea
+                // so long content wraps instead of truncating horizontally.
                 return (
                   <td key={colIdx}>
                     {col.datalistId ? (
-                      <input
-                        type="text"
-                        placeholder={col.ph}
+                      <MemberAutocomplete
                         value={value}
-                        onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
-                        list={col.datalistId}
-                        autoComplete="off"
+                        onChange={(v) => updateCell(rowIdx, colIdx, v)}
+                        placeholder={col.ph}
                       />
                     ) : (
                       <AutoGrowTextarea
