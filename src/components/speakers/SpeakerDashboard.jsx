@@ -137,13 +137,13 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   // Get unique topics from speaker log for theme filter
   const availableTopics = useMemo(() => {
-    const topics = new Set();
+    const topicSet = new Set();
     if (Array.isArray(speakerLog)) {
       speakerLog.forEach(entry => {
-        if (entry.topic) topics.add(entry.topic);
+        if (entry.topic) topicSet.add(entry.topic);
       });
     }
-    return Array.from(topics).sort();
+    return Array.from(topicSet).sort();
   }, [speakerLog]);
 
   // Filter and sort data based on current tab, search, and filters
@@ -206,16 +206,21 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
-  // Reset pagination when filters change
+  // Reset pagination and selections when filters change
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedMembers(new Set());
   }, [searchTerm, themeFilter, dashboardTab, period]);
 
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e) {
       // Don't trigger if user is typing in an input
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (
+        e.target.tagName === 'INPUT' ||
+        e.target.tagName === 'TEXTAREA' ||
+        e.target.tagName === 'SELECT'
+      ) return;
       
       if (e.key === '/' || (e.key === 'f' && (e.ctrlKey || e.metaKey))) {
         e.preventDefault();
