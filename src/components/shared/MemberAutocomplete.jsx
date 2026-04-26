@@ -152,6 +152,7 @@ export default function MemberAutocomplete({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsOpen(true)}
+        onBlur={() => setIsOpen(false)}
         onKeyDown={handleKeyDown}
         autoComplete="off"
         role="combobox"
@@ -180,7 +181,12 @@ export default function MemberAutocomplete({
                 className={`member-autocomplete-option${
                   index === highlightedIndex ? ' highlighted' : ''
                 }`}
-                onClick={() => handleSelect(name)}
+                onMouseDown={(e) => {
+                  // Prevent the input from losing focus (which would fire
+                  // onBlur and close the dropdown before onClick fires).
+                  e.preventDefault();
+                  handleSelect(name);
+                }}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 role="option"
                 aria-selected={index === highlightedIndex}
