@@ -11,6 +11,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminUnitsPage from './pages/admin/AdminUnitsPage';
 import AdminMembersPage from './pages/admin/AdminMembersPage';
 import AdminAllUsersPage from './pages/admin/AdminAllUsersPage';
+import SpeakersPage from './pages/SpeakersPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 function LoadingScreen() {
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
+        <Route path="/discursantes" element={<SpeakersPage />} />
         <Route path="/frequencia/detalhado" element={<DetailedAttendancePage />} />
         <Route path="/frequencia/historico" element={<AttendanceHistoryPage />} />
       </Route>

@@ -28,7 +28,7 @@ Aplicativo SPA (React + Vite) que fala diretamente com Firebase (Auth + Firestor
 | Camada | Pasta | Responsabilidade |
 |--------|-------|------------------|
 | Pages | `src/pages/` | Rotas e composição de telas. |
-| Components | `src/components/` | Apresentação pura (ata/, shared/, layout/, print/). |
+| Components | `src/components/` | Apresentação pura (ata/, shared/, layout/, print/, speakers/). |
 | Contexts | `src/contexts/` | Estado global: `AuthContext`, `UnitContext`, `ToastContext`. |
 | Hooks | `src/hooks/` | Acesso aos contexts + lógica reutilizável (`useAutoSave`). |
 | Services | `src/services/` | **Única camada** que importa `firebase/firestore`. |
@@ -58,8 +58,11 @@ units/{unitId}                         { name, type: 'Ramo'|'Ala', estacaNome, .
                                          householdRole: 'head'|'spouse'|'child'|'other',
                                          active, source }
   atas/{ataId}                         { status: 'draft'|'finalized', data, presidida, rowsApoios[], ... }
-  speakerLog/{logId}                   (reservado — PR futuro)
-  discourseInvites/{inviteId}          (reservado — PR futuro)
+  speakerLog/{logId}                   { ataId, data, name, memberId, topic, duration, createdAt }
+  discourseInvites/{inviteId}          { memberId, memberName, dataAlvo, topic, notes,
+                                         isExternal, status: 'pendente'|'aceito'|'recusado'|'concluido',
+                                         createdAt, updatedAt }
+  settings/discourseTopics             { topics: string[], updatedAt }
   settings/{docId}                     { ... }
 ```
 
@@ -136,7 +139,7 @@ SPA (React + Vite) that talks directly to Firebase (Auth + Firestore) from the c
 | Layer | Folder | Responsibility |
 |-------|--------|----------------|
 | Pages | `src/pages/` | Routes and screen composition. |
-| Components | `src/components/` | Pure presentation (ata/, shared/, layout/, print/). |
+| Components | `src/components/` | Pure presentation (ata/, shared/, layout/, print/, speakers/). |
 | Contexts | `src/contexts/` | Global state: `AuthContext`, `UnitContext`, `ToastContext`. |
 | Hooks | `src/hooks/` | Context access + reusable logic (`useAutoSave`). |
 | Services | `src/services/` | **The only layer** that imports `firebase/firestore`. |
@@ -166,8 +169,11 @@ units/{unitId}                         { name, type: 'Ramo'|'Ala', estacaNome, .
                                          householdRole: 'head'|'spouse'|'child'|'other',
                                          active, source }
   atas/{ataId}                         { status: 'draft'|'finalized', data, presidida, rowsApoios[], ... }
-  speakerLog/{logId}                   (reserved — future PR)
-  discourseInvites/{inviteId}          (reserved — future PR)
+  speakerLog/{logId}                   { ataId, data, name, memberId, topic, duration, createdAt }
+  discourseInvites/{inviteId}          { memberId, memberName, dataAlvo, topic, notes,
+                                         isExternal, status: 'pendente'|'aceito'|'recusado'|'concluido',
+                                         createdAt, updatedAt }
+  settings/discourseTopics             { topics: string[], updatedAt }
   settings/{docId}                     { ... }
 ```
 

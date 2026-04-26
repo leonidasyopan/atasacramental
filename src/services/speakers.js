@@ -1,10 +1,12 @@
 import {
   collection,
+  addDoc,
   getDocs,
   query,
   where,
   orderBy,
   limit,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -18,12 +20,20 @@ export async function getSpeakerLog(unitId, { max = 500 } = {}) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function getMemberSpeakingHistory(unitId, memberName) {
+export async function getSpeakerLogByMemberId(unitId, memberId) {
   const q = query(
     speakerLogRef(unitId),
-    where('name', '==', memberName),
+    where('memberId', '==', memberId),
     orderBy('data', 'desc'),
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function addSpeakerLogEntry(unitId, entry) {
+  const ref = await addDoc(speakerLogRef(unitId), {
+    ...entry,
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
 }

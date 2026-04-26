@@ -3,6 +3,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDocs,
   query,
   where,
@@ -45,4 +46,8 @@ export async function updateInvite(unitId, inviteId, data) {
     ...data,
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteInvite(unitId, inviteId) {
+  await deleteDoc(doc(invitesRef(unitId), inviteId));
 }
