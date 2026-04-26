@@ -22,14 +22,12 @@ Lista viva de features **planejadas mas ainda não entregues**. Ordem sugerida d
 - **Estimativa:** meio-dia.
 
 #### 2. `/convites` — Convites de discurso
-- **Status:** Não iniciado. Regras Firestore já reservam a subcoleção `discourseInvites/`.
-- **Escopo proposto:** Tela para criar/listar convites (membro, data alvo, assunto sugerido, status `pending|accepted|declined|done`). Sem notificação automática nesta primeira entrega.
-- **Estimativa:** 1 dia.
+- **Status:** Concluído. Integrado ao módulo `/discursantes` (tab "Convites").
+- **Escopo entregue:** Criar/listar/editar convites com status (pendente/aceito/recusado/concluído), suporte a membros da unidade e visitantes externos, temas sugeridos via datalist.
 
 #### 3. `/discursantes` — Histórico de discursantes
-- **Status:** Não iniciado. `speakerLog/` já reservada.
-- **Escopo proposto:** Ao finalizar uma ata, extrair `rowsDisc` e criar/atualizar registros em `speakerLog/`. Tela com filtros (membro, período) para evitar repetição de discursantes em datas próximas.
-- **Estimativa:** 1 dia (depende de `/convites` ou não).
+- **Status:** Concluído.
+- **Escopo entregue:** Dashboard com classificação de membros (nunca discursaram / já discursaram), filtro por período (3/6/12 meses ou todos), histórico cronológico do speakerLog, gestão de temas sugeridos, convites integrados. `finalizarAta()` agora enriquece speakerLog com `memberId`.
 
 ### Menor urgência
 
@@ -77,14 +75,12 @@ Botão para superadmin exportar todas as atas da unidade como ZIP de PDFs (ou JS
 - **Estimate:** half a day.
 
 #### 2. `/convites` — Discourse invites
-- **Status:** Not started. Firestore rules already reserve the `discourseInvites/` subcollection.
-- **Proposed scope:** Create/list invites (member, target date, suggested topic, status `pending|accepted|declined|done`). No automated notification in v1.
-- **Estimate:** 1 day.
+- **Status:** Done. Integrated into the `/discursantes` module ("Convites" tab).
+- **Delivered scope:** Create/list/edit invites with status tracking (pendente/aceito/recusado/concluido), support for unit members and external visitors, suggested topics via datalist.
 
 #### 3. `/discursantes` — Speaker history
-- **Status:** Not started. `speakerLog/` already reserved.
-- **Proposed scope:** When finalizing an ata, extract `rowsDisc` and upsert `speakerLog/`. Screen with filters (member, time window) to avoid repeating speakers too close together.
-- **Estimate:** 1 day (depends on /convites being done or not).
+- **Status:** Done.
+- **Delivered scope:** Dashboard classifying members (never spoke / already spoke), period filter (3/6/12 months or all), chronological speakerLog history, topic management, integrated invites. `finalizarAta()` now enriches speakerLog with `memberId`.
 
 ### Lower urgency
 

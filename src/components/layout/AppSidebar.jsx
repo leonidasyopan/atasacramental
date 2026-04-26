@@ -87,6 +87,9 @@ export default function AppSidebar() {
               <NavLink to="/historico" onClick={close}>
                 Histórico de atas
               </NavLink>
+              <NavLink to="/discursantes" onClick={close}>
+                Discursantes
+              </NavLink>
               <NavLink to="/frequencia/detalhado" onClick={close}>
                 Frequência detalhada
               </NavLink>

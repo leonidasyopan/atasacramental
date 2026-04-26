@@ -1,0 +1,233 @@
+/* ═══════════════════════════════════════════
+   SPEAKERS MODULE
+═══════════════════════════════════════════ */
+
+/* ── Tabs ── */
+.speakers-tabs {
+  display: flex;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 2px solid var(--navy);
+  width: fit-content;
+  margin-bottom: 20px;
+}
+.speakers-tab {
+  padding: 7px 18px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  border: none;
+  background: white;
+  color: var(--navy);
+  transition: all .15s;
+}
+.speakers-tab.active {
+  background: var(--navy);
+  color: white;
+}
+.speakers-tab:hover:not(.active) {
+  background: var(--light-blue);
+}
+
+/* ── Period filter ── */
+.period-filter {
+  display: flex;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 2px solid var(--navy);
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+/* ── Sections ── */
+.speakers-section {
+  margin-bottom: 24px;
+}
+.speakers-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.speakers-section-header h3 {
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--navy);
+  margin: 0;
+}
+
+/* ── Badge ── */
+.speakers-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--navy);
+  color: white;
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+/* ── Cards grid ── */
+.speakers-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+/* ── Invite card ── */
+.invite-card {
+  background: white;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  padding: 14px;
+  transition: box-shadow .15s;
+}
+.invite-card:hover {
+  box-shadow: 0 2px 10px rgba(27,58,107,.1);
+}
+.invite-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.invite-card-header strong {
+  font-size: .92rem;
+  color: var(--navy);
+}
+.invite-external-badge {
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--light-blue);
+  color: var(--blue);
+}
+.invite-card-body {
+  margin-bottom: 10px;
+}
+.invite-card-detail {
+  font-size: .84rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.invite-card-label {
+  font-weight: 700;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--navy);
+}
+.invite-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── Invite status badge ── */
+.invite-status {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.invite-status--pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+.invite-status--aceito {
+  background: #d1fae5;
+  color: #065f46;
+}
+.invite-status--recusado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.invite-status--concluido {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ── Invite form (modal overlay) ── */
+.invite-form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+}
+.invite-form {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(27,58,107,.2);
+}
+.invite-form h3 {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 18px;
+}
+
+/* ── Topic list ── */
+.topic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.topic-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: .88rem;
+  color: var(--text);
+}
+.topic-item:last-child {
+  border-bottom: none;
+}
+.topic-item span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .speakers-tabs,
+  .period-filter {
+    width: 100%;
+  }
+  .speakers-tab,
+  .period-filter .mode-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 8px;
+    font-size: .7rem;
+  }
+  .speakers-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

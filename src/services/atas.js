@@ -15,6 +15,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { findMemberId } from '../utils/speakerHelpers';
 
 function atasRef(unitId) {
   return collection(db, 'units', unitId, 'atas');
@@ -139,7 +140,7 @@ export async function getAtaHistory(unitId, { max = 200 } = {}) {
 /**
  * Finalize an ata. Logs speaker entries if the meeting had discursantes.
  */
-export async function finalizarAta(unitId, ataId, userId) {
+export async function finalizarAta(unitId, ataId, userId, { members = [] } = {}) {
   const ata = await getAta(unitId, ataId);
   if (!ata) throw new Error('Ata não encontrada.');
   if (ata.status === 'finalized') return ata;
@@ -158,11 +159,13 @@ export async function finalizarAta(unitId, ataId, userId) {
     for (const row of ata.rowsDisc) {
       const [nome, tema, duracao] = row || [];
       if (!nome) continue;
+      const memberId = findMemberId(nome, members);
       const entryRef = doc(speakerLogRef(unitId));
       batch.set(entryRef, {
         ataId,
         data: dataISO,
         name: nome,
+        memberId: memberId || null,
         topic: tema || null,
         duration: duracao ? Number(duracao) : null,
         createdAt: serverTimestamp(),

@@ -74,7 +74,7 @@ const LS_FONT_KEY = 'ata:fontSizePt';
 
 export default function AtaFormPage({ editMode = false }) {
   const { firebaseUser } = useAuth();
-  const { unitId, unit, unitType, loading: unitLoading } = useUnit();
+  const { unitId, unit, unitType, members, loading: unitLoading } = useUnit();
   const { showToast } = useToast();
   const { id: routeAtaId } = useParams();
   const navigate = useNavigate();
@@ -250,7 +250,7 @@ export default function AtaFormPage({ editMode = false }) {
     if (!confirm('Finalizar esta ata? Ela será arquivada no histórico.')) return;
     setFinalizing(true);
     try {
-      await finalizarAta(unitId, ataId, firebaseUser?.uid);
+      await finalizarAta(unitId, ataId, firebaseUser?.uid, { members });
       showToast('Ata finalizada com sucesso.');
       setAta(DEFAULT_ATA);
       setAtaId(null);
