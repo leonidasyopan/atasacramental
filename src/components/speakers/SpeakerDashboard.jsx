@@ -15,6 +15,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
   const [period, setPeriod] = useState(6);
   const [showForm, setShowForm] = useState(false);
   const [prefillMember, setPrefillMember] = useState(null);
+  const [editingInvite, setEditingInvite] = useState(null);
 
   const { neverSpoke, alreadySpoke } = useMemo(
     () => classifyMembers(members || [], speakerLog, period),
@@ -29,17 +30,43 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
   }
 
   async function handleSaveInvite(data) {
-    await createInvite(unitId, data);
-    showToast('Convite criado com sucesso.');
-    setShowForm(false);
-    setPrefillMember(null);
-    await reload();
+    try {
+      if (editingInvite?.id) {
+        const rest = Object.fromEntries(
+          Object.entries(data).filter(([k]) => k !== 'id'),
+        );
+        const { updateInvite } = await import('../../services/invites');
+        await updateInvite(unitId, editingInvite.id, rest);
+        showToast('Convite atualizado.');
+      } else {
+        await createInvite(unitId, data);
+        showToast('Convite criado com sucesso.');
+      }
+      setShowForm(false);
+      setPrefillMember(null);
+      setEditingInvite(null);
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao salvar convite.');
+    }
   }
 
   async function handleStatusChange(inviteId, status) {
-    await updateInviteStatus(unitId, inviteId, status);
-    showToast('Status atualizado.');
-    await reload();
+    try {
+      await updateInviteStatus(unitId, inviteId, status);
+      showToast('Status atualizado.');
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao atualizar status.');
+    }
+  }
+
+  function handleEditInvite(invite) {
+    setEditingInvite(invite);
+    setPrefillMember(null);
+    setShowForm(true);
   }
 
   return (

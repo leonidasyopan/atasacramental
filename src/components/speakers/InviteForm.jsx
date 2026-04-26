@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { findMemberId, getNextSunday } from '../../utils/speakerHelpers';
 
 export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics }) {
-  const isEdit = !!invite;
+  const isEdit = !!invite?.id;
   const initial = invite || defaultValues || {};
 
   const [isExternal, setIsExternal] = useState(initial.isExternal || false);

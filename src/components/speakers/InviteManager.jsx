@@ -26,9 +26,14 @@ export default function InviteManager({ invites, topics, members, reload }) {
   }, [invites, statusFilter]);
 
   async function handleStatusChange(inviteId, status) {
-    await updateInviteStatus(unitId, inviteId, status);
-    showToast('Status atualizado.');
-    await reload();
+    try {
+      await updateInviteStatus(unitId, inviteId, status);
+      showToast('Status atualizado.');
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao atualizar status.');
+    }
   }
 
   function handleEdit(invite) {
@@ -37,19 +42,24 @@ export default function InviteManager({ invites, topics, members, reload }) {
   }
 
   async function handleSave(data) {
-    if (editingInvite?.id) {
-      const rest = Object.fromEntries(
-        Object.entries(data).filter(([k]) => k !== 'id'),
-      );
-      await updateInvite(unitId, editingInvite.id, rest);
-      showToast('Convite atualizado.');
-    } else {
-      await createInvite(unitId, data);
-      showToast('Convite criado com sucesso.');
+    try {
+      if (editingInvite?.id) {
+        const rest = Object.fromEntries(
+          Object.entries(data).filter(([k]) => k !== 'id'),
+        );
+        await updateInvite(unitId, editingInvite.id, rest);
+        showToast('Convite atualizado.');
+      } else {
+        await createInvite(unitId, data);
+        showToast('Convite criado com sucesso.');
+      }
+      setShowForm(false);
+      setEditingInvite(null);
+      await reload();
+    } catch (e) {
+      console.error(e);
+      showToast('Erro ao salvar convite.');
     }
-    setShowForm(false);
-    setEditingInvite(null);
-    await reload();
   }
 
   return (

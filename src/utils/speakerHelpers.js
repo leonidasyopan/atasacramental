@@ -5,6 +5,18 @@
 
 const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
 
+/**
+ * Format a Date as YYYY-MM-DD using local timezone (not UTC).
+ * Avoids the off-by-one bug from `toISOString()` for users in negative UTC
+ * offsets (e.g. Brazil UTC-3) late at night.
+ */
+function toLocalISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function todayLocal() {
   const d = new Date();
   const y = d.getFullYear();
