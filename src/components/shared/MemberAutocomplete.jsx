@@ -1,4 +1,5 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useUnit } from '../../hooks/useUnit';
 import { normalizeForSearch } from '../../utils/textSearch';
 import { sortMemberNames } from '../../utils/memberNames';
@@ -24,6 +25,7 @@ export default function MemberAutocomplete({
   const { members } = useUnit();
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
   const listboxId = `member-autocomplete-list-${useId()}`;
@@ -73,6 +75,29 @@ export default function MemberAutocomplete({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // The dropdown is rendered in a portal with position: fixed so it can escape
+  // ancestors with `overflow: hidden` (e.g. the `.card` wrapper). Recompute its
+  // viewport position whenever it opens and on scroll/resize while open.
+  useLayoutEffect(() => {
+    if (!isOpen) return undefined;
+    function updatePosition() {
+      const rect = inputRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setDropdownPos({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen, filteredNames.length]);
 
   function handleKeyDown(event) {
     if (!isOpen) {
@@ -135,29 +160,37 @@ export default function MemberAutocomplete({
         aria-controls={listboxId}
         aria-autocomplete="list"
       />
-      {isOpen && filteredNames.length > 0 && (
-        <div
-          ref={dropdownRef}
-          className="member-autocomplete-dropdown"
-          id={listboxId}
-          role="listbox"
-        >
-          {filteredNames.map((name, index) => (
-            <div
-              key={name}
-              className={`member-autocomplete-option${
-                index === highlightedIndex ? ' highlighted' : ''
-              }`}
-              onClick={() => handleSelect(name)}
-              onMouseEnter={() => setHighlightedIndex(index)}
-              role="option"
-              aria-selected={index === highlightedIndex}
-            >
-              {name}
-            </div>
-          ))}
-        </div>
-      )}
+      {isOpen &&
+        filteredNames.length > 0 &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            className="member-autocomplete-dropdown"
+            id={listboxId}
+            role="listbox"
+            style={{
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: dropdownPos.width,
+            }}
+          >
+            {filteredNames.map((name, index) => (
+              <div
+                key={name}
+                className={`member-autocomplete-option${
+                  index === highlightedIndex ? ' highlighted' : ''
+                }`}
+                onClick={() => handleSelect(name)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                role="option"
+                aria-selected={index === highlightedIndex}
+              >
+                {name}
+              </div>
+            ))}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

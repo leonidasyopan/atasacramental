@@ -1121,10 +1121,10 @@ body {
   position: relative;
 }
 .member-autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  /* Rendered via React portal into document.body so it can escape ancestor
+     `overflow: hidden` contexts (e.g. the `.card` wrapper). Position is set
+     inline by the component using viewport coordinates. */
+  position: fixed;
   background: white;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -1132,7 +1132,6 @@ body {
   overflow-y: auto;
   z-index: 1000;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
 }
 .member-autocomplete-option {
   padding: 8px 12px;
