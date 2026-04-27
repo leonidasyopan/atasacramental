@@ -67,6 +67,9 @@ export default function DetailedAttendancePage() {
   const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
   const isInitialLoad = useRef(true);
   const debounceTimer = useRef(null);
+  const isSavingRef = useRef(false);
+  const hadExistingDetailedRef = useRef(hadExistingDetailed);
+  const membersByHouseholdRef = useRef(membersByHousehold);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -137,11 +140,16 @@ export default function DetailedAttendancePage() {
     };
   }, [unitId, unitLoading, targetDate, showToast]);
 
+  useEffect(() => { hadExistingDetailedRef.current = hadExistingDetailed; }, [hadExistingDetailed]);
+  useEffect(() => { membersByHouseholdRef.current = membersByHousehold; }, [membersByHousehold]);
+
   useEffect(() => {
     if (loading || isInitialLoad.current || !unitId) return;
 
     clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(async () => {
+      if (isSavingRef.current) return;
+      isSavingRef.current = true;
       setAutoSaveStatus('saving');
       try {
         const presentMemberIds = Array.from(presentIds);
@@ -153,9 +161,9 @@ export default function DetailedAttendancePage() {
           firebaseUser?.uid,
         );
 
-        if (!hadExistingDetailed) {
+        if (!hadExistingDetailedRef.current) {
           const presentHouseholdIds = new Set();
-          for (const [hid, members] of Object.entries(membersByHousehold)) {
+          for (const [hid, members] of Object.entries(membersByHouseholdRef.current)) {
             if (members.some((m) => presentIds.has(m.id))) {
               presentHouseholdIds.add(hid);
             }
@@ -173,11 +181,13 @@ export default function DetailedAttendancePage() {
       } catch (err) {
         console.error('Autosave failed:', err);
         setAutoSaveStatus('error');
+      } finally {
+        isSavingRef.current = false;
       }
     }, 2000);
 
     return () => clearTimeout(debounceTimer.current);
-  }, [presentIds, visitors, unitId, targetDate, firebaseUser?.uid, loading, hadExistingDetailed, membersByHousehold]);
+  }, [presentIds, visitors, unitId, targetDate, firebaseUser?.uid, loading]);
 
   const toggleMember = useCallback((memberId, checked) => {
     setPresentIds((prev) => {
@@ -226,8 +236,9 @@ export default function DetailedAttendancePage() {
   );
 
   async function handleSave() {
-    if (!unitId || saving) return;
+    if (!unitId || saving || isSavingRef.current) return;
     clearTimeout(debounceTimer.current);
+    isSavingRef.current = true;
     setSaving(true);
     try {
       const presentMemberIds = Array.from(presentIds);
@@ -238,7 +249,7 @@ export default function DetailedAttendancePage() {
         firebaseUser?.uid,
       );
 
-      if (!hadExistingDetailed) {
+      if (!hadExistingDetailedRef.current) {
         const presentHouseholdIds = new Set();
         for (const [hid, members] of Object.entries(membersByHousehold)) {
           if (members.some((m) => presentIds.has(m.id))) {
@@ -260,6 +271,7 @@ export default function DetailedAttendancePage() {
       console.error(err);
       showToast('Erro ao salvar frequência.');
     } finally {
+      isSavingRef.current = false;
       setSaving(false);
     }
   }
