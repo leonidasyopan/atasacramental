@@ -72,6 +72,7 @@ export default function DetailedAttendancePage() {
   const membersByHouseholdRef = useRef(membersByHousehold);
   const hasPendingChangesRef = useRef(false);
   const saveVersionRef = useRef(0);
+  const saveVersionRef = useRef(0);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
