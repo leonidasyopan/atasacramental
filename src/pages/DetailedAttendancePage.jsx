@@ -119,7 +119,11 @@ export default function DetailedAttendancePage() {
         setVisitors(
           Array.isArray(existing?.visitors) ? existing.visitors : [],
         );
-        setHadExistingDetailed(Boolean(existing?.householdsIncremented));
+        setHadExistingDetailed(
+          Boolean(existing?.householdsIncremented) ||
+            Boolean(existing?.detailedCountAt) ||
+            Boolean(existing?.detailedTotal),
+        );
         setSimpleCount(
           Number.isFinite(existing?.simpleCount)
             ? existing.simpleCount
@@ -377,7 +381,7 @@ export default function DetailedAttendancePage() {
               type="button"
               className="btn btn-primary attendance-save-btn"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || autoSaveStatus === 'saving'}
             >
               {saving ? 'Salvando...' : 'Salvar Frequência'}
             </button>
