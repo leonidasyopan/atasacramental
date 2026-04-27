@@ -57,7 +57,16 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
   };
 
   function handlePrint() {
+    const cls = 'printing-invite-letter';
+    document.body.classList.add(cls);
+    const cleanup = () => {
+      document.body.classList.remove(cls);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
     window.print();
+    // Fallback in case afterprint doesn't fire (some browsers)
+    setTimeout(cleanup, 1000);
   }
 
   return (

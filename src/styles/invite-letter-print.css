@@ -7,19 +7,26 @@
   display: none;
 }
 
-/* ── Print overrides ── */
+/* ── Print overrides ──
+   Scoped to body.printing-invite-letter so they only activate when the
+   invite letter is being printed. This prevents conflicts with the Ata
+   print flow (.print-doc) which uses its own @page and display rules. */
 @media print {
-  @page { size: A4; margin: 15mm 18mm; }
-
-  /* Hide everything except the letter */
-  body, html { background: white !important; }
-  .app-header,
-  .form-wrap,
-  .print-doc,
-  .invite-form-overlay { display: none !important; }
-  .print-invite-letter { display: block !important; }
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body.printing-invite-letter { background: white !important; }
+  body.printing-invite-letter .app-header,
+  body.printing-invite-letter .form-wrap,
+  body.printing-invite-letter .print-doc,
+  body.printing-invite-letter .invite-form-overlay { display: none !important; }
+  body.printing-invite-letter .print-invite-letter { display: block !important; }
+  body.printing-invite-letter * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
+
+/* Note: @page rules cannot be scoped via a body class, so we rely on the
+   default app @page settings (defined in main.css) for the invite letter
+   as well. The .print-invite-letter layout uses max-width: 210mm to fit A4. */
 
 /* ── Letter layout ── */
 .print-invite-letter {
