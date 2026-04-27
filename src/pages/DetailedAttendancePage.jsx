@@ -71,6 +71,7 @@ export default function DetailedAttendancePage() {
   const hadExistingDetailedRef = useRef(hadExistingDetailed);
   const membersByHouseholdRef = useRef(membersByHousehold);
   const hasPendingChangesRef = useRef(false);
+  const saveVersionRef = useRef(0);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -148,9 +149,16 @@ export default function DetailedAttendancePage() {
     if (loading || isInitialLoad.current || !unitId) return;
 
     hasPendingChangesRef.current = true;
+    saveVersionRef.current += 1;
+    const thisVersion = saveVersionRef.current;
+
     clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(async () => {
-      if (isSavingRef.current) return;
+
+    async function performSave() {
+      if (isSavingRef.current) {
+        debounceTimer.current = setTimeout(performSave, 500);
+        return;
+      }
       isSavingRef.current = true;
       setAutoSaveStatus('saving');
       try {
@@ -180,15 +188,19 @@ export default function DetailedAttendancePage() {
           setHadExistingDetailed(true);
         }
 
-        hasPendingChangesRef.current = false;
-        setAutoSaveStatus('saved');
+        if (saveVersionRef.current === thisVersion) {
+          hasPendingChangesRef.current = false;
+          setAutoSaveStatus('saved');
+        }
       } catch (err) {
         console.error('Autosave failed:', err);
         setAutoSaveStatus('error');
       } finally {
         isSavingRef.current = false;
       }
-    }, 2000);
+    }
+
+    debounceTimer.current = setTimeout(performSave, 2000);
 
     return () => clearTimeout(debounceTimer.current);
   }, [presentIds, visitors, unitId, targetDate, firebaseUser?.uid, loading]);
@@ -242,6 +254,7 @@ export default function DetailedAttendancePage() {
   async function handleSave() {
     if (!unitId || saving || isSavingRef.current) return;
     clearTimeout(debounceTimer.current);
+    saveVersionRef.current += 1;
     isSavingRef.current = true;
     setSaving(true);
     try {
