@@ -82,11 +82,11 @@ export async function saveDetailedAttendance(
   await setDoc(ref, payload, { merge: true });
 }
 
-export async function markHouseholdsIncremented(unitId, date) {
+export async function markHouseholdsIncremented(unitId, date, value = true) {
   if (!unitId || !date) return;
   await setDoc(
     attendanceDocRef(unitId, date),
-    { householdsIncremented: true },
+    { householdsIncremented: value },
     { merge: true },
   );
 }

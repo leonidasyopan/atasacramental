@@ -120,9 +120,10 @@ export default function DetailedAttendancePage() {
           Array.isArray(existing?.visitors) ? existing.visitors : [],
         );
         setHadExistingDetailed(
-          Boolean(existing?.householdsIncremented) ||
-            Boolean(existing?.detailedCountAt) ||
-            Boolean(existing?.detailedTotal),
+          existing?.householdsIncremented !== undefined
+            ? existing.householdsIncremented === true
+            : Boolean(existing?.detailedCountAt) ||
+              Boolean(existing?.detailedTotal),
         );
         setSimpleCount(
           Number.isFinite(existing?.simpleCount)
@@ -172,6 +173,10 @@ export default function DetailedAttendancePage() {
           { presentMemberIds, visitors, detailedTotal: autoTotal },
           firebaseUser?.uid,
         );
+
+        if (!hadExistingDetailedRef.current) {
+          await markHouseholdsIncremented(unitId, targetDate, false);
+        }
 
         if (saveVersionRef.current === thisVersion) {
           hasPendingChangesRef.current = false;
