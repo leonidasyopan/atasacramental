@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppHeader from '../components/layout/AppHeader';
 import AttendanceSummary from '../components/attendance/AttendanceSummary';
@@ -64,6 +64,9 @@ export default function DetailedAttendancePage() {
   const [search, setSearch] = useState('');
   const [hadExistingDetailed, setHadExistingDetailed] = useState(false);
   const [simpleCount, setSimpleCount] = useState(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
+  const isInitialLoad = useRef(true);
+  const debounceTimer = useRef(null);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -123,13 +126,58 @@ export default function DetailedAttendancePage() {
         console.error('Falha ao carregar frequência detalhada:', err);
         showToast('Erro ao carregar dados.');
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          requestAnimationFrame(() => { isInitialLoad.current = false; });
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [unitId, unitLoading, targetDate, showToast]);
+
+  useEffect(() => {
+    if (loading || isInitialLoad.current || !unitId) return;
+
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      setAutoSaveStatus('saving');
+      try {
+        const presentMemberIds = Array.from(presentIds);
+        const autoTotal = presentIds.size + visitorsTotal(visitors);
+        await saveDetailedAttendance(
+          unitId,
+          targetDate,
+          { presentMemberIds, visitors, detailedTotal: autoTotal },
+          firebaseUser?.uid,
+        );
+
+        if (!hadExistingDetailed) {
+          const presentHouseholdIds = new Set();
+          for (const [hid, members] of Object.entries(membersByHousehold)) {
+            if (members.some((m) => presentIds.has(m.id))) {
+              presentHouseholdIds.add(hid);
+            }
+          }
+          if (presentHouseholdIds.size > 0) {
+            await incrementHouseholdAttendance(
+              unitId,
+              Array.from(presentHouseholdIds),
+            );
+          }
+          setHadExistingDetailed(true);
+        }
+
+        setAutoSaveStatus('saved');
+      } catch (err) {
+        console.error('Autosave failed:', err);
+        setAutoSaveStatus('error');
+      }
+    }, 2000);
+
+    return () => clearTimeout(debounceTimer.current);
+  }, [presentIds, visitors, unitId, targetDate, firebaseUser?.uid, loading, hadExistingDetailed, membersByHousehold]);
 
   const toggleMember = useCallback((memberId, checked) => {
     setPresentIds((prev) => {
@@ -179,6 +227,7 @@ export default function DetailedAttendancePage() {
 
   async function handleSave() {
     if (!unitId || saving) return;
+    clearTimeout(debounceTimer.current);
     setSaving(true);
     try {
       const presentMemberIds = Array.from(presentIds);
@@ -205,6 +254,7 @@ export default function DetailedAttendancePage() {
         setHadExistingDetailed(true);
       }
 
+      setAutoSaveStatus('saved');
       showToast('Frequência detalhada salva.');
     } catch (err) {
       console.error(err);
@@ -213,6 +263,16 @@ export default function DetailedAttendancePage() {
       setSaving(false);
     }
   }
+
+  useEffect(() => {
+    function handleBeforeUnload(e) {
+      if (autoSaveStatus === 'saving') {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [autoSaveStatus]);
 
   if (loading || unitLoading) {
     return (
@@ -296,6 +356,9 @@ export default function DetailedAttendancePage() {
           <div className="attendance-save-bar">
             <div className="attendance-save-bar-total">
               Total: <strong>{total}</strong>
+              {autoSaveStatus === 'saving' && <span className="attendance-autosave-hint"> — Salvando...</span>}
+              {autoSaveStatus === 'saved' && <span className="attendance-autosave-hint attendance-autosave-saved"> — Salvo ✓</span>}
+              {autoSaveStatus === 'error' && <span className="attendance-autosave-hint attendance-autosave-error"> — Erro ao salvar</span>}
             </div>
             <button
               type="button"
