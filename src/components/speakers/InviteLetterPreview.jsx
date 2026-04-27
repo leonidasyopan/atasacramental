@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import PrintInviteLetter from '../print/PrintInviteLetter';
 
 const POSITION_OPTIONS = [
@@ -213,16 +214,19 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
         </div>
       </div>
 
-      <PrintInviteLetter
-        invite={previewInvite}
-        unit={unit}
-        leaderName={leaderName}
-        leaderCalling={leaderCalling}
-        secretaryName={secretaryName}
-        secretaryCalling={secretaryCalling}
-        secretaryPhone={secretaryPhone}
-        fontSizePt={fontSizePt}
-      />
+      {createPortal(
+        <PrintInviteLetter
+          invite={previewInvite}
+          unit={unit}
+          leaderName={leaderName}
+          leaderCalling={leaderCalling}
+          secretaryName={secretaryName}
+          secretaryCalling={secretaryCalling}
+          secretaryPhone={secretaryPhone}
+          fontSizePt={fontSizePt}
+        />,
+        document.body,
+      )}
     </>
   );
 }
