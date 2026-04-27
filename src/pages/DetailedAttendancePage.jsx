@@ -13,6 +13,7 @@ import {
   getAttendance,
   saveDetailedAttendance,
   incrementHouseholdAttendance,
+  markHouseholdsIncremented,
   visitorsTotal,
 } from '../services/attendance';
 import { currentSundayIso, formatPtBrDate } from '../utils/attendanceDate';
@@ -118,10 +119,7 @@ export default function DetailedAttendancePage() {
         setVisitors(
           Array.isArray(existing?.visitors) ? existing.visitors : [],
         );
-        setHadExistingDetailed(
-          Boolean(existing?.detailedCountAt) ||
-            Boolean(existing?.detailedTotal),
-        );
+        setHadExistingDetailed(Boolean(existing?.householdsIncremented));
         setSimpleCount(
           Number.isFinite(existing?.simpleCount)
             ? existing.simpleCount
@@ -262,6 +260,7 @@ export default function DetailedAttendancePage() {
             Array.from(presentHouseholdIds),
           );
         }
+        await markHouseholdsIncremented(unitId, targetDate);
         hadExistingDetailedRef.current = true;
         setHadExistingDetailed(true);
       }
