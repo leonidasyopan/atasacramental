@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import InviteCard from './InviteCard';
 import InviteForm from './InviteForm';
+import InviteLetterPreview from './InviteLetterPreview';
 import { createInvite, updateInvite, updateInviteStatus } from '../../services/invites';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
+import '../../styles/invite-letter-print.css';
 
 const STATUS_FILTERS = [
   { label: 'Todos', value: null },
@@ -14,11 +16,12 @@ const STATUS_FILTERS = [
 ];
 
 export default function InviteManager({ invites, topics, members, reload }) {
-  const { unitId } = useUnit();
+  const { unitId, unit, leadersFull } = useUnit();
   const { showToast } = useToast();
   const [statusFilter, setStatusFilter] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingInvite, setEditingInvite] = useState(null);
+  const [letterInvite, setLetterInvite] = useState(null);
 
   const filtered = useMemo(() => {
     if (!statusFilter) return invites;
@@ -89,6 +92,7 @@ export default function InviteManager({ invites, topics, members, reload }) {
               invite={inv}
               onStatusChange={handleStatusChange}
               onEdit={handleEdit}
+              onGenerateLetter={setLetterInvite}
             />
           ))}
         </div>
@@ -111,6 +115,15 @@ export default function InviteManager({ invites, topics, members, reload }) {
           invite={editingInvite}
           members={members}
           topics={topics}
+        />
+      )}
+
+      {letterInvite && (
+        <InviteLetterPreview
+          invite={letterInvite}
+          leaders={leadersFull}
+          unit={unit}
+          onClose={() => setLetterInvite(null)}
         />
       )}
     </div>

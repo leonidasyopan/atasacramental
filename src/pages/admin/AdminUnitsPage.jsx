@@ -22,6 +22,7 @@ export default function AdminUnitsPage() {
   const [leadersLoading, setLeadersLoading] = useState(false);
   const [newLeaderName, setNewLeaderName] = useState('');
   const [newLeaderCalling, setNewLeaderCalling] = useState('');
+  const [newLeaderPhone, setNewLeaderPhone] = useState('');
 
   useEffect(() => {
     setName(unit?.name || '');
@@ -67,10 +68,12 @@ export default function AdminUnitsPage() {
       await addLeader(unitId, {
         name: newLeaderName.trim(),
         calling: newLeaderCalling.trim(),
+        phone: newLeaderPhone.trim(),
         order: leaders.length,
       });
       setNewLeaderName('');
       setNewLeaderCalling('');
+      setNewLeaderPhone('');
       await reloadLeaders();
       await reload();
       showToast('Líder adicionado.');
@@ -184,6 +187,15 @@ export default function AdminUnitsPage() {
               />
             </div>
             <div className="field">
+              <label>WhatsApp (opcional)</label>
+              <input
+                type="text"
+                value={newLeaderPhone}
+                onChange={(e) => setNewLeaderPhone(e.target.value)}
+                placeholder="Ex: (99) 99999-9999"
+              />
+            </div>
+            <div className="field">
               <button className="btn btn-primary" type="submit">+ Adicionar</button>
             </div>
           </form>
@@ -198,8 +210,9 @@ export default function AdminUnitsPage() {
                 <tr>
                   <th>Nome</th>
                   <th>Chamado</th>
-                  <th style={{ width: '10%' }}>Ordem</th>
-                  <th style={{ width: '10%' }} />
+                  <th>WhatsApp</th>
+                  <th style={{ width: '8%' }}>Ordem</th>
+                  <th style={{ width: '8%' }} />
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +235,16 @@ export default function AdminUnitsPage() {
                         onBlur={(e) =>
                           e.target.value !== (l.calling || '') &&
                           saveLeader(l, { calling: e.target.value })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        defaultValue={l.phone || ''}
+                        onBlur={(e) =>
+                          e.target.value !== (l.phone || '') &&
+                          saveLeader(l, { phone: e.target.value })
                         }
                       />
                     </td>
