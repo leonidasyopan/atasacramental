@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppHeader from '../components/layout/AppHeader';
 import AttendanceSummary from '../components/attendance/AttendanceSummary';
@@ -13,6 +13,7 @@ import {
   getAttendance,
   saveDetailedAttendance,
   incrementHouseholdAttendance,
+  markHouseholdsIncremented,
   visitorsTotal,
 } from '../services/attendance';
 import { currentSundayIso, formatPtBrDate } from '../utils/attendanceDate';
@@ -64,6 +65,14 @@ export default function DetailedAttendancePage() {
   const [search, setSearch] = useState('');
   const [hadExistingDetailed, setHadExistingDetailed] = useState(false);
   const [simpleCount, setSimpleCount] = useState(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
+  const isInitialLoad = useRef(true);
+  const debounceTimer = useRef(null);
+  const isSavingRef = useRef(false);
+  const hadExistingDetailedRef = useRef(hadExistingDetailed);
+  const membersByHouseholdRef = useRef(membersByHousehold);
+  const hasPendingChangesRef = useRef(false);
+  const saveVersionRef = useRef(0);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -111,8 +120,10 @@ export default function DetailedAttendancePage() {
           Array.isArray(existing?.visitors) ? existing.visitors : [],
         );
         setHadExistingDetailed(
-          Boolean(existing?.detailedCountAt) ||
-            Boolean(existing?.detailedTotal),
+          existing?.householdsIncremented !== undefined
+            ? existing.householdsIncremented === true
+            : Boolean(existing?.detailedCountAt) ||
+              Boolean(existing?.detailedTotal),
         );
         setSimpleCount(
           Number.isFinite(existing?.simpleCount)
@@ -123,13 +134,66 @@ export default function DetailedAttendancePage() {
         console.error('Falha ao carregar frequência detalhada:', err);
         showToast('Erro ao carregar dados.');
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          requestAnimationFrame(() => { isInitialLoad.current = false; });
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [unitId, unitLoading, targetDate, showToast]);
+
+  useEffect(() => { hadExistingDetailedRef.current = hadExistingDetailed; }, [hadExistingDetailed]);
+  useEffect(() => { membersByHouseholdRef.current = membersByHousehold; }, [membersByHousehold]);
+
+  useEffect(() => {
+    if (loading || isInitialLoad.current || !unitId) return;
+
+    hasPendingChangesRef.current = true;
+    saveVersionRef.current += 1;
+    const thisVersion = saveVersionRef.current;
+
+    clearTimeout(debounceTimer.current);
+
+    async function performSave() {
+      if (isSavingRef.current) {
+        debounceTimer.current = setTimeout(performSave, 500);
+        return;
+      }
+      isSavingRef.current = true;
+      setAutoSaveStatus('saving');
+      try {
+        const presentMemberIds = Array.from(presentIds);
+        const autoTotal = presentIds.size + visitorsTotal(visitors);
+        await saveDetailedAttendance(
+          unitId,
+          targetDate,
+          { presentMemberIds, visitors, detailedTotal: autoTotal },
+          firebaseUser?.uid,
+        );
+
+        if (!hadExistingDetailedRef.current) {
+          await markHouseholdsIncremented(unitId, targetDate, false);
+        }
+
+        if (saveVersionRef.current === thisVersion) {
+          hasPendingChangesRef.current = false;
+          setAutoSaveStatus('saved');
+        }
+      } catch (err) {
+        console.error('Autosave failed:', err);
+        setAutoSaveStatus('error');
+      } finally {
+        isSavingRef.current = false;
+      }
+    }
+
+    debounceTimer.current = setTimeout(performSave, 2000);
+
+    return () => clearTimeout(debounceTimer.current);
+  }, [presentIds, visitors, unitId, targetDate, firebaseUser?.uid, loading]);
 
   const toggleMember = useCallback((memberId, checked) => {
     setPresentIds((prev) => {
@@ -178,7 +242,10 @@ export default function DetailedAttendancePage() {
   );
 
   async function handleSave() {
-    if (!unitId || saving) return;
+    if (!unitId || saving || isSavingRef.current) return;
+    clearTimeout(debounceTimer.current);
+    saveVersionRef.current += 1;
+    isSavingRef.current = true;
     setSaving(true);
     try {
       const presentMemberIds = Array.from(presentIds);
@@ -189,7 +256,7 @@ export default function DetailedAttendancePage() {
         firebaseUser?.uid,
       );
 
-      if (!hadExistingDetailed) {
+      if (!hadExistingDetailedRef.current) {
         const presentHouseholdIds = new Set();
         for (const [hid, members] of Object.entries(membersByHousehold)) {
           if (members.some((m) => presentIds.has(m.id))) {
@@ -202,17 +269,32 @@ export default function DetailedAttendancePage() {
             Array.from(presentHouseholdIds),
           );
         }
+        await markHouseholdsIncremented(unitId, targetDate);
+        hadExistingDetailedRef.current = true;
         setHadExistingDetailed(true);
       }
 
+      hasPendingChangesRef.current = false;
+      setAutoSaveStatus('saved');
       showToast('Frequência detalhada salva.');
     } catch (err) {
       console.error(err);
       showToast('Erro ao salvar frequência.');
     } finally {
+      isSavingRef.current = false;
       setSaving(false);
     }
   }
+
+  useEffect(() => {
+    function handleBeforeUnload(e) {
+      if (autoSaveStatus === 'saving' || hasPendingChangesRef.current) {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [autoSaveStatus]);
 
   if (loading || unitLoading) {
     return (
@@ -296,12 +378,15 @@ export default function DetailedAttendancePage() {
           <div className="attendance-save-bar">
             <div className="attendance-save-bar-total">
               Total: <strong>{total}</strong>
+              {autoSaveStatus === 'saving' && <span className="attendance-autosave-hint"> — Salvando...</span>}
+              {autoSaveStatus === 'saved' && <span className="attendance-autosave-hint attendance-autosave-saved"> — Salvo ✓</span>}
+              {autoSaveStatus === 'error' && <span className="attendance-autosave-hint attendance-autosave-error"> — Erro ao salvar</span>}
             </div>
             <button
               type="button"
               className="btn btn-primary attendance-save-btn"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || autoSaveStatus === 'saving'}
             >
               {saving ? 'Salvando...' : 'Salvar Frequência'}
             </button>

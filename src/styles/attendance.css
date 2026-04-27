@@ -364,6 +364,19 @@
   font-size: 1.4rem;
 }
 
+.attendance-autosave-hint {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: 4px;
+}
+.attendance-autosave-saved {
+  color: #16a34a;
+}
+.attendance-autosave-error {
+  color: #dc2626;
+}
+
 .attendance-empty {
   text-align: center;
   padding: 28px 16px;

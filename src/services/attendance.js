@@ -82,6 +82,15 @@ export async function saveDetailedAttendance(
   await setDoc(ref, payload, { merge: true });
 }
 
+export async function markHouseholdsIncremented(unitId, date, value = true) {
+  if (!unitId || !date) return;
+  await setDoc(
+    attendanceDocRef(unitId, date),
+    { householdsIncremented: value },
+    { merge: true },
+  );
+}
+
 export async function getRecentAttendances(unitId, max = 12) {
   if (!unitId) return [];
   const q = query(
