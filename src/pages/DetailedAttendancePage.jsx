@@ -70,6 +70,7 @@ export default function DetailedAttendancePage() {
   const isSavingRef = useRef(false);
   const hadExistingDetailedRef = useRef(hadExistingDetailed);
   const membersByHouseholdRef = useRef(membersByHousehold);
+  const hasPendingChangesRef = useRef(false);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -146,6 +147,7 @@ export default function DetailedAttendancePage() {
   useEffect(() => {
     if (loading || isInitialLoad.current || !unitId) return;
 
+    hasPendingChangesRef.current = true;
     clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(async () => {
       if (isSavingRef.current) return;
@@ -174,9 +176,11 @@ export default function DetailedAttendancePage() {
               Array.from(presentHouseholdIds),
             );
           }
+          hadExistingDetailedRef.current = true;
           setHadExistingDetailed(true);
         }
 
+        hasPendingChangesRef.current = false;
         setAutoSaveStatus('saved');
       } catch (err) {
         console.error('Autosave failed:', err);
@@ -262,9 +266,11 @@ export default function DetailedAttendancePage() {
             Array.from(presentHouseholdIds),
           );
         }
+        hadExistingDetailedRef.current = true;
         setHadExistingDetailed(true);
       }
 
+      hasPendingChangesRef.current = false;
       setAutoSaveStatus('saved');
       showToast('Frequência detalhada salva.');
     } catch (err) {
@@ -278,7 +284,7 @@ export default function DetailedAttendancePage() {
 
   useEffect(() => {
     function handleBeforeUnload(e) {
-      if (autoSaveStatus === 'saving') {
+      if (autoSaveStatus === 'saving' || hasPendingChangesRef.current) {
         e.preventDefault();
       }
     }
