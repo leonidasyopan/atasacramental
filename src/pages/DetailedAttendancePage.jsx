@@ -171,23 +171,6 @@ export default function DetailedAttendancePage() {
           firebaseUser?.uid,
         );
 
-        if (!hadExistingDetailedRef.current) {
-          const presentHouseholdIds = new Set();
-          for (const [hid, members] of Object.entries(membersByHouseholdRef.current)) {
-            if (members.some((m) => presentIds.has(m.id))) {
-              presentHouseholdIds.add(hid);
-            }
-          }
-          if (presentHouseholdIds.size > 0) {
-            await incrementHouseholdAttendance(
-              unitId,
-              Array.from(presentHouseholdIds),
-            );
-          }
-          hadExistingDetailedRef.current = true;
-          setHadExistingDetailed(true);
-        }
-
         if (saveVersionRef.current === thisVersion) {
           hasPendingChangesRef.current = false;
           setAutoSaveStatus('saved');
