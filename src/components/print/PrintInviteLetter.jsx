@@ -3,12 +3,30 @@ import { formatDateBR } from '../../utils/speakerHelpers';
 const POSITION_LABELS = { '1': '1º', '2': '2º', '3': '3º' };
 
 const PREPARATION_ITEMS = [
-  'Ore pedindo a orientação do Espírito Santo para saber o que dizer.',
-  'Estude as escrituras e as palavras dos profetas modernos sobre o tema designado.',
-  'Prepare um esboço simples com começo, meio e fim. Não leia o discurso inteiro — fale com o coração.',
-  'Use experiências pessoais e testemunho próprio para tornar a mensagem significativa.',
-  'Pratique em voz alta para ajustar o tempo e se sentir mais confiante.',
-  'Encerre prestando seu testemunho sobre o tema e em nome de Jesus Cristo.',
+  {
+    title: 'Comece com oração.',
+    body: 'Peça ao Espírito que o(a) guie na escolha das escrituras e das ideias. "Se não receberdes o Espírito, não ensinareis." (D&C 42:14)',
+  },
+  {
+    title: 'Estude o tema com antecedência.',
+    body: 'Consulte as Escrituras, a Liahona, os discursos da Conferência Geral e o manual Vem e Segue-Me. Prepare-se com pelo menos uma semana de antecedência.',
+  },
+  {
+    title: 'Siga uma estrutura clara.',
+    body: 'Ensine uma doutrina → convide à ação → prometa as bênçãos da obediência → encerre com seu testemunho pessoal.',
+  },
+  {
+    title: 'Compartilhe experiências pessoais.',
+    body: 'Relatos verdadeiros que ilustram o tema elevam a fé da congregação e fortalecem seu próprio testemunho.',
+  },
+  {
+    title: 'Respeite o tempo designado.',
+    body: 'Ensaie em voz alta cronometrando para ajustar o conteúdo. Não ultrapasse o tempo — há outros oradores.',
+  },
+  {
+    title: 'No púlpito: fale com o coração.',
+    body: 'Não leia o discurso inteiro. Encerre prestando seu testemunho sobre o tema, em nome de Jesus Cristo.',
+  },
 ];
 
 const MANUAL_CITATION =
@@ -34,52 +52,100 @@ export default function PrintInviteLetter({
 
   return (
     <div className="print-invite-letter" id="print-invite-letter" style={style}>
+      {/* ── HEADER ── */}
       <div className="letter-header">
-        <div className="church-name">A Igreja de Jesus Cristo dos Santos dos Últimos Dias</div>
+        <div className="church-name">
+          A Igreja de Jesus Cristo dos Santos dos Últimos Dias
+        </div>
         {stake && <div className="letter-stake">{stake}</div>}
         <div className="letter-unit">{branchName}</div>
       </div>
 
+      {/* ── TITLE ── */}
       <div className="letter-title">Carta-Convite para Discurso</div>
 
-      <div className="letter-body">
-        <p>
-          Prezado(a) <strong>{invite?.memberName || '_______________'}</strong>,
-        </p>
-        <p>
-          Com muito carinho, gostaríamos de convidá-lo(a) a discursar na Reunião Sacramental
-          do dia <strong>{formatDateBR(invite?.dataAlvo)}</strong>
-          {posLabel ? (<>, como <strong>{positionText}</strong></>) : null}
-          {durationText ? (<>, com duração de aproximadamente <strong>{durationText}</strong></>) : null}.
-        </p>
+      {/* ── SALUTATION ── */}
+      <p className="letter-salutation">
+        Prezado(a) <strong>{invite?.memberName || '_______________'}</strong>,
+      </p>
+
+      {/* ── DETAILS BOX ── */}
+      <div className="letter-details-box">
+        <div className="letter-detail-row">
+          <span className="letter-detail-icon">📅</span>
+          <span className="letter-detail-label">Data:</span>
+          <span className="letter-detail-value">
+            <strong>{formatDateBR(invite?.dataAlvo)}</strong>
+          </span>
+        </div>
+
+        <div className="letter-detail-row">
+          <span className="letter-detail-icon">🎤</span>
+          <span className="letter-detail-label">Posição:</span>
+          <span className="letter-detail-value">
+            <strong>{positionText}</strong>
+          </span>
+        </div>
+
+        {durationText && (
+          <div className="letter-detail-row">
+            <span className="letter-detail-icon">⏱</span>
+            <span className="letter-detail-label">Tempo:</span>
+            <span className="letter-detail-value">
+              <strong>{durationText}</strong>
+            </span>
+          </div>
+        )}
+
         {invite?.topic && (
-          <p>
-            O tema designado para o seu discurso é: <strong>{invite.topic}</strong>.
-          </p>
+          <div className="letter-detail-row letter-detail-topic">
+            <span className="letter-detail-icon">📖</span>
+            <span className="letter-detail-label">Tema designado:</span>
+            <span className="letter-detail-value letter-topic-text">
+              <strong>{invite.topic}</strong>
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="letter-section">
-        <div className="letter-section-title">Como se preparar</div>
-        <ol className="letter-prep-list">
-          {PREPARATION_ITEMS.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ol>
-      </div>
+      {/* ── OPENING PARAGRAPH ── */}
+      <p className="letter-body-text">
+        A Presidência do Ramo tem a honra de convidá-lo(a) a discursar em nossa Reunião
+        Sacramental. É com fé que estendemos este convite, confiantes de que o Senhor
+        o(a) inspirará e abençoará na preparação e na apresentação de sua mensagem.
+      </p>
 
+      {/* ── PREPARATION SECTION ── */}
+      <div className="letter-section-header">Como se preparar</div>
+
+      <ol className="letter-prep-list">
+        {PREPARATION_ITEMS.map((item, i) => (
+          <li key={i} className="letter-prep-item">
+            <span className="letter-prep-title">{item.title}</span>
+            {' '}
+            <span className="letter-prep-body">{item.body}</span>
+          </li>
+        ))}
+      </ol>
+
+      {/* ── CITATION ── */}
       <div className="letter-citation">
-        <p>{MANUAL_CITATION}</p>
+        {MANUAL_CITATION}
       </div>
 
-      <div className="letter-closing">
-        <p>
-          Em caso de imprevisto, entre em contato o mais rápido possível
-          {secretaryPhone ? (<> pelo WhatsApp <strong>{secretaryPhone}</strong></>) : null}.
-        </p>
-        <p>Com carinho e gratidão,</p>
+      {/* ── EMERGENCY BOX ── */}
+      <div className="letter-emergency-box">
+        <span className="letter-emergency-label">⚠ Em caso de imprevisto</span>
+        {' '}— Comunique com a maior antecedência possível
+        {secretaryPhone && (
+          <> pelo WhatsApp <strong>{secretaryPhone}</strong></>
+        )}.
       </div>
 
+      {/* ── CLOSING ── */}
+      <p className="letter-closing">Com carinho e gratidão,</p>
+
+      {/* ── SIGNATURES ── */}
       <div className="letter-signatures">
         <div className="letter-sig-block">
           <div className="letter-sig-line" />
@@ -91,6 +157,12 @@ export default function PrintInviteLetter({
           <div className="letter-sig-name">{leaderName || ''}</div>
           <div className="letter-sig-calling">{leaderCalling || ''}</div>
         </div>
+      </div>
+
+      {/* ── FOOTER ── */}
+      <div className="letter-footer">
+        "Os oradores prestam testemunho de Jesus Cristo e ensinam Seu evangelho
+        usando as escrituras." — Manual Geral 29.2.1.4
       </div>
     </div>
   );
