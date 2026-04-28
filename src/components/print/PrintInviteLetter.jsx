@@ -79,13 +79,15 @@ export default function PrintInviteLetter({
           </span>
         </div>
 
-        <div className="letter-detail-row">
-          <span className="letter-detail-icon">🎤</span>
-          <span className="letter-detail-label">Posição:</span>
-          <span className="letter-detail-value">
-            <strong>{positionText}</strong>
-          </span>
-        </div>
+        {posLabel && (
+          <div className="letter-detail-row">
+            <span className="letter-detail-icon">🎤</span>
+            <span className="letter-detail-label">Posição:</span>
+            <span className="letter-detail-value">
+              <strong>{positionText}</strong>
+            </span>
+          </div>
+        )}
 
         {durationText && (
           <div className="letter-detail-row">
