@@ -37,10 +37,11 @@
     print-color-adjust: exact !important;
   }
 
-  @page {
-    size: A4 portrait;
-    margin: 12mm 10mm 12mm 10mm;
-  }
+  /* Note: @page rules cannot be scoped via a body class — they apply
+     globally to all printed pages. We therefore rely on the default app
+     @page settings (defined in main.css) to avoid conflicting with the
+     Ata print flow. The .print-invite-letter layout below fits within
+     those margins. */
 
   .print-invite-letter {
     width: 100%;
