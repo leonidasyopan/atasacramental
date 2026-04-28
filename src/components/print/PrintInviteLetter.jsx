@@ -123,9 +123,11 @@ export default function PrintInviteLetter({
       <ol className="letter-prep-list">
         {PREPARATION_ITEMS.map((item, i) => (
           <li key={i} className="letter-prep-item">
-            <span className="letter-prep-title">{item.title}</span>
-            {' '}
-            <span className="letter-prep-body">{item.body}</span>
+            <span className="letter-prep-text">
+              <span className="letter-prep-title">{item.title}</span>
+              {' '}
+              <span className="letter-prep-body">{item.body}</span>
+            </span>
           </li>
         ))}
       </ol>

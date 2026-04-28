@@ -234,6 +234,10 @@
   margin-top: 0.5mm;
 }
 
+.print-invite-letter .letter-prep-text {
+  flex: 1;
+}
+
 .print-invite-letter .letter-prep-title {
   font-weight: bold;
   color: var(--letter-navy);
