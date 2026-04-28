@@ -2,6 +2,20 @@
    INVITE LETTER – PRINT STYLES
 ═══════════════════════════════════════════ */
 
+/* ── Palette ── */
+:root {
+  --letter-navy:       var(--navy);
+  --letter-blue:       var(--blue);
+  --letter-gold:       var(--accent);
+  --letter-lgray:      var(--light-blue);
+  --letter-mgray:      var(--border);
+  --letter-dgray:      var(--text);
+  --letter-teal-bg:    #EAF4F0;
+  --letter-teal-text:  #1A6B4A;
+  --letter-muted:      #666666;
+  --letter-blue-muted: #A8BFDF;
+}
+
 /* Hidden on screen */
 .print-invite-letter {
   display: none;
@@ -22,137 +36,290 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-}
 
-/* Note: @page rules cannot be scoped via a body class, so we rely on the
-   default app @page settings (defined in main.css) for the invite letter
-   as well. The .print-invite-letter layout uses max-width: 210mm to fit A4. */
+  /* Note: @page rules cannot be scoped via a body class — they apply
+     globally to all printed pages. We therefore rely on the default app
+     @page settings (defined in main.css) to avoid conflicting with the
+     Ata print flow. The .print-invite-letter layout below fits within
+     those margins. */
+
+  .print-invite-letter {
+    width: 100%;
+    margin: 0;
+    font-size: 10pt; /* base — overridden by inline fontSizePt prop */
+  }
+
+  /* Avoid page break inside key blocks */
+  .print-invite-letter .letter-details-box,
+  .print-invite-letter .letter-prep-list,
+  .print-invite-letter .letter-citation,
+  .print-invite-letter .letter-emergency-box,
+  .print-invite-letter .letter-signatures {
+    page-break-inside: avoid;
+  }
+
+  .print-invite-letter .letter-footer {
+    page-break-before: avoid;
+  }
+}
 
 /* ── Letter layout ── */
 .print-invite-letter {
-  font-family: 'Lato', sans-serif;
-  font-size: 11pt;
-  color: #111;
-  line-height: 1.5;
-  max-width: 210mm;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: var(--letter-dgray);
+  background: #fff;
+  width: 190mm;
   margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 1.5;
 }
 
 /* ── Header ── */
 .print-invite-letter .letter-header {
+  background: var(--letter-navy);
   text-align: center;
-  border-bottom: 2.5pt solid #1B3A6B;
-  padding-bottom: 8pt;
-  margin-bottom: 14pt;
+  padding: 5mm 8mm 5mm;
+  border-bottom: 2.5pt solid var(--letter-gold);
 }
+
 .print-invite-letter .church-name {
-  font-size: 7pt;
-  color: #1B3A6B;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 3pt;
+  font-family: 'Georgia', serif;
+  font-size: 0.72em;
+  color: var(--letter-blue-muted);
+  font-style: italic;
+  letter-spacing: 0.03em;
+  margin-bottom: 1mm;
 }
+
 .print-invite-letter .letter-stake {
-  font-size: 9pt;
-  color: #2E5FAB;
-  letter-spacing: .04em;
-  margin-bottom: 2pt;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.8em;
+  color: #c8d9f0;
+  margin-bottom: 1mm;
 }
+
 .print-invite-letter .letter-unit {
-  font-family: 'EB Garamond', serif;
-  font-size: 16pt;
-  font-weight: 700;
-  color: #1B3A6B;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.15em;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 0.04em;
 }
 
 /* ── Title ── */
 .print-invite-letter .letter-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--letter-navy);
   text-align: center;
-  font-size: 12pt;
-  font-weight: 700;
-  color: #2E5FAB;
-  letter-spacing: .08em;
   text-transform: uppercase;
-  margin-bottom: 16pt;
+  letter-spacing: 0.1em;
+  padding: 4mm 0 3mm;
+  border-bottom: 1pt solid var(--letter-mgray);
+  margin-bottom: 4mm;
 }
 
-/* ── Body ── */
-.print-invite-letter .letter-body {
-  margin-bottom: 14pt;
+/* ── Salutation ── */
+.print-invite-letter .letter-salutation {
+  margin: 0 0 3mm;
+  font-size: 1em;
 }
-.print-invite-letter .letter-body p {
-  margin: 0 0 8pt 0;
+
+/* ── Details box ── */
+.print-invite-letter .letter-details-box {
+  background: var(--letter-lgray);
+  border-left: 4pt solid var(--letter-gold);
+  border-top: 1pt solid var(--letter-navy);
+  border-bottom: 1pt solid var(--letter-navy);
+  border-right: none;
+  padding: 3mm 4mm 3mm 4mm;
+  margin-bottom: 4mm;
+}
+
+.print-invite-letter .letter-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.95em;
+}
+
+.print-invite-letter .letter-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.print-invite-letter .letter-detail-icon {
+  flex-shrink: 0;
+  width: 4mm;
+  text-align: center;
+}
+
+.print-invite-letter .letter-detail-label {
+  font-weight: bold;
+  color: var(--letter-navy);
+  flex-shrink: 0;
+  margin-right: 1mm;
+}
+
+.print-invite-letter .letter-detail-value {
+  color: var(--letter-dgray);
+}
+
+.print-invite-letter .letter-detail-topic {
+  margin-top: 1mm;
+  padding-top: 2mm;
+  border-top: 0.5pt solid var(--letter-mgray);
+}
+
+.print-invite-letter .letter-topic-text {
+  font-size: 1.05em;
+  color: var(--letter-navy);
+}
+
+/* ── Body text ── */
+.print-invite-letter .letter-body-text {
+  margin: 0 0 4mm;
+  font-size: 0.95em;
   text-align: justify;
 }
 
-/* ── Section ("Como se preparar") ── */
-.print-invite-letter .letter-section {
-  margin-bottom: 12pt;
-}
-.print-invite-letter .letter-section-title {
-  font-size: 9pt;
-  font-weight: 700;
-  letter-spacing: .08em;
+/* ── Section header ── */
+.print-invite-letter .letter-section-header {
+  background: var(--letter-navy);
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.8em;
+  font-weight: bold;
   text-transform: uppercase;
-  color: #1B3A6B;
-  border-bottom: 1.5pt solid #2E5FAB;
-  padding-bottom: 3pt;
-  margin-bottom: 8pt;
+  letter-spacing: 0.08em;
+  padding: 1.5mm 4mm;
+  margin-bottom: 2mm;
 }
+
+/* ── Preparation list ── */
 .print-invite-letter .letter-prep-list {
-  margin: 0;
-  padding-left: 18pt;
+  margin: 0 0 3mm 0;
+  padding-left: 5mm;
+  list-style: none;
+  counter-reset: prep-counter;
 }
-.print-invite-letter .letter-prep-list li {
-  margin-bottom: 4pt;
-  line-height: 1.4;
+
+.print-invite-letter .letter-prep-item {
+  counter-increment: prep-counter;
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5mm;
+  margin-bottom: 2mm;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+
+.print-invite-letter .letter-prep-item::before {
+  content: counter(prep-counter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 4.5mm;
+  height: 4.5mm;
+  background: var(--letter-navy);
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.8em;
+  font-weight: bold;
+  border-radius: 50%;
+  margin-top: 0.5mm;
+}
+
+.print-invite-letter .letter-prep-text {
+  flex: 1;
+}
+
+.print-invite-letter .letter-prep-title {
+  font-weight: bold;
+  color: var(--letter-navy);
+}
+
+.print-invite-letter .letter-prep-body {
+  color: var(--letter-dgray);
 }
 
 /* ── Citation ── */
 .print-invite-letter .letter-citation {
-  background: #f5f8ff;
-  border-left: 3pt solid #2E5FAB;
-  padding: 8pt 12pt;
-  margin-bottom: 14pt;
-  font-size: 9pt;
+  background: var(--letter-lgray);
+  border-left: 3pt solid var(--letter-blue);
+  padding: 2.5mm 4mm;
+  margin-bottom: 3mm;
   font-style: italic;
-  color: #333;
+  font-size: 0.82em;
+  color: var(--letter-muted);
   line-height: 1.4;
 }
-.print-invite-letter .letter-citation p {
-  margin: 0;
+
+/* ── Emergency box ── */
+.print-invite-letter .letter-emergency-box {
+  background: var(--letter-teal-bg);
+  border-left: 4pt solid var(--letter-teal-text);
+  border-top: 1pt solid var(--letter-teal-text);
+  border-bottom: 1pt solid var(--letter-teal-text);
+  border-right: none;
+  padding: 2.5mm 4mm;
+  margin-bottom: 4mm;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.88em;
+  color: var(--letter-dgray);
+}
+
+.print-invite-letter .letter-emergency-label {
+  font-weight: bold;
+  color: var(--letter-teal-text);
 }
 
 /* ── Closing ── */
 .print-invite-letter .letter-closing {
-  margin-bottom: 20pt;
-}
-.print-invite-letter .letter-closing p {
-  margin: 0 0 6pt 0;
+  margin: 0 0 6mm;
+  font-size: 0.95em;
 }
 
 /* ── Signatures ── */
 .print-invite-letter .letter-signatures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32pt;
-  margin-top: 24pt;
+  display: flex;
+  gap: 10mm;
+  margin-bottom: 4mm;
 }
+
 .print-invite-letter .letter-sig-block {
-  text-align: center;
+  flex: 1;
 }
+
 .print-invite-letter .letter-sig-line {
-  border-top: 0.7pt solid #333;
-  width: 100%;
-  margin-bottom: 4pt;
+  border-top: 1pt solid var(--letter-mgray);
+  margin-bottom: 1.5mm;
 }
+
 .print-invite-letter .letter-sig-name {
-  font-size: 10pt;
-  font-weight: 700;
-  color: #111;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.88em;
+  font-weight: bold;
+  color: var(--letter-navy);
 }
+
 .print-invite-letter .letter-sig-calling {
-  font-size: 8pt;
-  color: #555;
-  letter-spacing: .02em;
+  font-family: 'Arial', sans-serif;
+  font-size: 0.8em;
+  color: var(--letter-muted);
+}
+
+/* ── Footer ── */
+.print-invite-letter .letter-footer {
+  background: var(--letter-navy);
+  color: var(--letter-blue-muted);
+  font-style: italic;
+  font-size: 0.78em;
+  text-align: center;
+  padding: 2.5mm 6mm;
+  line-height: 1.4;
 }
