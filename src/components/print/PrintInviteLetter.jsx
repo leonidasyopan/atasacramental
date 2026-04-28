@@ -161,8 +161,8 @@ export default function PrintInviteLetter({
 
       {/* ── FOOTER ── */}
       <div className="letter-footer">
-        "Os oradores prestam testemunho de Jesus Cristo e ensinam Seu evangelho
-        usando as escrituras." — Manual Geral 29.2.1.4
+        &ldquo;Os oradores prestam testemunho de Jesus Cristo e ensinam Seu evangelho
+        usando as escrituras.&rdquo; — Manual Geral 29.2.1.4
       </div>
     </div>
   );
