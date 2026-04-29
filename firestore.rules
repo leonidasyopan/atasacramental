@@ -34,6 +34,17 @@ service cloud.firestore {
         && getUserData().unitId == unitId;
     }
 
+    // True when the signed-in user has role == 'admin' AND belongs to the
+    // given unit. Unit-scoped admins may manage their own unit's configuration
+    // (unit document and leaders subcollection), mirroring the frontend route
+    // guard `allowedRoles={['admin', 'superadmin']}` on /admin/unit.
+    function isUnitAdmin(unitId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().role == 'admin'
+        && getUserData().unitId == unitId;
+    }
+
     // ---- allowedUsers/{emailLower} ----
     // Signed-in users may read their own allowlist record (used at login).
     // Only superadmin may list or modify.
@@ -88,11 +99,11 @@ service cloud.firestore {
     // ---- units/{unitId} ----
     match /units/{unitId} {
       allow read: if belongsToUnit(unitId) || isSuperAdmin();
-      allow write: if isSuperAdmin();
+      allow write: if isUnitAdmin(unitId) || isSuperAdmin();
 
       match /leaders/{leaderId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update, delete: if isSuperAdmin();
+        allow create, update, delete: if isUnitAdmin(unitId) || isSuperAdmin();
       }
 
       match /atas/{ataId} {
