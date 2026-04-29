@@ -1,32 +1,43 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import PrintInviteLetter from '../print/PrintInviteLetter';
 
-function findLeaderByRole(leaders, keywords) {
-  if (!leaders || !leaders.length) return null;
-  const lower = keywords.map((k) => k.toLowerCase());
-  return leaders.find((l) => {
-    const calling = (l.calling || '').toLowerCase();
-    return lower.some((kw) => calling.includes(kw));
-  }) || null;
-}
-
 export default function InviteLetterPreview({ invite, leaders, unit, onClose }) {
-  const secretary = useMemo(
-    () => findLeaderByRole(leaders, ['secretário', 'secretária', 'secretario', 'secretaria']),
-    [leaders],
-  );
-  const president = useMemo(
-    () => findLeaderByRole(leaders, ['presidente', 'bispo']),
-    [leaders],
-  );
+  const secretaries = useMemo(() => {
+    if (!leaders) return [];
+    return leaders.filter(l => {
+      const calling = (l.calling || '').toLowerCase();
+      return ['secretário', 'secretária', 'secretario', 'secretaria'].some(kw => calling.includes(kw));
+    });
+  }, [leaders]);
 
-  const [secretaryName, setSecretaryName] = useState(secretary?.name || '');
-  const [secretaryCalling, setSecretaryCalling] = useState(secretary?.calling || '');
-  const [secretaryPhone, setSecretaryPhone] = useState(secretary?.phone || '');
-  const [leaderName, setLeaderName] = useState(president?.name || '');
-  const [leaderCalling, setLeaderCalling] = useState(president?.calling || '');
+  const presidents = useMemo(() => {
+    if (!leaders) return [];
+    return leaders.filter(l => {
+      const calling = (l.calling || '').toLowerCase();
+      return ['presidente', 'bispo'].some(kw => calling.includes(kw));
+    });
+  }, [leaders]);
+
+  const [selectedSecretaryId, setSelectedSecretaryId] = useState('');
+  const [selectedPresidentId, setSelectedPresidentId] = useState('');
   const [fontSizePt, setFontSizePt] = useState(11);
+
+  // Auto-select first available options when lists change
+  useEffect(() => {
+    if (secretaries.length > 0 && !selectedSecretaryId) {
+      setSelectedSecretaryId(secretaries[0].id);
+    }
+  }, [secretaries, selectedSecretaryId]);
+
+  useEffect(() => {
+    if (presidents.length > 0 && !selectedPresidentId) {
+      setSelectedPresidentId(presidents[0].id);
+    }
+  }, [presidents, selectedPresidentId]);
+
+  const activeSecretary = secretaries.find(s => s.id === selectedSecretaryId) || secretaries[0] || {};
+  const activePresident = presidents.find(p => p.id === selectedPresidentId) || presidents[0] || {};
 
   function handlePrint() {
     const cls = 'printing-invite-letter';
@@ -51,54 +62,41 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
         >
           <h3>Pré-visualização da Carta-Convite</h3>
 
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Nome do Secretário</label>
-              <input
-                type="text"
-                value={secretaryName}
-                onChange={(e) => setSecretaryName(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Chamado do Secretário</label>
-              <input
-                type="text"
-                value={secretaryCalling}
-                onChange={(e) => setSecretaryCalling(e.target.value)}
-              />
-            </div>
+          <div className="field" style={{ marginBottom: 12 }}>
+            <label>Secretário</label>
+            {secretaries.length > 0 ? (
+              <select 
+                value={selectedSecretaryId} 
+                onChange={(e) => setSelectedSecretaryId(e.target.value)}
+              >
+                {secretaries.map(s => (
+                  <option key={s.id} value={s.id}>{s.name} - {s.calling}</option>
+                ))}
+              </select>
+            ) : (
+              <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
+                Nenhum secretário cadastrado nas configurações da unidade.
+              </div>
+            )}
           </div>
 
           <div className="field" style={{ marginBottom: 12 }}>
-            <label>WhatsApp do Secretário</label>
-            <input
-              type="text"
-              value={secretaryPhone}
-              onChange={(e) => setSecretaryPhone(e.target.value)}
-              placeholder="(99) 99999-9999"
-            />
+            <label>Presidente / Bispo</label>
+            {presidents.length > 0 ? (
+              <select 
+                value={selectedPresidentId} 
+                onChange={(e) => setSelectedPresidentId(e.target.value)}
+              >
+                {presidents.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} - {p.calling}</option>
+                ))}
+              </select>
+            ) : (
+              <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
+                Nenhum líder (presidente/bispo) cadastrado nas configurações da unidade.
+              </div>
+            )}
           </div>
-
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Nome do Presidente/Bispo</label>
-              <input
-                type="text"
-                value={leaderName}
-                onChange={(e) => setLeaderName(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Chamado do Presidente/Bispo</label>
-              <input
-                type="text"
-                value={leaderCalling}
-                onChange={(e) => setLeaderCalling(e.target.value)}
-              />
-            </div>
-          </div>
-
           <div className="field" style={{ marginBottom: 16 }}>
             <label>Tamanho da fonte: {fontSizePt}pt</label>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -143,11 +141,11 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
         <PrintInviteLetter
           invite={invite}
           unit={unit}
-          leaderName={leaderName}
-          leaderCalling={leaderCalling}
-          secretaryName={secretaryName}
-          secretaryCalling={secretaryCalling}
-          secretaryPhone={secretaryPhone}
+          leaderName={activePresident.name || ''}
+          leaderCalling={activePresident.calling || ''}
+          secretaryName={activeSecretary.name || ''}
+          secretaryCalling={activeSecretary.calling || ''}
+          secretaryPhone={activeSecretary.phone || ''}
           fontSizePt={fontSizePt}
         />,
         document.body,
