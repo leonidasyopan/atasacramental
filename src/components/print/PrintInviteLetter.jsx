@@ -72,7 +72,7 @@ export default function PrintInviteLetter({
 
       {/* ── OPENING PARAGRAPH ── */}
       <p className="letter-body-text">
-        A Presidência do Ramo tem a honra de convidá-lo(a) a discursar em nossa <strong>Reunião
+        A {unitType === 'Ala' ? 'Presidência da Ala' : 'Presidência do Ramo'} tem a honra de convidá-lo(a) a discursar em nossa <strong>Reunião
           Sacramental</strong>. É com fé que estendemos este convite, confiantes de que o Senhor
         o(a) inspirará e abençoará na preparação e na apresentação de sua mensagem.
       </p>

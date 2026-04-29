@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import PrintInviteLetter from '../print/PrintInviteLetter';
 
@@ -21,22 +21,11 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
     });
   }, [leaders]);
 
-  const [selectedSecretaryId, setSelectedSecretaryId] = useState('');
-  const [selectedPresidentId, setSelectedPresidentId] = useState('');
+  // Initialise once on mount — this component is always freshly mounted (conditionally
+  // rendered in InviteManager), so lazy initialisers are safe and avoid useEffect loops.
+  const [selectedSecretaryId, setSelectedSecretaryId] = useState(() => secretaries[0]?.id ?? '');
+  const [selectedPresidentId, setSelectedPresidentId] = useState(() => presidents[0]?.id ?? '');
   const [fontSizePt, setFontSizePt] = useState(11);
-
-  // Auto-select first available options when lists change
-  useEffect(() => {
-    if (secretaries.length > 0 && !selectedSecretaryId) {
-      setSelectedSecretaryId(secretaries[0].id);
-    }
-  }, [secretaries, selectedSecretaryId]);
-
-  useEffect(() => {
-    if (presidents.length > 0 && !selectedPresidentId) {
-      setSelectedPresidentId(presidents[0].id);
-    }
-  }, [presidents, selectedPresidentId]);
 
   const activeSecretary = secretaries.find(s => s.id === selectedSecretaryId) || secretaries[0] || {};
   const activePresident = presidents.find(p => p.id === selectedPresidentId) || presidents[0] || {};
