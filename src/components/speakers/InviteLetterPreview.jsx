@@ -15,7 +15,9 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
     if (!leaders) return [];
     return leaders.filter(l => {
       const calling = (l.calling || '').toLowerCase();
-      return ['presidente', 'bispo'].some(kw => calling.includes(kw));
+      const isPresiding = calling.includes('presidente') || calling.includes('bispo');
+      const isCounselor = calling.includes('conselheiro');
+      return isPresiding && !isCounselor;
     });
   }, [leaders]);
 
@@ -64,7 +66,7 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
 
           <div className="field" style={{ marginBottom: 12 }}>
             <label>Secretário</label>
-            {secretaries.length > 0 ? (
+            {secretaries.length > 1 ? (
               <select 
                 value={selectedSecretaryId} 
                 onChange={(e) => setSelectedSecretaryId(e.target.value)}
@@ -73,6 +75,10 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
                   <option key={s.id} value={s.id}>{s.name} - {s.calling}</option>
                 ))}
               </select>
+            ) : secretaries.length === 1 ? (
+              <div style={{ padding: '8px 12px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 4, fontSize: '0.95rem' }}>
+                {secretaries[0].name} - {secretaries[0].calling}
+              </div>
             ) : (
               <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
                 Nenhum secretário cadastrado nas configurações da unidade.
@@ -82,7 +88,7 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
 
           <div className="field" style={{ marginBottom: 12 }}>
             <label>Presidente / Bispo</label>
-            {presidents.length > 0 ? (
+            {presidents.length > 1 ? (
               <select 
                 value={selectedPresidentId} 
                 onChange={(e) => setSelectedPresidentId(e.target.value)}
@@ -91,6 +97,10 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
                   <option key={p.id} value={p.id}>{p.name} - {p.calling}</option>
                 ))}
               </select>
+            ) : presidents.length === 1 ? (
+              <div style={{ padding: '8px 12px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 4, fontSize: '0.95rem' }}>
+                {presidents[0].name} - {presidents[0].calling}
+              </div>
             ) : (
               <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
                 Nenhum líder (presidente/bispo) cadastrado nas configurações da unidade.
