@@ -2,21 +2,6 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import PrintInviteLetter from '../print/PrintInviteLetter';
 
-const POSITION_OPTIONS = [
-  { value: '', label: '—' },
-  { value: '1', label: '1º Orador' },
-  { value: '2', label: '2º Orador' },
-  { value: '3', label: '3º Orador' },
-];
-
-const DURATION_OPTIONS = [
-  { value: '', label: '—' },
-  { value: '5', label: '5 min' },
-  { value: '10', label: '10 min' },
-  { value: '15', label: '15 min' },
-  { value: '20', label: '20 min' },
-];
-
 function findLeaderByRole(leaders, keywords) {
   if (!leaders || !leaders.length) return null;
   const lower = keywords.map((k) => k.toLowerCase());
@@ -36,26 +21,12 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
     [leaders],
   );
 
-  const [memberName, setMemberName] = useState(invite?.memberName || '');
-  const [dataAlvo, setDataAlvo] = useState(invite?.dataAlvo || '');
-  const [topic, setTopic] = useState(invite?.topic || '');
-  const [position, setPosition] = useState(invite?.position || '');
-  const [duration, setDuration] = useState(invite?.duration ? String(invite.duration) : '');
   const [secretaryName, setSecretaryName] = useState(secretary?.name || '');
   const [secretaryCalling, setSecretaryCalling] = useState(secretary?.calling || '');
   const [secretaryPhone, setSecretaryPhone] = useState(secretary?.phone || '');
   const [leaderName, setLeaderName] = useState(president?.name || '');
   const [leaderCalling, setLeaderCalling] = useState(president?.calling || '');
   const [fontSizePt, setFontSizePt] = useState(11);
-
-  const previewInvite = {
-    ...invite,
-    memberName,
-    dataAlvo,
-    topic,
-    position,
-    duration: duration ? Number(duration) : null,
-  };
 
   function handlePrint() {
     const cls = 'printing-invite-letter';
@@ -79,52 +50,6 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
           onClick={(e) => e.stopPropagation()}
         >
           <h3>Pré-visualização da Carta-Convite</h3>
-
-          <div className="field" style={{ marginBottom: 12 }}>
-            <label>Nome do discursante</label>
-            <input
-              type="text"
-              value={memberName}
-              onChange={(e) => setMemberName(e.target.value)}
-            />
-          </div>
-
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Data</label>
-              <input
-                type="date"
-                value={dataAlvo}
-                onChange={(e) => setDataAlvo(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Posição</label>
-              <select value={position} onChange={(e) => setPosition(e.target.value)}>
-                {POSITION_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label>Duração</label>
-              <select value={duration} onChange={(e) => setDuration(e.target.value)}>
-                {DURATION_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="field" style={{ marginBottom: 12 }}>
-            <label>Tema</label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="Tema do discurso"
-            />
-          </div>
 
           <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
             <div className="field">
@@ -216,7 +141,7 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
 
       {createPortal(
         <PrintInviteLetter
-          invite={previewInvite}
+          invite={invite}
           unit={unit}
           leaderName={leaderName}
           leaderCalling={leaderCalling}
