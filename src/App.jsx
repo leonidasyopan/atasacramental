@@ -49,10 +49,13 @@ export default function App() {
         <Route path="/frequencia/historico" element={<AttendanceHistoryPage />} />
       </Route>
 
-      <Route element={<ProtectedRoute requireSuperAdmin />}>
-        <Route path="/admin/allowed-users" element={<AdminUsersPage />} />
+      <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>
         <Route path="/admin/unit" element={<AdminUnitsPage />} />
         <Route path="/admin/members" element={<AdminMembersPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute requireSuperAdmin />}>
+        <Route path="/admin/allowed-users" element={<AdminUsersPage />} />
         <Route path="/admin/users" element={<AdminAllUsersPage />} />
       </Route>
 

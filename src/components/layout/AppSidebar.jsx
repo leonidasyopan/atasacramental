@@ -103,9 +103,14 @@ export default function AppSidebar() {
               Histórico de frequência
             </NavLink>
           )}
+          {(userRole === 'admin' || isSuperAdmin) && (
+            <NavLink to="/admin/unit" onClick={close}>
+              Config. Unidade
+            </NavLink>
+          )}
           {isSuperAdmin && (
             <NavLink to="/admin/allowed-users" onClick={close}>
-              Admin
+              Admin Global
             </NavLink>
           )}
         </nav>

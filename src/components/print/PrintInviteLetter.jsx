@@ -9,11 +9,11 @@ const PREPARATION_ITEMS = [
   },
   {
     title: 'Estude o tema com antecedência.',
-    body: 'Consulte as Escrituras, a Liahona, os discursos da Conferência Geral e o manual Vem e Segue-Me. Prepare-se com pelo menos uma semana de antecedência.',
+    body: 'Consulte as Escrituras, as revistas da Igreja (A Liahona), os discursos da Conferência Geral e o manual Vem e Segue-Me. Prepare-se com pelo menos uma semana de antecedência.',
   },
   {
     title: 'Siga uma estrutura clara.',
-    body: 'Ensine uma doutrina → convide à ação → prometa as bênçãos da obediência → encerre com seu testemunho pessoal.',
+    body: 'Ensine uma doutrina → convide à ação → fale das bênçãos da obediência → encerre com seu testemunho pessoal. (Élder Osguthorpe, Conferência de Out. 2009)',
   },
   {
     title: 'Compartilhe experiências pessoais.',
@@ -42,7 +42,8 @@ export default function PrintInviteLetter({
   secretaryPhone,
   fontSizePt = 11,
 }) {
-  const branchName = unit?.name || 'Unidade';
+  const unitType = unit?.type || 'Ramo';
+  const branchName = unit?.name ? `${unitType} ${unit.name}` : 'Unidade';
   const stake = unit?.stake || '';
   const posLabel = POSITION_LABELS[invite?.position] || '';
   const positionText = posLabel ? `${posLabel} orador(a)` : 'orador(a)';
@@ -66,7 +67,14 @@ export default function PrintInviteLetter({
 
       {/* ── SALUTATION ── */}
       <p className="letter-salutation">
-        Prezado(a) <strong>{invite?.memberName || '_______________'}</strong>,
+        Querido(a) irmão(ã) <strong>{invite?.memberName || '_______________'}</strong>,
+      </p>
+
+      {/* ── OPENING PARAGRAPH ── */}
+      <p className="letter-body-text">
+        A {unitType === 'Ala' ? 'Presidência da Ala' : 'Presidência do Ramo'} tem a honra de convidá-lo(a) a discursar em nossa <strong>Reunião
+          Sacramental</strong>. É com fé que estendemos este convite, confiantes de que o Senhor
+        o(a) inspirará e abençoará na preparação e na apresentação de sua mensagem.
       </p>
 
       {/* ── DETAILS BOX ── */}
@@ -110,13 +118,6 @@ export default function PrintInviteLetter({
         )}
       </div>
 
-      {/* ── OPENING PARAGRAPH ── */}
-      <p className="letter-body-text">
-        A Presidência do Ramo tem a honra de convidá-lo(a) a discursar em nossa Reunião
-        Sacramental. É com fé que estendemos este convite, confiantes de que o Senhor
-        o(a) inspirará e abençoará na preparação e na apresentação de sua mensagem.
-      </p>
-
       {/* ── PREPARATION SECTION ── */}
       <div className="letter-section-header">Como se preparar</div>
 
@@ -152,12 +153,12 @@ export default function PrintInviteLetter({
       {/* ── SIGNATURES ── */}
       <div className="letter-signatures">
         <div className="letter-sig-block">
-          <div className="letter-sig-line" />
+          {/* <div className="letter-sig-line" /> */}
           <div className="letter-sig-name">{secretaryName || ''}</div>
           <div className="letter-sig-calling">{secretaryCalling || 'Secretário(a)'}</div>
         </div>
         <div className="letter-sig-block">
-          <div className="letter-sig-line" />
+          {/* <div className="letter-sig-line" /> */}
           <div className="letter-sig-name">{leaderName || ''}</div>
           <div className="letter-sig-calling">{leaderCalling || ''}</div>
         </div>

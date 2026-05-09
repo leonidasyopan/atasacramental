@@ -2,60 +2,33 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import PrintInviteLetter from '../print/PrintInviteLetter';
 
-const POSITION_OPTIONS = [
-  { value: '', label: '—' },
-  { value: '1', label: '1º Orador' },
-  { value: '2', label: '2º Orador' },
-  { value: '3', label: '3º Orador' },
-];
-
-const DURATION_OPTIONS = [
-  { value: '', label: '—' },
-  { value: '5', label: '5 min' },
-  { value: '10', label: '10 min' },
-  { value: '15', label: '15 min' },
-  { value: '20', label: '20 min' },
-];
-
-function findLeaderByRole(leaders, keywords) {
-  if (!leaders || !leaders.length) return null;
-  const lower = keywords.map((k) => k.toLowerCase());
-  return leaders.find((l) => {
-    const calling = (l.calling || '').toLowerCase();
-    return lower.some((kw) => calling.includes(kw));
-  }) || null;
-}
-
 export default function InviteLetterPreview({ invite, leaders, unit, onClose }) {
-  const secretary = useMemo(
-    () => findLeaderByRole(leaders, ['secretário', 'secretária', 'secretario', 'secretaria']),
-    [leaders],
-  );
-  const president = useMemo(
-    () => findLeaderByRole(leaders, ['presidente', 'bispo']),
-    [leaders],
-  );
+  const secretaries = useMemo(() => {
+    if (!leaders) return [];
+    return leaders.filter(l => {
+      const calling = (l.calling || '').toLowerCase();
+      return ['secretário', 'secretária', 'secretario', 'secretaria'].some(kw => calling.includes(kw));
+    });
+  }, [leaders]);
 
-  const [memberName, setMemberName] = useState(invite?.memberName || '');
-  const [dataAlvo, setDataAlvo] = useState(invite?.dataAlvo || '');
-  const [topic, setTopic] = useState(invite?.topic || '');
-  const [position, setPosition] = useState(invite?.position || '');
-  const [duration, setDuration] = useState(invite?.duration ? String(invite.duration) : '');
-  const [secretaryName, setSecretaryName] = useState(secretary?.name || '');
-  const [secretaryCalling, setSecretaryCalling] = useState(secretary?.calling || '');
-  const [secretaryPhone, setSecretaryPhone] = useState(secretary?.phone || '');
-  const [leaderName, setLeaderName] = useState(president?.name || '');
-  const [leaderCalling, setLeaderCalling] = useState(president?.calling || '');
+  const presidents = useMemo(() => {
+    if (!leaders) return [];
+    return leaders.filter(l => {
+      const calling = (l.calling || '').toLowerCase();
+      const isPresiding = calling.includes('presidente') || calling.includes('bispo');
+      const isCounselor = calling.includes('conselheiro');
+      return isPresiding && !isCounselor;
+    });
+  }, [leaders]);
+
+  // Initialise once on mount — this component is always freshly mounted (conditionally
+  // rendered in InviteManager), so lazy initialisers are safe and avoid useEffect loops.
+  const [selectedSecretaryId, setSelectedSecretaryId] = useState(() => secretaries[0]?.id ?? '');
+  const [selectedPresidentId, setSelectedPresidentId] = useState(() => presidents[0]?.id ?? '');
   const [fontSizePt, setFontSizePt] = useState(11);
 
-  const previewInvite = {
-    ...invite,
-    memberName,
-    dataAlvo,
-    topic,
-    position,
-    duration: duration ? Number(duration) : null,
-  };
+  const activeSecretary = secretaries.find(s => s.id === selectedSecretaryId) || secretaries[0] || {};
+  const activePresident = presidents.find(p => p.id === selectedPresidentId) || presidents[0] || {};
 
   function handlePrint() {
     const cls = 'printing-invite-letter';
@@ -81,99 +54,48 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
           <h3>Pré-visualização da Carta-Convite</h3>
 
           <div className="field" style={{ marginBottom: 12 }}>
-            <label>Nome do discursante</label>
-            <input
-              type="text"
-              value={memberName}
-              onChange={(e) => setMemberName(e.target.value)}
-            />
-          </div>
-
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Data</label>
-              <input
-                type="date"
-                value={dataAlvo}
-                onChange={(e) => setDataAlvo(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Posição</label>
-              <select value={position} onChange={(e) => setPosition(e.target.value)}>
-                {POSITION_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+            <label>Secretário</label>
+            {secretaries.length > 1 ? (
+              <select 
+                value={selectedSecretaryId} 
+                onChange={(e) => setSelectedSecretaryId(e.target.value)}
+              >
+                {secretaries.map(s => (
+                  <option key={s.id} value={s.id}>{s.name} - {s.calling}</option>
                 ))}
               </select>
-            </div>
-            <div className="field">
-              <label>Duração</label>
-              <select value={duration} onChange={(e) => setDuration(e.target.value)}>
-                {DURATION_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
+            ) : secretaries.length === 1 ? (
+              <div style={{ padding: '8px 12px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 4, fontSize: '0.95rem' }}>
+                {secretaries[0].name} - {secretaries[0].calling}
+              </div>
+            ) : (
+              <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
+                Nenhum secretário cadastrado nas configurações da unidade.
+              </div>
+            )}
           </div>
 
           <div className="field" style={{ marginBottom: 12 }}>
-            <label>Tema</label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="Tema do discurso"
-            />
+            <label>Presidente / Bispo</label>
+            {presidents.length > 1 ? (
+              <select 
+                value={selectedPresidentId} 
+                onChange={(e) => setSelectedPresidentId(e.target.value)}
+              >
+                {presidents.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} - {p.calling}</option>
+                ))}
+              </select>
+            ) : presidents.length === 1 ? (
+              <div style={{ padding: '8px 12px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 4, fontSize: '0.95rem' }}>
+                {presidents[0].name} - {presidents[0].calling}
+              </div>
+            ) : (
+              <div style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic', marginTop: 4 }}>
+                Nenhum líder (presidente/bispo) cadastrado nas configurações da unidade.
+              </div>
+            )}
           </div>
-
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Nome do Secretário</label>
-              <input
-                type="text"
-                value={secretaryName}
-                onChange={(e) => setSecretaryName(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Chamado do Secretário</label>
-              <input
-                type="text"
-                value={secretaryCalling}
-                onChange={(e) => setSecretaryCalling(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="field" style={{ marginBottom: 12 }}>
-            <label>WhatsApp do Secretário</label>
-            <input
-              type="text"
-              value={secretaryPhone}
-              onChange={(e) => setSecretaryPhone(e.target.value)}
-              placeholder="(99) 99999-9999"
-            />
-          </div>
-
-          <div className="field-row" style={{ marginBottom: 12, gap: 12 }}>
-            <div className="field">
-              <label>Nome do Presidente/Bispo</label>
-              <input
-                type="text"
-                value={leaderName}
-                onChange={(e) => setLeaderName(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label>Chamado do Presidente/Bispo</label>
-              <input
-                type="text"
-                value={leaderCalling}
-                onChange={(e) => setLeaderCalling(e.target.value)}
-              />
-            </div>
-          </div>
-
           <div className="field" style={{ marginBottom: 16 }}>
             <label>Tamanho da fonte: {fontSizePt}pt</label>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -216,13 +138,13 @@ export default function InviteLetterPreview({ invite, leaders, unit, onClose }) 
 
       {createPortal(
         <PrintInviteLetter
-          invite={previewInvite}
+          invite={invite}
           unit={unit}
-          leaderName={leaderName}
-          leaderCalling={leaderCalling}
-          secretaryName={secretaryName}
-          secretaryCalling={secretaryCalling}
-          secretaryPhone={secretaryPhone}
+          leaderName={activePresident.name || ''}
+          leaderCalling={activePresident.calling || ''}
+          secretaryName={activeSecretary.name || ''}
+          secretaryCalling={activeSecretary.calling || ''}
+          secretaryPhone={activeSecretary.phone || ''}
           fontSizePt={fontSizePt}
         />,
         document.body,
