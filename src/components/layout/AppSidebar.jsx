@@ -82,7 +82,7 @@ export default function AppSidebar() {
           {!isCounterOnly && (
             <>
               <NavLink to="/" end onClick={close}>
-                Ata
+                Início
               </NavLink>
               <NavLink to="/historico" onClick={close}>
                 Histórico de atas

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import DeniedPage from './pages/DeniedPage';
+import DashboardPage from './pages/DashboardPage';
 import AtaFormPage from './pages/AtaFormPage';
 import AtaHistoryPage from './pages/AtaHistoryPage';
 import SimpleAttendancePage from './pages/SimpleAttendancePage';
@@ -40,7 +41,8 @@ export default function App() {
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'superadmin']} />}>
-        <Route path="/" element={<AtaFormPage />} />
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/programa/:date" element={<AtaFormPage routeMode="programa" />} />
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
