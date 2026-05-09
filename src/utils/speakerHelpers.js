@@ -171,8 +171,39 @@ export function getNextSunday() {
   const diff = day === 0 ? 7 : 7 - day;
   const next = new Date(now);
   next.setDate(now.getDate() + diff);
-  const y = next.getFullYear();
-  const m = String(next.getMonth() + 1).padStart(2, '0');
-  const d = String(next.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  return toLocalISODate(next);
+}
+
+/**
+ * Compute the next N Sundays starting from getNextSunday().
+ * @param {number} n - how many Sundays to return (>=1)
+ * @returns {string[]} array of ISO date strings (YYYY-MM-DD)
+ */
+export function getNextNSundays(n) {
+  if (!Number.isInteger(n) || n <= 0) return [];
+  const first = getNextSunday();
+  const [y, m, d] = first.split('-').map(Number);
+  const result = [];
+  for (let i = 0; i < n; i += 1) {
+    const dt = new Date(y, m - 1, d + i * 7);
+    result.push(toLocalISODate(dt));
+  }
+  return result;
+}
+
+/**
+ * Days from today until the given ISO date (positive = future, negative = past, 0 = today).
+ * Uses local-tz date math; never `new Date(isoString)` (which parses as UTC and
+ * causes off-by-one in negative-UTC zones like Brazil at night).
+ */
+export function daysUntil(isoString) {
+  if (!isoString) return null;
+  const [y, m, d] = isoString.split('-').map(Number);
+  if (!y) return null;
+  const target = new Date(y, m - 1, d);
+  target.setHours(0, 0, 0, 0);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const diffMs = target.getTime() - now.getTime();
+  return Math.round(diffMs / (24 * 60 * 60 * 1000));
 }

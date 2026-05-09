@@ -21,8 +21,10 @@ import { useUnit } from '../hooks/useUnit';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useToast } from '../contexts/ToastContext';
 import {
+  DEFAULT_ATA,
   getAta,
   getCurrentDraft,
+  getDraftByDate,
   saveDraft,
   finalizarAta,
   updateAtaFields,
@@ -31,54 +33,23 @@ import {
   getUnitSettings,
   saveUnitSettings,
 } from '../services/units';
+import { formatDateBR } from '../utils/speakerHelpers';
 
-const DEFAULT_ATA = {
-  data: '',
-  frequencia: '',
-  presidida: '',
-  presididaOutro: '',
-  dirigida: '',
-  dirigidaOutro: '',
-  regente: '',
-  pianista: '',
-  hAberNum: '',
-  oracao1: '',
-  anuncios: '',
-  rowsApoios: [],
-  rowsOrd: [],
-  rowsConf: [],
-  rowsBencao: [],
-  hSacrNum: '',
-  bencaoPao: '',
-  bencaoAgua: '',
-  mode: 'test', // 'test' | 'disc'
-  conviteTest: '',
-  obsTest: '',
-  rowsDisc: [],
-  numMusResp: '',
-  numMusTitulo: '',
-  hEncNum: '',
-  oracaoEnc: '',
-  sectionEnabled: {
-    abertura: true,
-    apoios: true,
-    ordenacoes: true,
-    confirmacoes: true,
-    bencao: true,
-    assinaturas: true,
-  },
-};
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-const LS_DRAFT_KEY = (unitId) => `ata:draft:${unitId || 'none'}`;
+const LS_DRAFT_KEY = (unitId, date = null) =>
+  date ? `ata:draft:${unitId || 'none'}:${date}` : `ata:draft:${unitId || 'none'}`;
 const LS_FONT_KEY = 'ata:fontSizePt';
 
-export default function AtaFormPage({ editMode = false }) {
+export default function AtaFormPage({ editMode = false, routeMode = null }) {
   const { firebaseUser } = useAuth();
   const { unitId, unit, unitType, members, loading: unitLoading } = useUnit();
   const { showToast } = useToast();
-  const { id: routeAtaId } = useParams();
+  const { id: routeAtaId, date: routeDate } = useParams();
   const navigate = useNavigate();
   const isEditing = editMode && !!routeAtaId;
+  const isProgramaRoute = routeMode === 'programa' && !!routeDate;
+  const lsKey = unitId ? LS_DRAFT_KEY(unitId, isProgramaRoute ? routeDate : null) : null;
 
   const [ata, setAta] = useState(DEFAULT_ATA);
   const [ataId, setAtaId] = useState(null);
@@ -89,16 +60,39 @@ export default function AtaFormPage({ editMode = false }) {
   });
   const [finalizing, setFinalizing] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  // Lazy-persistence flag: only allow auto-save once the user has actually
+  // touched the form. Once a draft is persisted (ataId set), this stays true
+  // implicitly via the `enabled` check below.
+  const [dirty, setDirty] = useState(false);
   const hasLoaded = useRef(false);
+  const loadKey = useRef(null);
 
   // Load draft (or finalized ata when editing) once unit is available.
+  // The effect re-runs when the underlying route identity changes
+  // (e.g. navigating from /programa/2026-05-10 to /programa/2026-05-17),
+  // tracked via `loadKey` so the same component instance reloads cleanly.
   useEffect(() => {
     if (!unitId || unitLoading) return;
-    if (hasLoaded.current) return;
+    const key = isEditing
+      ? `edit:${routeAtaId}`
+      : isProgramaRoute
+        ? `programa:${routeDate}`
+        : 'current';
+    if (loadKey.current === key) return;
+    loadKey.current = key;
     hasLoaded.current = true;
+
+    if (isProgramaRoute && !ISO_DATE_RE.test(routeDate)) {
+      showToast('Data inválida.');
+      navigate('/', { replace: true });
+      return;
+    }
 
     (async () => {
       setLoading(true);
+      // Reset per-route ephemeral state
+      setDirty(false);
+      setAtaId(null);
       try {
         if (isEditing) {
           const doc = await getAta(unitId, routeAtaId);
@@ -112,8 +106,8 @@ export default function AtaFormPage({ editMode = false }) {
           return;
         }
 
-        // Try cached draft first for instant render
-        const cached = localStorage.getItem(LS_DRAFT_KEY(unitId));
+        // Try cached draft first for instant render (per-date key on programa route)
+        const cached = lsKey ? localStorage.getItem(lsKey) : null;
         if (cached) {
           try {
             const parsed = JSON.parse(cached);
@@ -124,13 +118,26 @@ export default function AtaFormPage({ editMode = false }) {
         }
 
         const [draft, memory] = await Promise.all([
-          getCurrentDraft(unitId),
+          isProgramaRoute
+            ? getDraftByDate(unitId, routeDate)
+            : getCurrentDraft(unitId),
           getUnitSettings(unitId),
         ]);
 
         if (draft) {
           setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...draft }));
           setAtaId(draft.id);
+        } else if (isProgramaRoute) {
+          // Fresh draft for this Sunday — pre-fill date + sensible defaults.
+          // No Firestore write yet (lazy persistence): user must edit first.
+          setAta((prev) => ({
+            ...DEFAULT_ATA,
+            ...prev,
+            data: routeDate,
+            mode: 'disc',
+            regente: prev.regente || memory?.regente || '',
+            pianista: prev.pianista || memory?.pianista || '',
+          }));
         } else {
           setAta((prev) => ({
             ...prev,
@@ -145,7 +152,7 @@ export default function AtaFormPage({ editMode = false }) {
         setLoading(false);
       }
     })();
-  }, [unitId, unitLoading, isEditing, routeAtaId, navigate, showToast]);
+  }, [unitId, unitLoading, isEditing, routeAtaId, isProgramaRoute, routeDate, lsKey, navigate, showToast]);
 
   // Persist memory (regente/pianista) on change — debounced via useAutoSave.
   const [memoryValue, setMemoryValue] = useState({ regente: '', pianista: '' });
@@ -179,15 +186,17 @@ export default function AtaFormPage({ editMode = false }) {
     value: ata,
     onSave: autoSaveHandler,
     delay: 1500,
-    localStorageKey: unitId ? LS_DRAFT_KEY(unitId) : null,
-    enabled: !!unitId && !loading && !isEditing,
+    localStorageKey: lsKey,
+    enabled: !!unitId && !loading && !isEditing && (dirty || !!ataId),
   });
 
   function update(patch) {
+    setDirty(true);
     setAta((prev) => ({ ...prev, ...patch }));
   }
 
   function toggleSection(key, enabled) {
+    setDirty(true);
     setAta((prev) => ({
       ...prev,
       sectionEnabled: { ...prev.sectionEnabled, [key]: enabled },
@@ -220,7 +229,12 @@ export default function AtaFormPage({ editMode = false }) {
         dirigidaOutro: '',
       },
     };
-    if (patches[key]) update(patches[key]);
+    if (!patches[key]) return;
+    const patch = { ...patches[key] };
+    // On /programa/:date the URL is the source of truth for the date — don't
+    // let "Limpar dados" wipe it out.
+    if (key === 'geral' && isProgramaRoute) patch.data = routeDate;
+    update(patch);
   }
 
   function onFontSizeChange(delta) {
@@ -233,9 +247,12 @@ export default function AtaFormPage({ editMode = false }) {
 
   function onReset() {
     if (!confirm('Limpar TODOS os dados do rascunho atual?')) return;
-    setAta(DEFAULT_ATA);
+    setDirty(true);
+    setAta(isProgramaRoute
+      ? { ...DEFAULT_ATA, data: routeDate, mode: 'disc' }
+      : DEFAULT_ATA);
     setAtaId(null);
-    if (unitId) localStorage.removeItem(LS_DRAFT_KEY(unitId));
+    if (lsKey) localStorage.removeItem(lsKey);
   }
 
   function onPrint() {
@@ -252,9 +269,15 @@ export default function AtaFormPage({ editMode = false }) {
     try {
       await finalizarAta(unitId, ataId, firebaseUser?.uid, { members });
       showToast('Ata finalizada com sucesso.');
+      if (lsKey) localStorage.removeItem(lsKey);
+      // After finalization on a date-keyed route, navigate back to dashboard
+      // so the user lands on a meaningful next view rather than an empty form.
+      if (isProgramaRoute) {
+        navigate('/', { replace: true });
+        return;
+      }
       setAta(DEFAULT_ATA);
       setAtaId(null);
-      if (unitId) localStorage.removeItem(LS_DRAFT_KEY(unitId));
     } catch (e) {
       console.error(e);
       showToast('Erro ao finalizar ata.');
@@ -418,11 +441,27 @@ export default function AtaFormPage({ editMode = false }) {
             <div className="field-row">
               <div className="field">
                 <label>Data da Reunião</label>
-                <input
-                  type="date"
-                  value={ata.data}
-                  onChange={(e) => update({ data: e.target.value })}
-                />
+                {isProgramaRoute ? (
+                  <div
+                    className="readonly-date"
+                    style={{
+                      padding: '8px 12px',
+                      background: '#f3f4f6',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 6,
+                      fontWeight: 500,
+                    }}
+                    title="A data está fixada pela URL. Para outra data, volte ao Início."
+                  >
+                    {formatDateBR(ata.data)}
+                  </div>
+                ) : (
+                  <input
+                    type="date"
+                    value={ata.data}
+                    onChange={(e) => update({ data: e.target.value })}
+                  />
+                )}
               </div>
               <div className="field">
                 <label>Frequência (nº de presentes)</label>
@@ -686,7 +725,7 @@ export default function AtaFormPage({ editMode = false }) {
                 <DynamicTable
                   columns={COL_DISC}
                   rows={ata.rowsDisc}
-                  onChange={(rows) => update({ rowsDisc: rows })}
+                  onChange={(rows) => update({ rowsDisc: rows, rowsDiscOwners: [] })}
                   addLabel="+ Adicionar discursante"
                 />
                 <div className="field-row" style={{ marginTop: 14 }}>

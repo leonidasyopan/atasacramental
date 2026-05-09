@@ -17,7 +17,48 @@ import {
 import { db } from '../config/firebase';
 import { findMemberId } from '../utils/speakerHelpers';
 
-function atasRef(unitId) {
+/**
+ * Default shape of an Ata. Exported so non-form callers (e.g. inviteSync)
+ * can seed brand-new drafts without re-declaring the schema.
+ */
+export const DEFAULT_ATA = {
+  data: '',
+  frequencia: '',
+  presidida: '',
+  presididaOutro: '',
+  dirigida: '',
+  dirigidaOutro: '',
+  regente: '',
+  pianista: '',
+  hAberNum: '',
+  oracao1: '',
+  anuncios: '',
+  rowsApoios: [],
+  rowsOrd: [],
+  rowsConf: [],
+  rowsBencao: [],
+  hSacrNum: '',
+  bencaoPao: '',
+  bencaoAgua: '',
+  mode: 'test', // 'test' | 'disc'
+  conviteTest: '',
+  obsTest: '',
+  rowsDisc: [],
+  numMusResp: '',
+  numMusTitulo: '',
+  hEncNum: '',
+  oracaoEnc: '',
+  sectionEnabled: {
+    abertura: true,
+    apoios: true,
+    ordenacoes: true,
+    confirmacoes: true,
+    bencao: true,
+    assinaturas: true,
+  },
+};
+
+export function atasRef(unitId) {
   return collection(db, 'units', unitId, 'atas');
 }
 
@@ -58,7 +99,7 @@ function rowsToArrays(rows) {
   });
 }
 
-function serializeAtaForFirestore(data) {
+export function serializeAtaForFirestore(data) {
   const out = { ...data };
   for (const key of ROW_FIELDS) {
     if (out[key] !== undefined) out[key] = rowsToObjects(out[key]);
@@ -66,7 +107,7 @@ function serializeAtaForFirestore(data) {
   return out;
 }
 
-function deserializeAtaFromFirestore(data) {
+export function deserializeAtaFromFirestore(data) {
   if (!data || typeof data !== 'object') return data;
   const out = { ...data };
   for (const key of ROW_FIELDS) {
@@ -186,4 +227,53 @@ export async function updateAtaFields(unitId, ataId, data) {
     ...serializeAtaForFirestore(data),
     updatedAt: serverTimestamp(),
   });
+}
+
+/**
+ * Returns the draft for a specific Sunday (status='draft' AND data===dateISO),
+ * or null. Used by the date-keyed Ata editor and by inviteSync.
+ */
+export async function getDraftByDate(unitId, dateISO) {
+  if (!unitId || !dateISO) return null;
+  const q = query(
+    atasRef(unitId),
+    where('status', '==', 'draft'),
+    where('data', '==', dateISO),
+    limit(1),
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...deserializeAtaFromFirestore(d.data()) };
+}
+
+/**
+ * List all drafts for a unit, optionally filtered by date range (inclusive).
+ * Used by the dashboard to populate upcoming-Sunday cards.
+ */
+export async function listDrafts(unitId, { fromDate = null, toDate = null } = {}) {
+  if (!unitId) return [];
+  const constraints = [where('status', '==', 'draft')];
+  if (fromDate) constraints.push(where('data', '>=', fromDate));
+  if (toDate) constraints.push(where('data', '<=', toDate));
+  constraints.push(orderBy('data'));
+  const q = query(atasRef(unitId), ...constraints);
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...deserializeAtaFromFirestore(d.data()) }));
+}
+
+/**
+ * List the most-recent finalized atas for a unit. Used by the dashboard's
+ * "Atividade Recente" section.
+ */
+export async function getRecentFinalized(unitId, max = 3) {
+  if (!unitId) return [];
+  const q = query(
+    atasRef(unitId),
+    where('status', '==', 'finalized'),
+    orderBy('data', 'desc'),
+    limit(max),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...deserializeAtaFromFirestore(d.data()) }));
 }

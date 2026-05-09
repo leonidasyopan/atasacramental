@@ -3,6 +3,7 @@ import InviteCard from './InviteCard';
 import InviteForm from './InviteForm';
 import InviteLetterPreview from './InviteLetterPreview';
 import { createInvite, updateInvite, updateInviteStatus } from '../../services/invites';
+import { safeSyncInviteToDraft } from '../../services/inviteSync';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
 import '../../styles/invite-letter-print.css';
@@ -29,9 +30,18 @@ export default function InviteManager({ invites, topics, members, reload }) {
   }, [invites, statusFilter]);
 
   async function handleStatusChange(inviteId, status) {
+    const prevInvite = invites.find((i) => i.id === inviteId) || null;
     try {
       await updateInviteStatus(unitId, inviteId, status);
       showToast('Status atualizado.');
+      const sync = await safeSyncInviteToDraft(
+        unitId,
+        prevInvite ? { ...prevInvite, status } : null,
+        prevInvite,
+      );
+      if (!sync.ok) {
+        showToast('Status salvo, mas falha ao sincronizar com a ata. Recarregue a página.');
+      }
       await reload();
     } catch (e) {
       console.error(e);
@@ -45,16 +55,24 @@ export default function InviteManager({ invites, topics, members, reload }) {
   }
 
   async function handleSave(data) {
+    const prevInvite = editingInvite?.id ? editingInvite : null;
     try {
+      let nextInvite;
       if (editingInvite?.id) {
         const rest = Object.fromEntries(
           Object.entries(data).filter(([k]) => k !== 'id'),
         );
         await updateInvite(unitId, editingInvite.id, rest);
+        nextInvite = { ...editingInvite, ...rest, id: editingInvite.id };
         showToast('Convite atualizado.');
       } else {
-        await createInvite(unitId, data);
+        const newId = await createInvite(unitId, data);
+        nextInvite = { ...data, id: newId, status: data.status || 'pendente' };
         showToast('Convite criado com sucesso.');
+      }
+      const sync = await safeSyncInviteToDraft(unitId, nextInvite, prevInvite);
+      if (!sync.ok) {
+        showToast('Convite salvo, mas falha ao sincronizar com a ata. Recarregue a página.');
       }
       setShowForm(false);
       setEditingInvite(null);
