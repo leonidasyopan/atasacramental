@@ -29,9 +29,18 @@ export async function createInvite(unitId, invite) {
 export async function getInvites(unitId, { status = null } = {}) {
   const q = status
     ? query(invitesRef(unitId), where('status', '==', status), orderBy('dataAlvo'))
-    : query(invitesRef(unitId), orderBy('dataAlvo', 'desc'));
+    : query(invitesRef(unitId));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const invites = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  // Sort in memory to avoid requiring a Firestore index
+  if (!status) {
+    invites.sort((a, b) => {
+      if (!a.dataAlvo) return 1;
+      if (!b.dataAlvo) return -1;
+      return b.dataAlvo.localeCompare(a.dataAlvo);
+    });
+  }
+  return invites;
 }
 
 export async function updateInviteStatus(unitId, inviteId, status) {
