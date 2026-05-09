@@ -156,10 +156,10 @@ export async function syncInviteToDraft(unitId, invite, prevInvite = null) {
   // Step 1: cleanup old slot if prevInvite previously owned one and identity changed.
   if (prevInvite?.dataAlvo && prevInvite?.position && prevInvite?.id) {
     const deleted = !invite;
-    const rejected = invite && invite.status === 'recusado';
+    const noLongerAccepted = invite && prevInvite.status === 'aceito' && invite.status !== 'aceito';
     const dateMoved = invite && invite.dataAlvo && invite.dataAlvo !== prevInvite.dataAlvo;
     const positionMoved = invite && invite.position && String(invite.position) !== String(prevInvite.position);
-    if (deleted || rejected || dateMoved || positionMoved) {
+    if (deleted || noLongerAccepted || dateMoved || positionMoved) {
       await clearSlotIfOwned(unitId, prevInvite.dataAlvo, prevInvite.position, prevInvite.id);
     }
   }

@@ -725,7 +725,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
                 <DynamicTable
                   columns={COL_DISC}
                   rows={ata.rowsDisc}
-                  onChange={(rows) => update({ rowsDisc: rows })}
+                  onChange={(rows) => update({ rowsDisc: rows, rowsDiscOwners: [] })}
                   addLabel="+ Adicionar discursante"
                 />
                 <div className="field-row" style={{ marginTop: 14 }}>
