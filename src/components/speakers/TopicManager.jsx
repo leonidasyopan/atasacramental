@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { saveDiscourseTopics } from '../../services/topics';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
+import { getUsedTopicMap, formatDateBR } from '../../utils/speakerHelpers';
 
-export default function TopicManager({ topics, reload }) {
+export default function TopicManager({ topics, invites, reload }) {
+  const usedMap = useMemo(() => getUsedTopicMap(invites), [invites]);
   const { unitId } = useUnit();
   const { showToast } = useToast();
   const [newTopics, setNewTopics] = useState('');
@@ -103,19 +105,36 @@ export default function TopicManager({ topics, reload }) {
           </p>
         ) : (
           <ul className="topic-list">
-            {topics.map((t, i) => (
-              <li key={i} className="topic-item">
-                <span>{t}</span>
-                <button
-                  type="button"
-                  className="del-btn"
-                  onClick={() => handleRemove(i)}
-                  title="Remover tema"
-                >
-                  ×
-                </button>
-              </li>
-            ))}
+            {topics.map((t, i) => {
+              const usedBy = usedMap.get(t.trim().toLowerCase());
+              return (
+                <li key={i} className={`topic-item${usedBy ? ' is-used' : ''}`}>
+                  <span className="topic-main">
+                    <span className="topic-title">{t}</span>
+                    {usedBy && <span className="topic-used-badge">Usado</span>}
+                    {usedBy && (
+                      <span className="topic-used-meta">
+                        Usado por {usedBy.memberName}
+                        {usedBy.dataAlvo ? ` em ${formatDateBR(usedBy.dataAlvo)}` : ''}
+                      </span>
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    className="del-btn"
+                    onClick={() => handleRemove(i)}
+                    disabled={!!usedBy}
+                    title={
+                      usedBy
+                        ? 'Tema em uso por um convite ativo. Cancele o convite primeiro.'
+                        : 'Remover tema'
+                    }
+                  >
+                    ×
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

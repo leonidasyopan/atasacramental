@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { findMemberId, getNextSunday } from '../../utils/speakerHelpers';
+import { findMemberId, getNextSunday, getUsedTopicMap } from '../../utils/speakerHelpers';
 
-export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics }) {
+export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics, invites }) {
   const isEdit = !!invite?.id;
   const initial = invite || defaultValues || {};
 
@@ -13,6 +13,15 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
   const [topic, setTopic] = useState(initial.topic || '');
   const [notes, setNotes] = useState(initial.notes || '');
   const [saving, setSaving] = useState(false);
+
+  const usedTopicMap = useMemo(
+    () => getUsedTopicMap(invites, { excludeInviteId: invite?.id }),
+    [invites, invite?.id],
+  );
+  const visibleTopics = useMemo(
+    () => (topics || []).filter((t) => !usedTopicMap.has(t.trim().toLowerCase())),
+    [topics, usedTopicMap],
+  );
 
   const sorted = useMemo(() => {
     if (!members) return [];
@@ -135,7 +144,7 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
             list={topicsListId}
           />
           <datalist id={topicsListId}>
-            {(topics || []).map((t, i) => (
+            {visibleTopics.map((t, i) => (
               <option key={i} value={t} />
             ))}
           </datalist>
