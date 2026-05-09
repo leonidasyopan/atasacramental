@@ -132,6 +132,35 @@ export function formatDateBR(isoString) {
   return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
 }
 
+const ACTIVE_INVITE_STATUSES = new Set(['pendente', 'aceito', 'concluido']);
+
+/**
+ * Build a Map from normalized topic string → most-recent active invite
+ * that uses it. A theme is "used" when held by an invite with status
+ * pendente/aceito/concluido (recusado releases it back to the pool).
+ *
+ * @param {Array} invites
+ * @param {object} [opts]
+ * @param {string} [opts.excludeInviteId] - skip this invite (for edit mode)
+ * @returns {Map<string, object>} key = topic.trim().toLowerCase()
+ */
+export function getUsedTopicMap(invites, { excludeInviteId } = {}) {
+  const map = new Map();
+  if (!Array.isArray(invites)) return map;
+  for (const inv of invites) {
+    if (!inv?.topic) continue;
+    if (excludeInviteId && inv.id === excludeInviteId) continue;
+    if (!ACTIVE_INVITE_STATUSES.has(inv.status)) continue;
+    const key = inv.topic.trim().toLowerCase();
+    if (!key) continue;
+    const existing = map.get(key);
+    if (!existing || (inv.dataAlvo || '') > (existing.dataAlvo || '')) {
+      map.set(key, inv);
+    }
+  }
+  return map;
+}
+
 /**
  * Compute the next Sunday from today.
  * @returns {string} ISO date string (YYYY-MM-DD)

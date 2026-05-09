@@ -115,6 +115,7 @@ export default function InviteManager({ invites, topics, members, reload }) {
           invite={editingInvite}
           members={members}
           topics={topics}
+          invites={invites}
         />
       )}
 

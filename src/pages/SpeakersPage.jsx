@@ -89,7 +89,7 @@ export default function SpeakersPage() {
                     <SpeakerHistory speakerLog={speakerLog} />
                   )}
                   {tab === 'temas' && (
-                    <TopicManager topics={topics} reload={reload} />
+                    <TopicManager topics={topics} invites={invites} reload={reload} />
                   )}
                 </>
               )}

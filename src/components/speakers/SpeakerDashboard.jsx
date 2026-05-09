@@ -518,6 +518,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
           defaultValues={prefillMember ? { memberName: prefillMember.name, isExternal: false } : null}
           members={members}
           topics={topics}
+          invites={invites}
         />
       )}
     </div>

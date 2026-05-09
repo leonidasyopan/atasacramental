@@ -209,9 +209,39 @@
 .topic-item:last-child {
   border-bottom: none;
 }
-.topic-item span {
+.topic-item .topic-main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.topic-item .topic-title {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.topic-item.is-used .topic-title {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+.topic-item .topic-used-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: .72rem;
+  font-weight: 600;
+}
+.topic-item .topic-used-meta {
+  flex-basis: 100%;
+  font-size: .75rem;
+  color: #6b7280;
+}
+.topic-item .del-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
 }
 
 /* ── Search and Filter Bar ── */
