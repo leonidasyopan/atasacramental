@@ -29,13 +29,9 @@ export default function DashboardPage() {
     if (!unitId || unitLoading) return;
     let cancelled = false;
     (async () => {
-      const upcomingDates = getNextNSundays(UPCOMING_COUNT);
-      const fromDate = upcomingDates[0];
-      const toDate = upcomingDates[upcomingDates.length - 1];
       try {
         const [drafts, invites, finalized] = await Promise.all([
-          // Pull a wider window than just upcoming so we can also surface
-          // unfinalized drafts from past Sundays as alerts.
+          // Pull all drafts so we can also surface unfinalized past-Sunday drafts as alerts.
           listDrafts(unitId),
           getInvites(unitId),
           getRecentFinalized(unitId, 3),
@@ -47,8 +43,6 @@ export default function DashboardPage() {
         if (cancelled) return;
         setData((prev) => ({ ...prev, loading: false, error: err }));
       }
-      // Note: fromDate/toDate are computed for potential future use (server-side filtering)
-      void fromDate; void toDate;
     })();
     return () => { cancelled = true; };
   }, [unitId, unitLoading]);

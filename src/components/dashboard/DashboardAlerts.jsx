@@ -101,8 +101,8 @@ export default function DashboardAlerts({ upcomingDates, drafts, invites }) {
         <h3 className="dashboard-section-title">Alertas</h3>
       </div>
       <div className="dashboard-alerts">
-        {alerts.map((a, i) => (
-          <div key={i} className={`dashboard-alert dashboard-alert-${a.kind}`}>
+        {alerts.map((a) => (
+          <div key={`${a.kind}-${a.text.slice(0, 30)}`} className={`dashboard-alert dashboard-alert-${a.kind}`}>
             <span className="dashboard-alert-icon" aria-hidden>{a.icon}</span>
             <div style={{ flex: 1 }}>
               {a.text}{' '}
