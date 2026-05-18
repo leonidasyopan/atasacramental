@@ -49,6 +49,10 @@ function AutoGrowTextarea({ value, onChange, placeholder, className }) {
  * @param {Function} onChange - (newRows) => void
  * @param {string} addLabel
  * @param {string} unitType - 'ala' | 'ramo' (for chamados picker)
+ * @param {boolean} sortable - enable drag-and-drop row reordering
+ * @param {Function} [onSort] - (newRows, fromIdx, toIdx) => void — called instead of onChange when
+ *   a row is reordered via drag-and-drop, so callers can update parallel state (e.g. ownership arrays)
+ *   without clobbering it. Falls back to onChange when omitted.
  */
 export default function DynamicTable({
   columns,
@@ -57,12 +61,12 @@ export default function DynamicTable({
   addLabel = '+ Adicionar linha',
   unitType = 'ramo',
   sortable = false,
+  onSort,
 }) {
   const [pickerRow, setPickerRow] = useState(-1);
   const [pickerCol, setPickerCol] = useState(-1);
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
-  const dragNode = useRef(null);
 
   function updateCell(rowIdx, colIdx, value) {
     const next = rows.map((r, i) =>
@@ -82,7 +86,6 @@ export default function DynamicTable({
   }
 
   function handleDragStart(e, idx) {
-    dragNode.current = e.currentTarget;
     setDragIdx(idx);
     e.dataTransfer.effectAllowed = 'move';
   }
@@ -103,7 +106,11 @@ export default function DynamicTable({
     const next = [...rows];
     const [moved] = next.splice(dragIdx, 1);
     next.splice(idx, 0, moved);
-    onChange(next);
+    if (onSort) {
+      onSort(next, dragIdx, idx);
+    } else {
+      onChange(next);
+    }
     setDragIdx(null);
     setDragOverIdx(null);
   }
