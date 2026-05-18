@@ -40,7 +40,7 @@ export const DEFAULT_ATA = {
   hSacrNum: '',
   bencaoPao: '',
   bencaoAgua: '',
-  mode: 'test', // 'test' | 'disc'
+  mode: 'disc', // 'test' | 'disc'
   conviteTest: '',
   obsTest: '',
   rowsDisc: [],

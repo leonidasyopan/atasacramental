@@ -56,9 +56,13 @@ export default function DynamicTable({
   onChange,
   addLabel = '+ Adicionar linha',
   unitType = 'ramo',
+  sortable = false,
 }) {
   const [pickerRow, setPickerRow] = useState(-1);
   const [pickerCol, setPickerCol] = useState(-1);
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const dragNode = useRef(null);
 
   function updateCell(rowIdx, colIdx, value) {
     const next = rows.map((r, i) =>
@@ -75,6 +79,38 @@ export default function DynamicTable({
 
   function removeRow(idx) {
     onChange(rows.filter((_, i) => i !== idx));
+  }
+
+  function handleDragStart(e, idx) {
+    dragNode.current = e.currentTarget;
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragOver(e, idx) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (idx !== dragOverIdx) setDragOverIdx(idx);
+  }
+
+  function handleDrop(e, idx) {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) {
+      setDragIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    const next = [...rows];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(idx, 0, moved);
+    onChange(next);
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
+
+  function handleDragEnd() {
+    setDragIdx(null);
+    setDragOverIdx(null);
   }
 
   function openPicker(rowIdx, colIdx) {
@@ -95,6 +131,7 @@ export default function DynamicTable({
       <table className="dyn-table">
         <thead>
           <tr>
+            {sortable && <th style={{ width: 24 }} />}
             {columns.map((col, i) => (
               <th key={i} style={col.w ? { width: col.w } : undefined}>
                 {col.label || col.ph || ''}
@@ -105,7 +142,29 @@ export default function DynamicTable({
         </thead>
         <tbody>
           {rows.map((row, rowIdx) => (
-            <tr key={rowIdx}>
+            <tr
+              key={rowIdx}
+              draggable={sortable}
+              onDragStart={sortable ? (e) => handleDragStart(e, rowIdx) : undefined}
+              onDragOver={sortable ? (e) => handleDragOver(e, rowIdx) : undefined}
+              onDrop={sortable ? (e) => handleDrop(e, rowIdx) : undefined}
+              onDragEnd={sortable ? handleDragEnd : undefined}
+              className={
+                sortable
+                  ? [
+                      dragIdx === rowIdx ? 'row-dragging' : '',
+                      dragOverIdx === rowIdx && dragIdx !== rowIdx ? 'row-drag-over' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')
+                  : undefined
+              }
+            >
+              {sortable && (
+                <td className="drag-handle-cell">
+                  <span className="drag-handle" title="Arrastar para reordenar">⠿</span>
+                </td>
+              )}
               {columns.map((col, colIdx) => {
                 const value = row[colIdx] || '';
                 if (col.type === 'select') {
