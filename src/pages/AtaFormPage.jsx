@@ -682,17 +682,17 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             <div className="mode-toggle">
               <button
                 type="button"
-                className={`mode-btn${ata.mode === 'test' ? ' active' : ''}`}
-                onClick={() => update({ mode: 'test' })}
-              >
-                Jejum e Testemunhos
-              </button>
-              <button
-                type="button"
                 className={`mode-btn${ata.mode === 'disc' ? ' active' : ''}`}
                 onClick={() => update({ mode: 'disc' })}
               >
                 Com Discursantes
+              </button>
+              <button
+                type="button"
+                className={`mode-btn${ata.mode === 'test' ? ' active' : ''}`}
+                onClick={() => update({ mode: 'test' })}
+              >
+                Jejum e Testemunhos
               </button>
             </div>
             {ata.mode === 'test' ? (
@@ -726,7 +726,14 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
                   columns={COL_DISC}
                   rows={ata.rowsDisc}
                   onChange={(rows) => update({ rowsDisc: rows, rowsDiscOwners: [] })}
+                  onSort={(rows, from, to) => {
+                    const owners = [...(ata.rowsDiscOwners || [])];
+                    const [moved] = owners.splice(from, 1);
+                    owners.splice(to, 0, moved);
+                    update({ rowsDisc: rows, rowsDiscOwners: owners });
+                  }}
                   addLabel="+ Adicionar discursante"
+                  sortable
                 />
                 <div className="field-row" style={{ marginTop: 14 }}>
                   <div className="field">

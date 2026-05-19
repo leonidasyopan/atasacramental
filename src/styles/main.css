@@ -339,6 +339,13 @@ body {
   background: var(--light-blue);
 }
 
+/* ── Drag-and-drop reorder ── */
+.drag-handle-cell { width: 24px; padding: 0 2px !important; text-align: center; }
+.drag-handle { cursor: grab; color: #b0b8c9; font-size: 1rem; user-select: none; display: block; padding: 4px 2px; }
+.drag-handle:active { cursor: grabbing; }
+.dyn-table tr.row-dragging { opacity: .4; }
+.dyn-table tr.row-drag-over td { border-top: 2px solid var(--blue); }
+
 /* ── History tables (Data-display) ── */
 .table-history th {
   background: #f8fafc;

@@ -223,6 +223,10 @@ export default function DetailedAttendancePage() {
     setVisitors((prev) => prev.filter((_, i) => i !== idx));
   }, []);
 
+  const editVisitor = useCallback((idx, entry) => {
+    setVisitors((prev) => prev.map((v, i) => (i === idx ? entry : v)));
+  }, []);
+
   const checkedMemberIds = useMemo(() => Array.from(presentIds), [presentIds]);
   const memberCount = presentIds.size;
   const visitorCount = visitorsTotal(visitors);
@@ -373,6 +377,7 @@ export default function DetailedAttendancePage() {
             visitors={visitors}
             onAdd={addVisitor}
             onRemove={removeVisitor}
+            onEdit={editVisitor}
           />
 
           <div className="attendance-save-bar">

@@ -182,31 +182,9 @@ export function getNextSunday() {
 export function getNextNSundays(n) {
   if (!Number.isInteger(n) || n <= 0) return [];
   const now = new Date();
-  const day = now.getDay(); // 0=Sun
-  
-  const result = [];
-  
-  // If today is Sunday, include it as the first item
-  if (day === 0) {
-    result.push(todayLocal());
-    // Get the remaining (n-1) Sundays starting from next Sunday
-    const first = getNextSunday();
-    const [y, m, d] = first.split('-').map(Number);
-    for (let i = 0; i < n - 1; i += 1) {
-      const dt = new Date(y, m - 1, d + i * 7);
-      result.push(toLocalISODate(dt));
-    }
-  } else {
-    // Today is not Sunday, get n Sundays starting from next Sunday
-    const first = getNextSunday();
-    const [y, m, d] = first.split('-').map(Number);
-    for (let i = 0; i < n; i += 1) {
-      const dt = new Date(y, m - 1, d + i * 7);
-      result.push(toLocalISODate(dt));
-    }
-  }
-  
-  return result;
+  const startIso = now.getDay() === 0 ? toLocalISODate(now) : getNextSunday();
+  const [y, m, d] = startIso.split('-').map(Number);
+  return Array.from({ length: n }, (_, i) => toLocalISODate(new Date(y, m - 1, d + i * 7)));
 }
 
 /**

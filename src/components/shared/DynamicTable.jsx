@@ -49,6 +49,10 @@ function AutoGrowTextarea({ value, onChange, placeholder, className }) {
  * @param {Function} onChange - (newRows) => void
  * @param {string} addLabel
  * @param {string} unitType - 'ala' | 'ramo' (for chamados picker)
+ * @param {boolean} sortable - enable drag-and-drop row reordering
+ * @param {Function} [onSort] - (newRows, fromIdx, toIdx) => void — called instead of onChange when
+ *   a row is reordered via drag-and-drop, so callers can update parallel state (e.g. ownership arrays)
+ *   without clobbering it. Falls back to onChange when omitted.
  */
 export default function DynamicTable({
   columns,
@@ -56,9 +60,13 @@ export default function DynamicTable({
   onChange,
   addLabel = '+ Adicionar linha',
   unitType = 'ramo',
+  sortable = false,
+  onSort,
 }) {
   const [pickerRow, setPickerRow] = useState(-1);
   const [pickerCol, setPickerCol] = useState(-1);
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
 
   function updateCell(rowIdx, colIdx, value) {
     const next = rows.map((r, i) =>
@@ -75,6 +83,41 @@ export default function DynamicTable({
 
   function removeRow(idx) {
     onChange(rows.filter((_, i) => i !== idx));
+  }
+
+  function handleDragStart(e, idx) {
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragOver(e, idx) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (idx !== dragOverIdx) setDragOverIdx(idx);
+  }
+
+  function handleDrop(e, idx) {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) {
+      setDragIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    const next = [...rows];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(idx, 0, moved);
+    if (onSort) {
+      onSort(next, dragIdx, idx);
+    } else {
+      onChange(next);
+    }
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
+
+  function handleDragEnd() {
+    setDragIdx(null);
+    setDragOverIdx(null);
   }
 
   function openPicker(rowIdx, colIdx) {
@@ -95,6 +138,7 @@ export default function DynamicTable({
       <table className="dyn-table">
         <thead>
           <tr>
+            {sortable && <th style={{ width: 24 }} />}
             {columns.map((col, i) => (
               <th key={i} style={col.w ? { width: col.w } : undefined}>
                 {col.label || col.ph || ''}
@@ -105,7 +149,29 @@ export default function DynamicTable({
         </thead>
         <tbody>
           {rows.map((row, rowIdx) => (
-            <tr key={rowIdx}>
+            <tr
+              key={rowIdx}
+              draggable={sortable}
+              onDragStart={sortable ? (e) => handleDragStart(e, rowIdx) : undefined}
+              onDragOver={sortable ? (e) => handleDragOver(e, rowIdx) : undefined}
+              onDrop={sortable ? (e) => handleDrop(e, rowIdx) : undefined}
+              onDragEnd={sortable ? handleDragEnd : undefined}
+              className={
+                sortable
+                  ? [
+                      dragIdx === rowIdx ? 'row-dragging' : '',
+                      dragOverIdx === rowIdx && dragIdx !== rowIdx ? 'row-drag-over' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')
+                  : undefined
+              }
+            >
+              {sortable && (
+                <td className="drag-handle-cell">
+                  <span className="drag-handle" title="Arrastar para reordenar" aria-hidden="true">⠿</span>
+                </td>
+              )}
               {columns.map((col, colIdx) => {
                 const value = row[colIdx] || '';
                 if (col.type === 'select') {
