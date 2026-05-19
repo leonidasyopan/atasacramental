@@ -44,6 +44,7 @@ export const DEFAULT_ATA = {
   conviteTest: '',
   obsTest: '',
   rowsDisc: [],
+  rowsDiscOwners: [],
   numMusResp: '',
   numMusTitulo: '',
   hEncNum: '',

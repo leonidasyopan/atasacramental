@@ -169,7 +169,7 @@ export default function DynamicTable({
             >
               {sortable && (
                 <td className="drag-handle-cell">
-                  <span className="drag-handle" title="Arrastar para reordenar">⠿</span>
+                  <span className="drag-handle" title="Arrastar para reordenar" aria-hidden="true">⠿</span>
                 </td>
               )}
               {columns.map((col, colIdx) => {
