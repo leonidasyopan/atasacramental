@@ -16,6 +16,7 @@ export default function AppSidebar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const isCounterOnly = !isSuperAdmin && userRole === 'counter';
+  const isMusicOnly = !isSuperAdmin && userRole === 'music';
 
   const close = useCallback(() => setDrawerOpen(false), []);
 
@@ -79,39 +80,47 @@ export default function AppSidebar() {
         </div>
 
         <nav className="app-sidebar-nav">
-          {!isCounterOnly && (
+          {isMusicOnly ? (
+            <NavLink to="/discursantes" onClick={close}>
+              Discursantes
+            </NavLink>
+          ) : (
             <>
-              <NavLink to="/" end onClick={close}>
-                Início
+              {!isCounterOnly && (
+                <>
+                  <NavLink to="/" end onClick={close}>
+                    Início
+                  </NavLink>
+                  <NavLink to="/historico" onClick={close}>
+                    Histórico de atas
+                  </NavLink>
+                  <NavLink to="/discursantes" onClick={close}>
+                    Discursantes
+                  </NavLink>
+                  <NavLink to="/frequencia/detalhado" onClick={close}>
+                    Frequência detalhada
+                  </NavLink>
+                </>
+              )}
+              <NavLink to="/frequencia/simples" onClick={close}>
+                Contagem simples
               </NavLink>
-              <NavLink to="/historico" onClick={close}>
-                Histórico de atas
-              </NavLink>
-              <NavLink to="/discursantes" onClick={close}>
-                Discursantes
-              </NavLink>
-              <NavLink to="/frequencia/detalhado" onClick={close}>
-                Frequência detalhada
-              </NavLink>
+              {!isCounterOnly && (
+                <NavLink to="/frequencia/historico" onClick={close}>
+                  Histórico de frequência
+                </NavLink>
+              )}
+              {(userRole === 'admin' || isSuperAdmin) && (
+                <NavLink to="/admin/unit" onClick={close}>
+                  Config. Unidade
+                </NavLink>
+              )}
+              {isSuperAdmin && (
+                <NavLink to="/admin/allowed-users" onClick={close}>
+                  Admin Global
+                </NavLink>
+              )}
             </>
-          )}
-          <NavLink to="/frequencia/simples" onClick={close}>
-            Contagem simples
-          </NavLink>
-          {!isCounterOnly && (
-            <NavLink to="/frequencia/historico" onClick={close}>
-              Histórico de frequência
-            </NavLink>
-          )}
-          {(userRole === 'admin' || isSuperAdmin) && (
-            <NavLink to="/admin/unit" onClick={close}>
-              Config. Unidade
-            </NavLink>
-          )}
-          {isSuperAdmin && (
-            <NavLink to="/admin/allowed-users" onClick={close}>
-              Admin Global
-            </NavLink>
           )}
         </nav>
 

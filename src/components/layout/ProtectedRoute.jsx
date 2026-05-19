@@ -23,7 +23,8 @@ export default function ProtectedRoute({
   if (allowedRoles && !isSuperAdmin) {
     const userRole = userData?.role || 'user';
     if (!allowedRoles.includes(userRole)) {
-      return <Navigate to="/frequencia/simples" replace />;
+      const fallback = userRole === 'music' ? '/discursantes' : '/frequencia/simples';
+      return <Navigate to={fallback} replace />;
     }
   }
 

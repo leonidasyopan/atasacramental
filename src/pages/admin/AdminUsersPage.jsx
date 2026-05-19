@@ -90,6 +90,7 @@ export default function AdminUsersPage() {
               <select value={role} onChange={(ev) => setRole(ev.target.value)}>
                 <option value="user">user</option>
                 <option value="counter">counter</option>
+                <option value="music">music</option>
                 <option value="admin">admin</option>
                 <option value="superadmin">superadmin</option>
               </select>

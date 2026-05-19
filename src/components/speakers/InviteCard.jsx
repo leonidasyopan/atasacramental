@@ -24,8 +24,13 @@ const STATUS_ACTIONS = {
 
 const POSITION_LABELS = { '1': '1º Orador', '2': '2º Orador', '3': '3º Orador' };
 
-export default function InviteCard({ invite, onStatusChange, onEdit, onGenerateLetter }) {
-  const actions = STATUS_ACTIONS[invite.status] || [];
+export default function InviteCard({ invite, onStatusChange, onEdit, onGenerateLetter, readOnly = false }) {
+  const actions = readOnly ? [] : STATUS_ACTIONS[invite.status] || [];
+  const showActionsRow = !readOnly && (
+    actions.length > 0 ||
+    (invite.status !== 'concluido' && onEdit) ||
+    onGenerateLetter
+  );
 
   return (
     <div className={`invite-card invite-status--${invite.status}`}>
@@ -64,36 +69,38 @@ export default function InviteCard({ invite, onStatusChange, onEdit, onGenerateL
         )}
       </div>
 
-      <div className="invite-card-actions">
-        {actions.map((a) => (
-          <button
-            key={a.next}
-            type="button"
-            className="btn btn-ghost-dark btn-sm"
-            onClick={() => onStatusChange(invite.id, a.next)}
-          >
-            {a.label}
-          </button>
-        ))}
-        {invite.status !== 'concluido' && onEdit && (
-          <button
-            type="button"
-            className="btn btn-ghost-dark btn-sm"
-            onClick={() => onEdit(invite)}
-          >
-            Editar
-          </button>
-        )}
-        {onGenerateLetter && (
-          <button
-            type="button"
-            className="btn btn-ghost-dark btn-sm"
-            onClick={() => onGenerateLetter(invite)}
-          >
-            Gerar Carta
-          </button>
-        )}
-      </div>
+      {showActionsRow && (
+        <div className="invite-card-actions">
+          {actions.map((a) => (
+            <button
+              key={a.next}
+              type="button"
+              className="btn btn-ghost-dark btn-sm"
+              onClick={() => onStatusChange(invite.id, a.next)}
+            >
+              {a.label}
+            </button>
+          ))}
+          {invite.status !== 'concluido' && onEdit && (
+            <button
+              type="button"
+              className="btn btn-ghost-dark btn-sm"
+              onClick={() => onEdit(invite)}
+            >
+              Editar
+            </button>
+          )}
+          {onGenerateLetter && (
+            <button
+              type="button"
+              className="btn btn-ghost-dark btn-sm"
+              onClick={() => onGenerateLetter(invite)}
+            >
+              Gerar Carta
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

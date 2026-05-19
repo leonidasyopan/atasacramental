@@ -46,9 +46,12 @@ export default function App() {
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
-        <Route path="/discursantes" element={<SpeakersPage />} />
         <Route path="/frequencia/detalhado" element={<DetailedAttendancePage />} />
         <Route path="/frequencia/historico" element={<AttendanceHistoryPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={['user', 'music', 'admin', 'superadmin']} />}>
+        <Route path="/discursantes" element={<SpeakersPage />} />
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>

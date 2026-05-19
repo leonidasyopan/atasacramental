@@ -45,6 +45,20 @@ service cloud.firestore {
         && getUserData().unitId == unitId;
     }
 
+    // Roles that may read unit data but must never write to it. The music
+    // leader (role == 'music') sees the discourse schedule to pick hymns, but
+    // never edits invites, atas, attendance, etc. Defense-in-depth alongside
+    // the UI restrictions in SpeakersPage.
+    function isReadOnlyRole() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().role == 'music';
+    }
+
+    function canWriteToUnit(unitId) {
+      return belongsToUnit(unitId) && !isReadOnlyRole();
+    }
+
     // ---- allowedUsers/{emailLower} ----
     // Signed-in users may read their own allowlist record (used at login).
     // Only superadmin may list or modify.
@@ -108,39 +122,40 @@ service cloud.firestore {
 
       match /atas/{ataId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update: if belongsToUnit(unitId);
+        allow create, update: if canWriteToUnit(unitId);
         allow delete: if isSuperAdmin();
       }
 
       match /members/{memberId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update, delete: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if canWriteToUnit(unitId) || isSuperAdmin();
       }
 
       match /households/{householdId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update, delete: if belongsToUnit(unitId) || isSuperAdmin();
+        allow create, update, delete: if canWriteToUnit(unitId) || isSuperAdmin();
       }
 
       match /speakerLog/{logId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create: if belongsToUnit(unitId);
+        allow create: if canWriteToUnit(unitId);
         allow delete: if isSuperAdmin();
       }
 
       match /discourseInvites/{inviteId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update: if belongsToUnit(unitId);
+        allow create, update: if canWriteToUnit(unitId);
         allow delete: if isSuperAdmin();
       }
 
       match /settings/{doc} {
-        allow read, write: if belongsToUnit(unitId) || isSuperAdmin();
+        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        allow write: if canWriteToUnit(unitId) || isSuperAdmin();
       }
 
       match /attendance/{attendanceId} {
         allow read: if belongsToUnit(unitId) || isSuperAdmin();
-        allow create, update: if belongsToUnit(unitId);
+        allow create, update: if canWriteToUnit(unitId);
         allow delete: if isSuperAdmin();
       }
     }

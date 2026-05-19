@@ -32,6 +32,7 @@ function SpeakerTable({
   sortConfig,
   onInvite,
   getSortIndicator,
+  readOnly = false,
 }) {
   if (data.length === 0) return null;
 
@@ -43,14 +44,16 @@ function SpeakerTable({
       <table className="dyn-table table-history">
         <thead>
           <tr>
-            <th style={{ width: '40px' }}>
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={onToggleAll}
-                aria-label="Marcar todos"
-              />
-            </th>
+            {!readOnly && (
+              <th style={{ width: '40px' }}>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={onToggleAll}
+                  aria-label="Marcar todos"
+                />
+              </th>
+            )}
             <th
               onClick={() => onSort('name')}
               style={{ cursor: 'pointer', userSelect: 'none' }}
@@ -72,20 +75,24 @@ function SpeakerTable({
             >
               Tema{getSortIndicator('topic')}
             </th>
-            <th style={{ textAlign: 'right', width: '100px' }}>Ações</th>
+            {!readOnly && (
+              <th style={{ textAlign: 'right', width: '100px' }}>Ações</th>
+            )}
           </tr>
         </thead>
         <tbody>
           {data.map(({ member, lastSpeech }) => (
             <tr key={member.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedMembers.has(member.id)}
-                  onChange={() => onToggleSelection(member.id)}
-                  aria-label={`Selecionar ${member.name}`}
-                />
-              </td>
+              {!readOnly && (
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedMembers.has(member.id)}
+                    onChange={() => onToggleSelection(member.id)}
+                    aria-label={`Selecionar ${member.name}`}
+                  />
+                </td>
+              )}
               <td style={{ fontWeight: 600 }}>{member.name}</td>
               <td>
                 {lastSpeech
@@ -93,16 +100,18 @@ function SpeakerTable({
                   : <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nunca discursou</span>}
               </td>
               <td>{lastSpeech?.topic || '-'}</td>
-              <td style={{ textAlign: 'right' }}>
-                <button
-                  type="button"
-                  className="btn btn-ghost-dark btn-sm"
-                  onClick={() => onInvite(member)}
-                  aria-label={`Convidar ${member.name}`}
-                >
-                  Convidar
-                </button>
-              </td>
+              {!readOnly && (
+                <td style={{ textAlign: 'right' }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost-dark btn-sm"
+                    onClick={() => onInvite(member)}
+                    aria-label={`Convidar ${member.name}`}
+                  >
+                    Convidar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -111,7 +120,7 @@ function SpeakerTable({
   );
 }
 
-export default function SpeakerDashboard({ speakerLog, invites, topics, members, reload }) {
+export default function SpeakerDashboard({ speakerLog, invites, topics, members, reload, readOnly = false }) {
   const { unitId } = useUnit();
   const { showToast } = useToast();
   const [period, setPeriod] = useState(6);
@@ -229,13 +238,13 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
         e.target.tagName === 'TEXTAREA' ||
         e.target.tagName === 'SELECT'
       ) return;
-      
+
       // Only intercept `/` for search; leave Ctrl+F / Cmd+F to the browser's
       // native find-in-page so users can still search arbitrary page text.
       if (e.key === '/') {
         e.preventDefault();
         document.getElementById('speaker-search-input')?.focus();
-      } else if (e.key === 'c' && !e.ctrlKey && !e.metaKey) {
+      } else if (!readOnly && e.key === 'c' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         setPrefillMember(null);
         setShowForm(true);
@@ -244,7 +253,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [readOnly]);
 
   // Sort handler
   const handleSort = useCallback((key) => {
@@ -414,28 +423,32 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
       {/* Bulk Actions */}
       {dashboardTab !== 'upcoming' && paginatedData.length > 0 && (
         <div className="speakers-bulk-actions">
-          <button
-            type="button"
-            className="btn btn-ghost-dark btn-sm"
-            onClick={toggleAllSelection}
-            disabled={paginatedData.length === 0}
-          >
-            {paginatedData.every(item => item.member?.id && selectedMembers.has(item.member.id))
-              ? 'Desmarcar todos'
-              : 'Marcar todos'}
-          </button>
-          
-          {selectedMembers.size > 0 && (
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={handleBulkInvite}
-              disabled={isBulkInviting}
-            >
-              {isBulkInviting ? 'Convidando...' : `Convidar ${selectedMembers.size} selecionado(s)`}
-            </button>
+          {!readOnly && (
+            <>
+              <button
+                type="button"
+                className="btn btn-ghost-dark btn-sm"
+                onClick={toggleAllSelection}
+                disabled={paginatedData.length === 0}
+              >
+                {paginatedData.every(item => item.member?.id && selectedMembers.has(item.member.id))
+                  ? 'Desmarcar todos'
+                  : 'Marcar todos'}
+              </button>
+
+              {selectedMembers.size > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleBulkInvite}
+                  disabled={isBulkInviting}
+                >
+                  {isBulkInviting ? 'Convidando...' : `Convidar ${selectedMembers.size} selecionado(s)`}
+                </button>
+              )}
+            </>
           )}
-          
+
           <span style={{ color: '#6b7280', fontSize: '14px', marginLeft: 'auto' }}>
             {filteredData.length} resultado(s)
           </span>
@@ -470,6 +483,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
               invite={item.invite}
               onStatusChange={handleStatusChange}
               onEdit={null}
+              readOnly={readOnly}
             />
           ))}
         </div>
@@ -483,6 +497,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
           sortConfig={sortConfig}
           onInvite={handleInvite}
           getSortIndicator={getSortIndicator}
+          readOnly={readOnly}
         />
       )}
 
@@ -496,21 +511,22 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
       {/* Keyboard Shortcuts Hint */}
       <div className="speakers-shortcuts-hint">
-        <strong>Atalhos de teclado:</strong> / para buscar, C para convidar
+        <strong>Atalhos de teclado:</strong> / para buscar{!readOnly && ', C para convidar'}
       </div>
 
-      {/* Main Invite Button */}
-      <div style={{ marginTop: 16 }}>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => { setPrefillMember(null); setShowForm(true); }}
-        >
-          Convidar para discursar
-        </button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginTop: 16 }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => { setPrefillMember(null); setShowForm(true); }}
+          >
+            Convidar para discursar
+          </button>
+        </div>
+      )}
 
-      {showForm && (
+      {!readOnly && showForm && (
         <InviteForm
           onSave={handleSaveInvite}
           onCancel={() => { setShowForm(false); setPrefillMember(null); }}
