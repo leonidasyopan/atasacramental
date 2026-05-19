@@ -108,7 +108,7 @@ export default function InviteManager({ invites, topics, members, reload, readOn
             <InviteCard
               key={inv.id}
               invite={inv}
-              onStatusChange={readOnly ? undefined : handleStatusChange}
+              onStatusChange={readOnly ? null : handleStatusChange}
               onEdit={readOnly ? null : handleEdit}
               onGenerateLetter={readOnly ? null : setLetterInvite}
               readOnly={readOnly}
