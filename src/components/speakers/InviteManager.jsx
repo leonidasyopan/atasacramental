@@ -16,7 +16,7 @@ const STATUS_FILTERS = [
   { label: 'Concluídos', value: 'concluido' },
 ];
 
-export default function InviteManager({ invites, topics, members, reload }) {
+export default function InviteManager({ invites, topics, members, reload, readOnly = false }) {
   const { unitId, unit, leadersFull } = useUnit();
   const { showToast } = useToast();
   const [statusFilter, setStatusFilter] = useState(null);
@@ -108,25 +108,28 @@ export default function InviteManager({ invites, topics, members, reload }) {
             <InviteCard
               key={inv.id}
               invite={inv}
-              onStatusChange={handleStatusChange}
-              onEdit={handleEdit}
-              onGenerateLetter={setLetterInvite}
+              onStatusChange={readOnly ? undefined : handleStatusChange}
+              onEdit={readOnly ? null : handleEdit}
+              onGenerateLetter={readOnly ? null : setLetterInvite}
+              readOnly={readOnly}
             />
           ))}
         </div>
       )}
 
-      <div style={{ marginTop: 16 }}>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => { setEditingInvite(null); setShowForm(true); }}
-        >
-          Novo convite
-        </button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginTop: 16 }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => { setEditingInvite(null); setShowForm(true); }}
+          >
+            Novo convite
+          </button>
+        </div>
+      )}
 
-      {showForm && (
+      {!readOnly && showForm && (
         <InviteForm
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditingInvite(null); }}
@@ -137,7 +140,7 @@ export default function InviteManager({ invites, topics, members, reload }) {
         />
       )}
 
-      {letterInvite && (
+      {!readOnly && letterInvite && (
         <InviteLetterPreview
           invite={letterInvite}
           leaders={leadersFull}

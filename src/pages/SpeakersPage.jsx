@@ -5,9 +5,10 @@ import InviteManager from '../components/speakers/InviteManager';
 import SpeakerHistory from '../components/speakers/SpeakerHistory';
 import TopicManager from '../components/speakers/TopicManager';
 import { useSpeakerData } from '../hooks/useSpeakerData';
+import { useAuth } from '../hooks/useAuth';
 import '../styles/speakers.css';
 
-const TABS = [
+const ALL_TABS = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'convites', label: 'Convites' },
   { key: 'historico', label: 'Histórico' },
@@ -15,6 +16,9 @@ const TABS = [
 ];
 
 export default function SpeakersPage() {
+  const { userRole, isSuperAdmin } = useAuth();
+  const readOnly = !isSuperAdmin && userRole === 'music';
+  const TABS = readOnly ? ALL_TABS.filter((t) => t.key !== 'temas') : ALL_TABS;
   const [tab, setTab] = useState('dashboard');
   const { speakerLog, invites, topics, members, loading, error, reload } = useSpeakerData();
 
@@ -75,6 +79,7 @@ export default function SpeakersPage() {
                       topics={topics}
                       members={members}
                       reload={reload}
+                      readOnly={readOnly}
                     />
                   )}
                   {tab === 'convites' && (
@@ -83,12 +88,13 @@ export default function SpeakersPage() {
                       topics={topics}
                       members={members}
                       reload={reload}
+                      readOnly={readOnly}
                     />
                   )}
                   {tab === 'historico' && (
                     <SpeakerHistory speakerLog={speakerLog} />
                   )}
-                  {tab === 'temas' && (
+                  {tab === 'temas' && !readOnly && (
                     <TopicManager topics={topics} invites={invites} reload={reload} />
                   )}
                 </>
