@@ -13,6 +13,7 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
   const [topic, setTopic] = useState(initial.topic || '');
   const [notes, setNotes] = useState(initial.notes || '');
   const [saving, setSaving] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   const usedTopicMap = useMemo(
     () => getUsedTopicMap(invites, { excludeInviteId: invite?.id }),
@@ -31,8 +32,23 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
       .sort((a, b) => collator.compare(a.name || '', b.name || ''));
   }, [members]);
 
+  function handleTopicChange(val) {
+    setTopic(val);
+    setValidationError('');
+  }
+
   async function handleSave() {
     if (!memberName.trim()) return;
+
+    const normalizedTopic = topic.trim().toLowerCase();
+    if (normalizedTopic && usedTopicMap.has(normalizedTopic)) {
+      const conflictingInvite = usedTopicMap.get(normalizedTopic);
+      setValidationError(
+        `Este tema já está sendo usado por outro convite ativo (designado para ${conflictingInvite.memberName}).`
+      );
+      return;
+    }
+
     setSaving(true);
     try {
       const memberId = isExternal ? null : findMemberId(memberName, members);
@@ -139,10 +155,16 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
           <input
             type="text"
             value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            onChange={(e) => handleTopicChange(e.target.value)}
             placeholder="Tema do discurso"
             list={topicsListId}
+            style={validationError ? { borderColor: '#dc2626' } : {}}
           />
+          {validationError && (
+            <p style={{ color: '#dc2626', fontSize: '0.78rem', marginTop: 4, fontWeight: 500 }}>
+              {validationError}
+            </p>
+          )}
           <datalist id={topicsListId}>
             {visibleTopics.map((t, i) => (
               <option key={i} value={t} />

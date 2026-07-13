@@ -134,6 +134,18 @@ export function formatDateBR(isoString) {
 
 const ACTIVE_INVITE_STATUSES = new Set(['pendente', 'aceito', 'concluido']);
 
+const GENERIC_TOPICS = new Set(['tema livre', 'livre', 'assunto livre']);
+
+/**
+ * Check if a topic is a generic or free topic.
+ * @param {string} topic
+ * @returns {boolean}
+ */
+export function isGenericTopic(topic) {
+  if (!topic || !topic.trim()) return true;
+  return GENERIC_TOPICS.has(topic.trim().toLowerCase());
+}
+
 /**
  * Build a Map from normalized topic string → most-recent active invite
  * that uses it. A theme is "used" when held by an invite with status
@@ -149,6 +161,7 @@ export function getUsedTopicMap(invites, { excludeInviteId } = {}) {
   if (!Array.isArray(invites)) return map;
   for (const inv of invites) {
     if (!inv?.topic) continue;
+    if (isGenericTopic(inv.topic)) continue;
     if (excludeInviteId && inv.id === excludeInviteId) continue;
     if (!ACTIVE_INVITE_STATUSES.has(inv.status)) continue;
     const key = inv.topic.trim().toLowerCase();
