@@ -134,7 +134,18 @@ export function formatDateBR(isoString) {
 
 const ACTIVE_INVITE_STATUSES = new Set(['pendente', 'aceito', 'concluido']);
 
-const GENERIC_TOPICS = new Set(['tema livre', 'livre', 'assunto livre']);
+const GENERIC_TOPICS = new Set([
+  'tema livre',
+  'livre',
+  'assunto livre',
+  'a definir',
+  'definir tema',
+  'indefinido',
+  'tbd',
+  'tbc',
+  'a confirmar',
+  'sem tema',
+]);
 
 /**
  * Check if a topic is a generic or free topic.

@@ -9,16 +9,21 @@ describe('isGenericTopic', () => {
     expect(isGenericTopic('   ')).toBe(true);
   });
 
-  it('returns true for exact generic Portuguese topics', () => {
+  it('returns true for exact generic Portuguese topics and placeholders', () => {
     expect(isGenericTopic('Tema Livre')).toBe(true);
     expect(isGenericTopic('Livre')).toBe(true);
     expect(isGenericTopic('Assunto Livre')).toBe(true);
+    expect(isGenericTopic('A definir')).toBe(true);
+    expect(isGenericTopic('TBD')).toBe(true);
+    expect(isGenericTopic('Sem tema')).toBe(true);
   });
 
   it('returns true for generic topics with spaces or different casing', () => {
     expect(isGenericTopic('  tema livre  ')).toBe(true);
     expect(isGenericTopic('LIVRE')).toBe(true);
     expect(isGenericTopic('assunto livre')).toBe(true);
+    expect(isGenericTopic('  a definir  ')).toBe(true);
+    expect(isGenericTopic('tbd')).toBe(true);
   });
 
   it('returns false for specific/non-generic topics', () => {
