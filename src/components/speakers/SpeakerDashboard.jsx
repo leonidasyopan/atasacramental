@@ -15,6 +15,7 @@ const DASHBOARD_TABS = [
   { key: 'never', label: 'Nunca discursaram' },
   { key: 'already', label: 'Já discursaram' },
   { key: 'upcoming', label: 'Escalados' },
+  { key: 'all', label: 'Todos' },
 ];
 
 const ITEMS_PER_PAGE = 20;
@@ -81,7 +82,7 @@ function SpeakerTable({
           </tr>
         </thead>
         <tbody>
-          {data.map(({ member, lastSpeech }) => (
+          {data.map(({ member, lastSpeech, activeInvite }) => (
             <tr key={member.id}>
               {!readOnly && (
                 <td>
@@ -95,9 +96,32 @@ function SpeakerTable({
               )}
               <td style={{ fontWeight: 600 }}>{member.name}</td>
               <td>
-                {lastSpeech
-                  ? formatDateBR(lastSpeech.data)
-                  : <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nunca discursou</span>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span>
+                    {lastSpeech
+                      ? formatDateBR(lastSpeech.data)
+                      : <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nunca discursou</span>}
+                  </span>
+                  {activeInvite && (
+                    <span 
+                      className={`invite-status invite-status--${activeInvite.status}`}
+                      style={{ 
+                        display: 'inline-block', 
+                        width: 'fit-content', 
+                        marginLeft: 0,
+                        marginTop: '2px',
+                        padding: '2px 6px',
+                        fontSize: '0.64rem',
+                        fontWeight: '700',
+                        borderRadius: '4px',
+                        letterSpacing: '0.02em',
+                        textTransform: 'none'
+                      }}
+                    >
+                      Convidado ({activeInvite.status === 'pendente' ? 'Pendente' : 'Aceito'})
+                    </span>
+                  )}
+                </div>
               </td>
               <td>{lastSpeech?.topic || '-'}</td>
               {!readOnly && (
@@ -144,6 +168,23 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   const upcoming = useMemo(() => getUpcomingInvites(invites), [invites]);
 
+  // Build a map of active invites by memberId/memberName to prevent duplicates
+  const activeInviteMap = useMemo(() => {
+    const map = new Map();
+    if (!Array.isArray(invites)) return map;
+    for (const inv of invites) {
+      if (inv.status === 'pendente' || inv.status === 'aceito') {
+        if (inv.memberId) {
+          map.set(inv.memberId, inv);
+        }
+        if (inv.memberName) {
+          map.set(inv.memberName.trim().toLowerCase(), inv);
+        }
+      }
+    }
+    return map;
+  }, [invites]);
+
   // Get unique topics from period-filtered data for theme filter.
   // Derived from `alreadySpoke` (not raw `speakerLog`) so the dropdown only
   // shows topics that actually match items in the current period view.
@@ -157,12 +198,35 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
 
   // Filter and sort data based on current tab, search, and filters
   const filteredData = useMemo(() => {
+    const getActiveInvite = (member) => {
+      if (!member) return null;
+      if (member.id && activeInviteMap.has(member.id)) {
+        return activeInviteMap.get(member.id);
+      }
+      const nameKey = member.name?.trim().toLowerCase();
+      if (nameKey && activeInviteMap.has(nameKey)) {
+        return activeInviteMap.get(nameKey);
+      }
+      return null;
+    };
+
     let data = [];
     
     if (dashboardTab === 'never') {
-      data = neverSpoke;
+      data = neverSpoke.map(item => ({
+        ...item,
+        activeInvite: getActiveInvite(item.member)
+      }));
     } else if (dashboardTab === 'already') {
-      data = alreadySpoke;
+      data = alreadySpoke.map(item => ({
+        ...item,
+        activeInvite: getActiveInvite(item.member)
+      }));
+    } else if (dashboardTab === 'all') {
+      data = [...neverSpoke, ...alreadySpoke].map(item => ({
+        ...item,
+        activeInvite: getActiveInvite(item.member)
+      }));
     } else if (dashboardTab === 'upcoming') {
       data = upcoming.map(inv => ({ member: { name: inv.memberName, id: inv.id }, lastSpeech: null, invite: inv }));
     }
@@ -176,8 +240,8 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
       });
     }
 
-    // Apply theme filter (only for already spoke tab)
-    if (dashboardTab === 'already' && themeFilter) {
+    // Apply theme filter (for already spoke tab and all tab)
+    if ((dashboardTab === 'already' || dashboardTab === 'all') && themeFilter) {
       data = data.filter(item => item.lastSpeech?.topic === themeFilter);
     }
 
@@ -205,7 +269,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
     }
 
     return data;
-  }, [dashboardTab, neverSpoke, alreadySpoke, upcoming, searchTerm, themeFilter, sortConfig]);
+  }, [dashboardTab, neverSpoke, alreadySpoke, upcoming, searchTerm, themeFilter, sortConfig, activeInviteMap]);
 
   // Pagination
   const paginatedData = useMemo(() => {
@@ -402,6 +466,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
               {tab.key === 'never' && neverSpoke.length}
               {tab.key === 'already' && alreadySpoke.length}
               {tab.key === 'upcoming' && upcoming.length}
+              {tab.key === 'all' && (neverSpoke.length + alreadySpoke.length)}
             </span>
           </button>
         ))}
@@ -413,7 +478,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
         onSearchChange={setSearchTerm}
         searchPlaceholder="Buscar por nome... (Pressione /)"
         searchInputId="speaker-search-input"
-        filterOptions={dashboardTab === 'already' ? availableTopics.map(t => ({ value: t, label: t })) : []}
+        filterOptions={(dashboardTab === 'already' || dashboardTab === 'all') ? availableTopics.map(t => ({ value: t, label: t })) : []}
         filterValue={themeFilter}
         onFilterChange={setThemeFilter}
         filterLabel="Filtrar por tema"
@@ -462,6 +527,7 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
             {searchTerm || themeFilter ? 'Nenhum resultado encontrado para os filtros atuais.' : 
              dashboardTab === 'never' ? 'Todos os membros já discursaram neste período.' :
              dashboardTab === 'already' ? 'Nenhum membro discursou neste período.' :
+             dashboardTab === 'all' ? 'Nenhum membro cadastrado.' :
              'Nenhum convite escalado.'}
           </p>
           {(searchTerm || themeFilter) && (
