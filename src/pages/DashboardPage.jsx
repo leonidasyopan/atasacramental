@@ -9,7 +9,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useUnit } from '../hooks/useUnit';
 import { listDrafts, getRecentFinalized, getFinalizedAtasForDates, deleteAta } from '../services/atas';
 import { getInvites } from '../services/invites';
-import { getNextNSundays } from '../utils/speakerHelpers';
+import { getNextNSundays, daysUntil } from '../utils/speakerHelpers';
 import '../styles/dashboard.css';
 
 const UPCOMING_COUNT = 4;
@@ -38,24 +38,33 @@ export default function DashboardPage() {
         ]);
         if (cancelled) return;
 
-        // Self-healing: filter and delete drafts that have already been finalized
+        // Self-healing: filter and delete drafts that have already been finalized.
+        // To be cost-effective, we only check drafts whose dates are in the past.
         let filteredDrafts = rawDrafts;
-        const draftDates = rawDrafts.map((d) => d.data).filter(Boolean);
-        if (draftDates.length > 0) {
-          const finalizedForDraftDates = await getFinalizedAtasForDates(unitId, draftDates);
+        const pastDrafts = rawDrafts.filter((d) => {
+          const days = daysUntil(d.data);
+          return days != null && days < 0;
+        });
+        const pastDraftDates = pastDrafts.map((d) => d.data).filter(Boolean);
+
+        if (pastDraftDates.length > 0) {
+          const finalizedForDraftDates = await getFinalizedAtasForDates(unitId, pastDraftDates);
           const finalizedDatesSet = new Set(finalizedForDraftDates.map((a) => a.data));
 
           if (finalizedDatesSet.size > 0) {
-            const duplicates = rawDrafts.filter((d) => finalizedDatesSet.has(d.data));
-            filteredDrafts = rawDrafts.filter((d) => !finalizedDatesSet.has(d.data));
+            const duplicates = pastDrafts.filter((d) => finalizedDatesSet.has(d.data));
+            const duplicateIdsSet = new Set(duplicates.map((d) => d.id));
+            filteredDrafts = rawDrafts.filter((d) => !duplicateIdsSet.has(d.id));
 
-            // Clean up duplicates in Firestore asynchronously
-            duplicates.forEach((dup) => {
-              console.log(`[Self-Healing] Deleting orphaned draft ${dup.id} for date ${dup.data}`);
-              deleteAta(unitId, dup.id).catch((err) => {
-                console.error(`[Self-Healing] Failed to delete orphaned draft ${dup.id}:`, err);
+            // Clean up duplicates in Firestore asynchronously, but only if the user is a superadmin to prevent permission errors
+            if (userData?.role === 'superadmin') {
+              duplicates.forEach((dup) => {
+                console.log(`[Self-Healing] Deleting orphaned draft ${dup.id} for date ${dup.data}`);
+                deleteAta(unitId, dup.id).catch((err) => {
+                  console.error(`[Self-Healing] Failed to delete orphaned draft ${dup.id}:`, err);
+                });
               });
-            });
+            }
           }
         }
 
