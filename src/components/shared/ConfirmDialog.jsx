@@ -49,7 +49,7 @@ export default function ConfirmDialog({
           <button type="button" className="btn btn-ghost" onClick={onCancel}>
             {cancelText}
           </button>
-          <button type="button" className="btn btn-primary" onClick={onConfirm}>
+          <button autoFocus type="button" className="btn btn-primary" onClick={onConfirm}>
             {confirmText}
           </button>
         </div>
