@@ -9,6 +9,7 @@ import MemberAutocomplete from '../components/shared/MemberAutocomplete';
 import PrintDocument from '../components/print/PrintDocument';
 import AttendancePicker from '../components/ata/AttendancePicker';
 import KebabMenu from '../components/layout/KebabMenu';
+import ConfirmDialog from '../components/shared/ConfirmDialog';
 import {
   COL_APOIOS,
   COL_ORD,
@@ -61,6 +62,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   });
   const [finalizing, setFinalizing] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [showConfirmFinalizar, setShowConfirmFinalizar] = useState(false);
   // Lazy-persistence flag: only allow auto-save once the user has actually
   // touched the form. Once a draft is persisted (ataId set), this stays true
   // implicitly via the `enabled` check below.
@@ -265,12 +267,8 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     window.print();
   }
 
-  async function onFinalizar() {
-    if (!unitId || !ataId) {
-      showToast('Salve o rascunho antes de finalizar.');
-      return;
-    }
-    if (!confirm('Finalizar esta ata? Ela será arquivada no histórico.')) return;
+  async function handleFinalizar() {
+    setShowConfirmFinalizar(false);
     setFinalizing(true);
     try {
       await finalizarAta(unitId, ataId, firebaseUser?.uid, { members });
@@ -290,6 +288,14 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     } finally {
       setFinalizing(false);
     }
+  }
+
+  function onFinalizar() {
+    if (!unitId || !ataId) {
+      showToast('Salve o rascunho antes de finalizar.');
+      return;
+    }
+    setShowConfirmFinalizar(true);
   }
 
   async function onSaveEdit() {
@@ -842,6 +848,16 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
       </div>
 
       <PrintDocument ata={ataForPrint} unit={unit} fontSizePt={fontSizePt} />
+
+      <ConfirmDialog
+        isOpen={showConfirmFinalizar}
+        title="Finalizar Ata"
+        message="Finalizar esta ata? Ela será arquivada no histórico."
+        confirmText="Finalizar"
+        cancelText="Cancelar"
+        onConfirm={handleFinalizar}
+        onCancel={() => setShowConfirmFinalizar(false)}
+      />
     </>
   );
 }
