@@ -44,9 +44,15 @@ export default function ConfirmDialog({
         </div>
         <div
           className="cd-footer"
-          style={{ borderTop: 'none', gap: '10px', justifyContent: 'flex-end', paddingTop: '0' }}
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '10px',
+            borderTop: 'none',
+            paddingTop: '0',
+          }}
         >
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost-dark" onClick={onCancel}>
             {cancelText}
           </button>
           <button autoFocus type="button" className="btn btn-primary" onClick={onConfirm}>
