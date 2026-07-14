@@ -267,6 +267,18 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     window.print();
   }
 
+  function onDigitalView() {
+    if (isEditing) {
+      window.open(`/historico/${routeAtaId}/digital`, '_blank');
+    } else if (isProgramaRoute) {
+      window.open(`/programa/${routeDate}/digital`, '_blank');
+    } else if (ata.data) {
+      window.open(`/programa/${ata.data}/digital`, '_blank');
+    } else {
+      showToast('Por favor, preencha a data da reunião antes de visualizar a versão digital.');
+    }
+  }
+
   async function handleFinalizar() {
     setShowConfirmFinalizar(false);
     setFinalizing(true);
@@ -361,6 +373,14 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             {isEditing && savingEdit && 'Salvando...'}
           </div>
           <div className="ata-toolbar-actions">
+            <button
+              type="button"
+              className="btn btn-ghost-dark"
+              onClick={onDigitalView}
+              style={{ marginRight: 8 }}
+            >
+              📱 Versão Digital
+            </button>
             <button
               type="button"
               className="btn btn-primary"
