@@ -25,6 +25,7 @@ import {
   getAta,
   getCurrentDraft,
   getDraftByDate,
+  getAtaByDate,
   saveDraft,
   finalizarAta,
   updateAtaFields,
@@ -117,16 +118,21 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
           }
         }
 
-        const [draft, memory] = await Promise.all([
+        const [existingAta, memory] = await Promise.all([
           isProgramaRoute
-            ? getDraftByDate(unitId, routeDate)
+            ? getAtaByDate(unitId, routeDate)
             : getCurrentDraft(unitId),
           getUnitSettings(unitId),
         ]);
 
-        if (draft) {
-          setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...draft }));
-          setAtaId(draft.id);
+        if (existingAta) {
+          if (isProgramaRoute && existingAta.status === 'finalized') {
+            showToast('Ata já finalizada. Redirecionando para o modo de edição.');
+            navigate(`/historico/${existingAta.id}/editar`, { replace: true });
+            return;
+          }
+          setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...existingAta }));
+          setAtaId(existingAta.id);
         } else if (isProgramaRoute) {
           // Fresh draft for this Sunday — pre-fill date + sensible defaults.
           // No Firestore write yet (lazy persistence): user must edit first.

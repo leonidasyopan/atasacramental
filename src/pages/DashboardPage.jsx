@@ -7,7 +7,7 @@ import RecentActivity from '../components/dashboard/RecentActivity';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import { useAuth } from '../hooks/useAuth';
 import { useUnit } from '../hooks/useUnit';
-import { listDrafts, getRecentFinalized } from '../services/atas';
+import { listDrafts, getRecentFinalized, getFinalizedAtasForDates, deleteAta } from '../services/atas';
 import { getInvites } from '../services/invites';
 import { getNextNSundays } from '../utils/speakerHelpers';
 import '../styles/dashboard.css';
@@ -30,14 +30,36 @@ export default function DashboardPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [drafts, invites, finalized] = await Promise.all([
+        const [rawDrafts, invites, finalized] = await Promise.all([
           // Pull all drafts so we can also surface unfinalized past-Sunday drafts as alerts.
           listDrafts(unitId),
           getInvites(unitId),
           getRecentFinalized(unitId, 3),
         ]);
         if (cancelled) return;
-        setData({ drafts, invites, finalized, loading: false, error: null });
+
+        // Self-healing: filter and delete drafts that have already been finalized
+        let filteredDrafts = rawDrafts;
+        const draftDates = rawDrafts.map((d) => d.data).filter(Boolean);
+        if (draftDates.length > 0) {
+          const finalizedForDraftDates = await getFinalizedAtasForDates(unitId, draftDates);
+          const finalizedDatesSet = new Set(finalizedForDraftDates.map((a) => a.data));
+
+          if (finalizedDatesSet.size > 0) {
+            const duplicates = rawDrafts.filter((d) => finalizedDatesSet.has(d.data));
+            filteredDrafts = rawDrafts.filter((d) => !finalizedDatesSet.has(d.data));
+
+            // Clean up duplicates in Firestore asynchronously
+            duplicates.forEach((dup) => {
+              console.log(`[Self-Healing] Deleting orphaned draft ${dup.id} for date ${dup.data}`);
+              deleteAta(unitId, dup.id).catch((err) => {
+                console.error(`[Self-Healing] Failed to delete orphaned draft ${dup.id}:`, err);
+              });
+            });
+          }
+        }
+
+        setData({ drafts: filteredDrafts, invites, finalized, loading: false, error: null });
       } catch (err) {
         console.error('Dashboard load failed:', err);
         if (cancelled) return;

@@ -249,6 +249,41 @@ export async function getDraftByDate(unitId, dateISO) {
 }
 
 /**
+ * Returns any Ata (draft or finalized) for a specific date, or null.
+ */
+export async function getAtaByDate(unitId, dateISO) {
+  if (!unitId || !dateISO) return null;
+  const q = query(
+    atasRef(unitId),
+    where('data', '==', dateISO),
+    limit(1),
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...deserializeAtaFromFirestore(d.data()) };
+}
+
+/**
+ * Returns finalized atas for a list of specific dates.
+ */
+export async function getFinalizedAtasForDates(unitId, datesISO) {
+  if (!unitId || !datesISO || datesISO.length === 0) return [];
+  const results = [];
+  for (let i = 0; i < datesISO.length; i += 30) {
+    const chunk = datesISO.slice(i, i + 30);
+    const q = query(
+      atasRef(unitId),
+      where('status', '==', 'finalized'),
+      where('data', 'in', chunk),
+    );
+    const snap = await getDocs(q);
+    results.push(...snap.docs.map((d) => ({ id: d.id, ...deserializeAtaFromFirestore(d.data()) })));
+  }
+  return results;
+}
+
+/**
  * List all drafts for a unit, optionally filtered by date range (inclusive).
  * Used by the dashboard to populate upcoming-Sunday cards.
  */
