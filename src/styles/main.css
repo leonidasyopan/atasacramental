@@ -1529,3 +1529,30 @@ body.sidebar-drawer-open {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* ConfirmDialog body content */
+.cd-body {
+  padding: 8px 20px 24px;
+  font-size: 0.95rem;
+  color: var(--text-secondary, #4b5563);
+  line-height: 1.5;
+}
+
+/* Modifier: removes border + resets padding on cd-header */
+.cd-header--flush {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.cd-header--flush h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Modifier: removes border + resets padding on cd-footer */
+.cd-footer--flush {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: none;
+  padding-top: 0;
+}

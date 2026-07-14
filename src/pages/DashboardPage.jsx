@@ -76,7 +76,7 @@ export default function DashboardPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [unitId, unitLoading]);
+  }, [unitId, unitLoading, userData]);
 
   // Counter role: route directly to attendance, skip dashboard entirely.
   if (userData?.role === 'counter') {

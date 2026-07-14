@@ -30,28 +30,20 @@ export default function ConfirmDialog({
       <div
         className="cd-dialog anim-slide-up"
         role="dialog"
+        aria-modal="true"
         aria-label={title}
         style={{ maxWidth: '400px' }}
       >
-        <div className="cd-header" style={{ borderBottom: 'none', paddingBottom: '4px' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>{title}</h3>
+        <div className="cd-header cd-header--flush">
+          <h3>{title}</h3>
           <button className="cd-close" onClick={onCancel} type="button" aria-label="Fechar">
             ×
           </button>
         </div>
-        <div style={{ padding: '8px 20px 24px', fontSize: '0.95rem', color: '#4b5563', lineHeight: 1.5 }}>
+        <div className="cd-body">
           {message}
         </div>
-        <div
-          className="cd-footer"
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            borderTop: 'none',
-            paddingTop: '0',
-          }}
-        >
+        <div className="cd-footer cd-footer--flush">
           <button type="button" className="btn btn-ghost-dark" onClick={onCancel}>
             {cancelText}
           </button>

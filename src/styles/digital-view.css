@@ -231,6 +231,12 @@
   font-weight: 600;
 }
 
+/* ── Local keyframe — keeps digital-view.css self-contained ── */
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
 /* ── Responsive adjustments ── */
 @media (max-width: 768px) {
   .digital-page {

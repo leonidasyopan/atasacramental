@@ -3,14 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUnit } from '../hooks/useUnit';
 import { getAta, getAtaByDate } from '../services/atas';
 import { lookupHymn } from '../data/hymns';
+import { formatDateBR } from '../utils/speakerHelpers';
 import '../styles/digital-view.css';
-
-function fmtDate(iso) {
-  if (!iso) return '';
-  const [y, m, d] = iso.split('-').map(Number);
-  if (!y) return iso;
-  return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
-}
 
 function hymnLabel(num) {
   if (!num) return '';
@@ -134,7 +128,7 @@ export default function AtaDigitalPage({ routeMode = 'programa' }) {
           <div className="two-col">
             <div className="fl">
               <span className="lbl">Data</span>
-              <span className="val">{fmtDate(ata?.data)}</span>
+              <span className="val">{formatDateBR(ata?.data)}</span>
             </div>
             <div className="fl">
               <span className="lbl">Frequência</span>

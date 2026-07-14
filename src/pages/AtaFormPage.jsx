@@ -62,7 +62,9 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   });
   const [finalizing, setFinalizing] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
-  const [showConfirmFinalizar, setShowConfirmFinalizar] = useState(false);
+  // pendingConfirm drives the single shared ConfirmDialog for all destructive
+  // actions: { type: 'finalizar' | 'clearSection' | 'reset', key?: string }
+  const [pendingConfirm, setPendingConfirm] = useState(null);
   // Lazy-persistence flag: only allow auto-save once the user has actually
   // touched the form. Once a draft is persisted (ataId set), this stays true
   // implicitly via the `enabled` check below.
@@ -212,7 +214,10 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   }
 
   function clearSection(key) {
-    if (!confirm('Limpar dados desta seção?')) return;
+    setPendingConfirm({ type: 'clearSection', key });
+  }
+
+  function executeClearSection(key) {
     const patches = {
       abertura: { hAberNum: '', oracao1: '', anuncios: '' },
       apoios: { rowsApoios: [] },
@@ -254,7 +259,10 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   }
 
   function onReset() {
-    if (!confirm('Limpar TODOS os dados do rascunho atual?')) return;
+    setPendingConfirm({ type: 'reset' });
+  }
+
+  function executeReset() {
     setDirty(true);
     setAta(isProgramaRoute
       ? { ...DEFAULT_ATA, data: routeDate, mode: 'disc' }
@@ -280,7 +288,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   }
 
   async function handleFinalizar() {
-    setShowConfirmFinalizar(false);
+    setPendingConfirm(null);
     setFinalizing(true);
     try {
       await finalizarAta(unitId, ataId, firebaseUser?.uid, { members });
@@ -307,7 +315,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
       showToast('Salve o rascunho antes de finalizar.');
       return;
     }
-    setShowConfirmFinalizar(true);
+    setPendingConfirm({ type: 'finalizar' });
   }
 
   async function onSaveEdit() {
@@ -870,13 +878,29 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
       <PrintDocument ata={ataForPrint} unit={unit} fontSizePt={fontSizePt} />
 
       <ConfirmDialog
-        isOpen={showConfirmFinalizar}
-        title="Finalizar Ata"
-        message="Finalizar esta ata? Ela será arquivada no histórico."
-        confirmText="Finalizar"
+        isOpen={!!pendingConfirm}
+        title={
+          pendingConfirm?.type === 'finalizar' ? 'Finalizar Ata' :
+          pendingConfirm?.type === 'reset'      ? 'Limpar rascunho' :
+          'Limpar seção'
+        }
+        message={
+          pendingConfirm?.type === 'finalizar'
+            ? 'Finalizar esta ata? Ela será arquivada no histórico.'
+            : pendingConfirm?.type === 'reset'
+              ? 'Limpar TODOS os dados do rascunho atual? Esta ação não pode ser desfeita.'
+              : 'Limpar todos os dados desta seção?'
+        }
+        confirmText={
+          pendingConfirm?.type === 'finalizar' ? 'Finalizar' : 'Limpar'
+        }
         cancelText="Cancelar"
-        onConfirm={handleFinalizar}
-        onCancel={() => setShowConfirmFinalizar(false)}
+        onConfirm={() => {
+          if (pendingConfirm?.type === 'finalizar') handleFinalizar();
+          else if (pendingConfirm?.type === 'reset') { setPendingConfirm(null); executeReset(); }
+          else if (pendingConfirm?.type === 'clearSection') { setPendingConfirm(null); executeClearSection(pendingConfirm.key); }
+        }}
+        onCancel={() => setPendingConfirm(null)}
       />
     </>
   );
