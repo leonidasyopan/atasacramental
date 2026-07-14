@@ -1,0 +1,264 @@
+/* ── Digital View Style sheet ── */
+
+.digital-page {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  color: #1f2937;
+}
+
+/* ── Top navigation bar ── */
+.digital-nav {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.digital-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.digital-btn-back {
+  background: white;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.digital-btn-back:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.digital-btn-print {
+  background: #1b3a6b;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.digital-btn-print:hover {
+  background: #142d54;
+  transform: translateY(-1px);
+}
+
+/* ── Main Document Container ── */
+.digital-doc {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(27, 58, 107, 0.1), 0 8px 10px -6px rgba(27, 58, 107, 0.1);
+  box-sizing: border-box;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Header ── */
+.digital-doc .doc-header {
+  text-align: center;
+  border-bottom: 3px solid #1b3a6b;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.digital-doc .church-name {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.digital-doc .branch-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1b3a6b;
+  margin-bottom: 4px;
+}
+
+.digital-doc .doc-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 6px 0 0;
+}
+
+/* ── Sections ── */
+.digital-doc .section {
+  margin-bottom: 28px;
+}
+
+.digital-doc .sec-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1b3a6b;
+  border-bottom: 1px solid #d1d5db;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+/* Grid layout for columns */
+.digital-doc .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.digital-doc .fl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.digital-doc .lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.digital-doc .val {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  min-height: 20px;
+  border: 1px solid #f3f4f6;
+  word-break: break-word;
+}
+
+/* ── Tables ── */
+.digital-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-top: 8px;
+}
+
+.digital-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.digital-doc table th {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid #e5e7eb;
+}
+
+.digital-doc table td {
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+
+.digital-doc table tr:last-child td {
+  border-bottom: none;
+}
+
+.digital-doc table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+/* ── Signatures ── */
+.digital-doc .sig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.digital-doc .sig-block {
+  text-align: center;
+}
+
+.digital-doc .sig-line {
+  border-top: 1.5px solid #9ca3af;
+  margin-top: 24px;
+  margin-bottom: 6px;
+}
+
+.digital-doc .sig-label {
+  font-size: 0.8rem;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+/* ── Local keyframe — keeps digital-view.css self-contained ── */
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 768px) {
+  .digital-page {
+    padding: 16px 8px;
+  }
+  
+  .digital-doc {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .digital-doc .two-col {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .digital-doc .sig-row {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .digital-doc .doc-title {
+    font-size: 1.4rem;
+  }
+}

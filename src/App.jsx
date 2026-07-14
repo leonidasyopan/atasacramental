@@ -14,6 +14,7 @@ import AdminMembersPage from './pages/admin/AdminMembersPage';
 import AdminAllUsersPage from './pages/admin/AdminAllUsersPage';
 import SpeakersPage from './pages/SpeakersPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import AtaDigitalPage from './pages/AtaDigitalPage';
 
 function LoadingScreen() {
   return (
@@ -35,6 +36,9 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/denied" element={<DeniedPage />} />
+
+      <Route path="/p/:unitId/programa/:date" element={<AtaDigitalPage routeMode="programa" />} />
+      <Route path="/p/:unitId/historico/:id" element={<AtaDigitalPage routeMode="historico" />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/frequencia/simples" element={<SimpleAttendancePage />} />

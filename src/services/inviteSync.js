@@ -9,6 +9,7 @@ import {
   DEFAULT_ATA,
   atasRef,
   getDraftByDate,
+  getAtaByDate,
   serializeAtaForFirestore,
   deserializeAtaFromFirestore,
 } from './atas';
@@ -48,8 +49,11 @@ function isRowEmpty(row) {
  */
 export async function ensureDraftForDate(unitId, dateISO) {
   if (!unitId || !dateISO) return null;
-  const existing = await getDraftByDate(unitId, dateISO);
-  if (existing) return existing;
+  const existing = await getAtaByDate(unitId, dateISO);
+  if (existing) {
+    if (existing.status === 'draft') return existing;
+    return null; // Do not create a new draft if the Ata is already finalized
+  }
   const payload = {
     ...serializeAtaForFirestore(DEFAULT_ATA),
     data: dateISO,

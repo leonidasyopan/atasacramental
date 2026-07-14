@@ -7,9 +7,9 @@ import RecentActivity from '../components/dashboard/RecentActivity';
 import QuickLinks from '../components/dashboard/QuickLinks';
 import { useAuth } from '../hooks/useAuth';
 import { useUnit } from '../hooks/useUnit';
-import { listDrafts, getRecentFinalized } from '../services/atas';
+import { listDrafts, getRecentFinalized, getFinalizedAtasForDates, deleteAta } from '../services/atas';
 import { getInvites } from '../services/invites';
-import { getNextNSundays } from '../utils/speakerHelpers';
+import { getNextNSundays, daysUntil } from '../utils/speakerHelpers';
 import '../styles/dashboard.css';
 
 const UPCOMING_COUNT = 4;
@@ -30,14 +30,45 @@ export default function DashboardPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [drafts, invites, finalized] = await Promise.all([
+        const [rawDrafts, invites, finalized] = await Promise.all([
           // Pull all drafts so we can also surface unfinalized past-Sunday drafts as alerts.
           listDrafts(unitId),
           getInvites(unitId),
           getRecentFinalized(unitId, 3),
         ]);
         if (cancelled) return;
-        setData({ drafts, invites, finalized, loading: false, error: null });
+
+        // Self-healing: filter and delete drafts that have already been finalized.
+        // To be cost-effective, we only check drafts whose dates are in the past.
+        let filteredDrafts = rawDrafts;
+        const pastDrafts = rawDrafts.filter((d) => {
+          const days = daysUntil(d.data);
+          return days != null && days < 0;
+        });
+        const pastDraftDates = pastDrafts.map((d) => d.data).filter(Boolean);
+
+        if (pastDraftDates.length > 0) {
+          const finalizedForDraftDates = await getFinalizedAtasForDates(unitId, pastDraftDates);
+          const finalizedDatesSet = new Set(finalizedForDraftDates.map((a) => a.data));
+
+          if (finalizedDatesSet.size > 0) {
+            const duplicates = pastDrafts.filter((d) => finalizedDatesSet.has(d.data));
+            const duplicateIdsSet = new Set(duplicates.map((d) => d.id));
+            filteredDrafts = rawDrafts.filter((d) => !duplicateIdsSet.has(d.id));
+
+            // Clean up duplicates in Firestore asynchronously, but only if the user is a superadmin to prevent permission errors
+            if (userData?.role === 'superadmin') {
+              duplicates.forEach((dup) => {
+                console.log(`[Self-Healing] Deleting orphaned draft ${dup.id} for date ${dup.data}`);
+                deleteAta(unitId, dup.id).catch((err) => {
+                  console.error(`[Self-Healing] Failed to delete orphaned draft ${dup.id}:`, err);
+                });
+              });
+            }
+          }
+        }
+
+        setData({ drafts: filteredDrafts, invites, finalized, loading: false, error: null });
       } catch (err) {
         console.error('Dashboard load failed:', err);
         if (cancelled) return;
@@ -45,7 +76,7 @@ export default function DashboardPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [unitId, unitLoading]);
+  }, [unitId, unitLoading, userData]);
 
   // Counter role: route directly to attendance, skip dashboard entirely.
   if (userData?.role === 'counter') {
