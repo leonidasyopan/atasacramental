@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useUnit } from '../hooks/useUnit';
+import { getUnit } from '../services/units';
 import { getAta, getAtaByDate } from '../services/atas';
 import { lookupHymn } from '../data/hymns';
 import { formatDateBR } from '../utils/speakerHelpers';
@@ -35,27 +35,31 @@ function Rows({ rows, cols }) {
 }
 
 export default function AtaDigitalPage({ routeMode = 'programa' }) {
-  const { id: routeAtaId, date: routeDate } = useParams();
-  const { unitId, unit, loading: unitLoading } = useUnit();
+  const { unitId: routeUnitId, id: routeAtaId, date: routeDate } = useParams();
   const navigate = useNavigate();
   
   const [ata, setAta] = useState(null);
+  const [unit, setUnit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!unitId || unitLoading) return;
+    if (!routeUnitId) return;
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        let doc = null;
-        if (routeMode === 'historico') {
-          doc = await getAta(unitId, routeAtaId);
-        } else {
-          doc = await getAtaByDate(unitId, routeDate);
+        const [unitDoc, doc] = await Promise.all([
+          getUnit(routeUnitId),
+          routeMode === 'historico'
+            ? getAta(routeUnitId, routeAtaId)
+            : getAtaByDate(routeUnitId, routeDate)
+        ]);
+
+        if (unitDoc) {
+          setUnit(unitDoc);
         }
-        
+
         if (!doc) {
           setError('Ata não encontrada para a data ou identificador informado.');
         } else {
@@ -68,9 +72,9 @@ export default function AtaDigitalPage({ routeMode = 'programa' }) {
         setLoading(false);
       }
     })();
-  }, [unitId, unitLoading, routeMode, routeAtaId, routeDate]);
+  }, [routeUnitId, routeMode, routeAtaId, routeDate]);
 
-  if (loading || unitLoading) {
+  if (loading) {
     return (
       <div className="auth-screen">
         <div className="auth-card">
@@ -87,7 +91,7 @@ export default function AtaDigitalPage({ routeMode = 'programa' }) {
         <div className="auth-card" style={{ textAlign: 'center', padding: '24px' }}>
           <div style={{ fontSize: '3rem', marginBottom: '12px' }}>⚠️</div>
           <p style={{ color: '#dc2626', fontWeight: 600, marginBottom: '16px' }}>{error || 'Ata não encontrada.'}</p>
-          <button type="button" className="btn btn-primary" onClick={() => navigate(-1)}>
+          <button type="button" className="btn btn-primary" onClick={() => navigate(window.history.length > 1 ? -1 : '/')}>
             Voltar
           </button>
         </div>
@@ -106,7 +110,7 @@ export default function AtaDigitalPage({ routeMode = 'programa' }) {
     <div className="digital-page">
       <div className="digital-nav">
         <div className="digital-nav-left">
-          <button type="button" className="digital-btn-back" onClick={() => navigate(-1)}>
+          <button type="button" className="digital-btn-back" onClick={() => navigate(window.history.length > 1 ? -1 : '/')}>
             ← Voltar
           </button>
         </div>

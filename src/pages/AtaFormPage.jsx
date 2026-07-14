@@ -277,11 +277,11 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
 
   function onDigitalView() {
     if (isEditing) {
-      window.open(`/historico/${routeAtaId}/digital`, '_blank');
+      window.open(`/p/${unitId}/historico/${routeAtaId}`, '_blank');
     } else if (isProgramaRoute) {
-      window.open(`/programa/${routeDate}/digital`, '_blank');
+      window.open(`/p/${unitId}/programa/${routeDate}`, '_blank');
     } else if (ata.data) {
-      window.open(`/programa/${ata.data}/digital`, '_blank');
+      window.open(`/p/${unitId}/programa/${ata.data}`, '_blank');
     } else {
       showToast('Por favor, preencha a data da reunião antes de visualizar a versão digital.');
     }

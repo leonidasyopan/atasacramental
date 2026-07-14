@@ -112,7 +112,7 @@ service cloud.firestore {
 
     // ---- units/{unitId} ----
     match /units/{unitId} {
-      allow read: if belongsToUnit(unitId) || isSuperAdmin();
+      allow read: if true; // Allow public read access (necessary for shareable digital view)
       allow write: if isUnitAdmin(unitId) || isSuperAdmin();
 
       match /leaders/{leaderId} {
@@ -121,7 +121,9 @@ service cloud.firestore {
       }
 
       match /atas/{ataId} {
-        allow read: if belongsToUnit(unitId) || isSuperAdmin();
+        // Unauthenticated users (public share links) may only read finalized atas.
+        // Unit members retain full read access so the form editor can load drafts.
+        allow read: if (resource.data.status == 'finalized') || belongsToUnit(unitId) || isSuperAdmin();
         allow create, update: if canWriteToUnit(unitId);
         allow delete: if isSuperAdmin();
       }

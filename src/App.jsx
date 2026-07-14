@@ -37,6 +37,9 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/denied" element={<DeniedPage />} />
 
+      <Route path="/p/:unitId/programa/:date" element={<AtaDigitalPage routeMode="programa" />} />
+      <Route path="/p/:unitId/historico/:id" element={<AtaDigitalPage routeMode="historico" />} />
+
       <Route element={<ProtectedRoute />}>
         <Route path="/frequencia/simples" element={<SimpleAttendancePage />} />
       </Route>
@@ -44,11 +47,9 @@ export default function App() {
       <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'superadmin']} />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/programa/:date" element={<AtaFormPage routeMode="programa" />} />
-        <Route path="/programa/:date/digital" element={<AtaDigitalPage routeMode="programa" />} />
         <Route path="/historico" element={<AtaHistoryPage />} />
         <Route path="/historico/:id" element={<Navigate to="editar" replace />} />
         <Route path="/historico/:id/editar" element={<AtaFormPage editMode />} />
-        <Route path="/historico/:id/digital" element={<AtaDigitalPage routeMode="historico" />} />
         <Route path="/frequencia/detalhado" element={<DetailedAttendancePage />} />
         <Route path="/frequencia/historico" element={<AttendanceHistoryPage />} />
       </Route>
