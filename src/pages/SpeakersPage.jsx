@@ -20,7 +20,7 @@ export default function SpeakersPage() {
   const readOnly = !isSuperAdmin && userRole === 'music';
   const TABS = readOnly ? ALL_TABS.filter((t) => t.key !== 'temas') : ALL_TABS;
   const [tab, setTab] = useState('dashboard');
-  const { speakerLog, invites, topics, members, loading, error, reload } = useSpeakerData();
+  const { speakerLog, invites, topics, recentAttendances, members, loading, error, reload } = useSpeakerData();
 
   return (
     <>
@@ -77,11 +77,13 @@ export default function SpeakersPage() {
                       speakerLog={speakerLog}
                       invites={invites}
                       topics={topics}
+                      recentAttendances={recentAttendances}
                       members={members}
                       reload={reload}
                       readOnly={readOnly}
                     />
                   )}
+
                   {tab === 'convites' && (
                     <InviteManager
                       invites={invites}

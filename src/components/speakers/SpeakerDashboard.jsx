@@ -2,7 +2,13 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import PeriodFilter from './PeriodFilter';
 import InviteCard from './InviteCard';
 import InviteForm from './InviteForm';
-import { classifyMembers, getUpcomingInvites, formatDateBR } from '../../utils/speakerHelpers';
+import {
+  classifyMembers,
+  getUpcomingInvites,
+  formatDateBR,
+  filterMembersByAge,
+  calculateMemberAttendance,
+} from '../../utils/speakerHelpers';
 import { createInvite, updateInviteStatus } from '../../services/invites';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
@@ -62,6 +68,13 @@ function SpeakerTable({
               Nome{getSortIndicator('name')}
             </th>
             <th
+              onClick={() => onSort('attendance')}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+              aria-sort={sortConfig.key === 'attendance' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+            >
+              Frequência{getSortIndicator('attendance')}
+            </th>
+            <th
               onClick={() => onSort('lastSpeech')}
               style={{ cursor: 'pointer', userSelect: 'none' }}
               aria-sort={sortConfig.key === 'lastSpeech' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
@@ -81,7 +94,7 @@ function SpeakerTable({
           </tr>
         </thead>
         <tbody>
-          {data.map(({ member, lastSpeech, activeInvite }) => (
+          {data.map(({ member, lastSpeech, activeInvite, attendanceCount = 0 }) => (
             <tr key={member.id}>
               {!readOnly && (
                 <td>
@@ -94,6 +107,14 @@ function SpeakerTable({
                 </td>
               )}
               <td style={{ fontWeight: 600 }}>{member.name}</td>
+              <td>
+                <span
+                  className={`attendance-pill ${attendanceCount > 0 ? '' : 'attendance-pill--zero'}`}
+                  title={`${attendanceCount} presenças nas últimas reuniões de frequência`}
+                >
+                  {attendanceCount} {attendanceCount === 1 ? 'presença' : 'presenças'}
+                </span>
+              </td>
               <td>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span>
@@ -143,7 +164,15 @@ function SpeakerTable({
   );
 }
 
-export default function SpeakerDashboard({ speakerLog, invites, topics, members, reload, readOnly = false }) {
+export default function SpeakerDashboard({
+  speakerLog,
+  invites,
+  topics,
+  recentAttendances = [],
+  members,
+  reload,
+  readOnly = false,
+}) {
   const { unitId } = useUnit();
   const { showToast } = useToast();
   const [period, setPeriod] = useState(6);
@@ -154,7 +183,8 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
   // New state for UI improvements
   const [dashboardTab, setDashboardTab] = useState('never');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [ageFilter, setAgeFilter] = useState('all');
+  const [sortConfig, setSortConfig] = useState({ key: 'attendance', direction: 'desc' });
   const [themeFilter, setThemeFilter] = useState('');
   const [selectedMembers, setSelectedMembers] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -166,6 +196,21 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
   );
 
   const upcoming = useMemo(() => getUpcomingInvites(invites), [invites]);
+
+  const memberAttendanceMap = useMemo(
+    () => calculateMemberAttendance(recentAttendances),
+    [recentAttendances],
+  );
+
+  const filteredNever = useMemo(
+    () => filterMembersByAge(neverSpoke, ageFilter),
+    [neverSpoke, ageFilter],
+  );
+
+  const filteredAlready = useMemo(
+    () => filterMembersByAge(alreadySpoke, ageFilter),
+    [alreadySpoke, ageFilter],
+  );
 
   // Build a map of active invites by memberId/memberName to prevent duplicates
   const activeInviteMap = useMemo(() => {
@@ -212,22 +257,31 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
     let data = [];
     
     if (dashboardTab === 'never') {
-      data = neverSpoke.map(item => ({
+      data = filteredNever.map((item) => ({
         ...item,
-        activeInvite: getActiveInvite(item.member)
+        activeInvite: getActiveInvite(item.member),
+        attendanceCount: item.member?.id ? (memberAttendanceMap.get(item.member.id) || 0) : 0,
       }));
     } else if (dashboardTab === 'already') {
-      data = alreadySpoke.map(item => ({
+      data = filteredAlready.map((item) => ({
         ...item,
-        activeInvite: getActiveInvite(item.member)
+        activeInvite: getActiveInvite(item.member),
+        attendanceCount: item.member?.id ? (memberAttendanceMap.get(item.member.id) || 0) : 0,
       }));
     } else if (dashboardTab === 'all') {
-      data = [...neverSpoke, ...alreadySpoke].map(item => ({
+      const combined = filterMembersByAge([...neverSpoke, ...alreadySpoke], ageFilter);
+      data = combined.map((item) => ({
         ...item,
-        activeInvite: getActiveInvite(item.member)
+        activeInvite: getActiveInvite(item.member),
+        attendanceCount: item.member?.id ? (memberAttendanceMap.get(item.member.id) || 0) : 0,
       }));
     } else if (dashboardTab === 'upcoming') {
-      data = upcoming.map(inv => ({ member: { name: inv.memberName, id: inv.id }, lastSpeech: null, invite: inv }));
+      const wrapped = upcoming.map((inv) => ({
+        member: { name: inv.memberName, id: inv.memberId || inv.id },
+        lastSpeech: null,
+        invite: inv,
+      }));
+      data = filterMembersByAge(wrapped, ageFilter);
     }
 
     // Apply search filter
@@ -249,7 +303,16 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
       data = [...data].sort((a, b) => {
         let comparison = 0;
         
-        if (sortConfig.key === 'name') {
+        if (sortConfig.key === 'attendance') {
+          const attA = a.attendanceCount || 0;
+          const attB = b.attendanceCount || 0;
+          comparison = attA - attB;
+          if (comparison === 0) {
+            const nameA = a.member?.name || '';
+            const nameB = b.member?.name || '';
+            comparison = nameA.localeCompare(nameB, 'pt-BR', { sensitivity: 'base' });
+          }
+        } else if (sortConfig.key === 'name') {
           const nameA = a.member?.name || '';
           const nameB = b.member?.name || '';
           comparison = nameA.localeCompare(nameB, 'pt-BR', { sensitivity: 'base' });
@@ -268,7 +331,20 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
     }
 
     return data;
-  }, [dashboardTab, neverSpoke, alreadySpoke, upcoming, searchTerm, themeFilter, sortConfig, activeInviteMap]);
+  }, [
+    dashboardTab,
+    filteredNever,
+    filteredAlready,
+    neverSpoke,
+    alreadySpoke,
+    upcoming,
+    ageFilter,
+    searchTerm,
+    themeFilter,
+    sortConfig,
+    activeInviteMap,
+    memberAttendanceMap,
+  ]);
 
   // Pagination
   const paginatedData = useMemo(() => {
@@ -282,7 +358,8 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
   useEffect(() => {
     setCurrentPage(1);
     setSelectedMembers(new Set());
-  }, [searchTerm, themeFilter, dashboardTab, period]);
+  }, [searchTerm, themeFilter, ageFilter, dashboardTab, period]);
+
 
   // Clamp currentPage when underlying data shrinks (e.g. after reload()).
   // Without this, currentPage can exceed totalPages, leaving paginatedData
@@ -462,27 +539,41 @@ export default function SpeakerDashboard({ speakerLog, invites, topics, members,
           >
             {tab.label}
             <span className="speakers-badge" style={{ marginLeft: '8px' }}>
-              {tab.key === 'never' && neverSpoke.length}
-              {tab.key === 'already' && alreadySpoke.length}
-              {tab.key === 'upcoming' && upcoming.length}
-              {tab.key === 'all' && (neverSpoke.length + alreadySpoke.length)}
+              {tab.key === 'never' && filteredNever.length}
+              {tab.key === 'already' && filteredAlready.length}
+              {tab.key === 'upcoming' && filterMembersByAge(upcoming.map(u => ({ member: { name: u.memberName, id: u.memberId } })), ageFilter).length}
+              {tab.key === 'all' && (filteredNever.length + filteredAlready.length)}
             </span>
           </button>
         ))}
       </div>
 
       {/* Search and Filter Bar */}
-      <SearchFilterBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar por nome... (Pressione /)"
-        searchInputId="speaker-search-input"
-        filterOptions={(dashboardTab === 'already' || dashboardTab === 'all') ? availableTopics.map(t => ({ value: t, label: t })) : []}
-        filterValue={themeFilter}
-        onFilterChange={setThemeFilter}
-        filterLabel="Filtrar por tema"
-        className="speakers-search-bar"
-      />
+      <div className="search-filter-bar speakers-search-bar" style={{ marginTop: '16px' }}>
+        <SearchFilterBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Buscar por nome... (Pressione /)"
+          searchInputId="speaker-search-input"
+          filterOptions={(dashboardTab === 'already' || dashboardTab === 'all') ? availableTopics.map(t => ({ value: t, label: t })) : []}
+          filterValue={themeFilter}
+          onFilterChange={setThemeFilter}
+          filterLabel="Filtrar por tema"
+        />
+
+        <select
+          value={ageFilter}
+          onChange={(e) => setAgeFilter(e.target.value)}
+          className="speakers-filter-select"
+          aria-label="Filtrar por faixa etária"
+          style={{ minWidth: '160px' }}
+        >
+          <option value="all">Todas as idades</option>
+          <option value="18+">18+ (Adultos)</option>
+          <option value="11+">11+ (Jovens e Adultos)</option>
+        </select>
+      </div>
+
 
       {/* Bulk Actions */}
       {dashboardTab !== 'upcoming' && paginatedData.length > 0 && (

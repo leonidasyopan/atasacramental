@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { isGenericTopic, getUsedTopicMap } from './speakerHelpers';
+import { isGenericTopic, getUsedTopicMap, filterMembersByAge, calculateMemberAttendance } from './speakerHelpers';
+
 
 describe('isGenericTopic', () => {
   it('returns true for null, undefined, or empty values', () => {
@@ -99,3 +100,45 @@ describe('getUsedTopicMap', () => {
     expect(map.get('fé').id).toBe('2');
   });
 });
+
+describe('filterMembersByAge', () => {
+  const members = [
+    { member: { id: '1', name: 'Adult 1', age: 30 } },
+    { member: { id: '2', name: 'Teen 1', age: 14 } },
+    { member: { id: '3', name: 'Child 1', age: 8 } },
+    { member: { id: '4', name: 'Unknown Age' } }, // no age field
+  ];
+
+  it('returns all members when ageGroup is "all" or nullish', () => {
+    expect(filterMembersByAge(members, 'all').length).toBe(4);
+    expect(filterMembersByAge(members, null).length).toBe(4);
+  });
+
+  it('filters 18+ correctly (includes 18+ and members with unknown age)', () => {
+    const res = filterMembersByAge(members, '18+');
+    const ids = res.map((item) => item.member.id);
+    expect(ids).toEqual(['1', '4']);
+  });
+
+  it('filters 11+ correctly (includes 11+ and members with unknown age)', () => {
+    const res = filterMembersByAge(members, '11+');
+    const ids = res.map((item) => item.member.id);
+    expect(ids).toEqual(['1', '2', '4']);
+  });
+});
+
+describe('calculateMemberAttendance', () => {
+  it('counts occurrences of presentMemberIds across recent attendances', () => {
+    const attendances = [
+      { date: '2026-07-26', presentMemberIds: ['m1', 'm2', 'm3'] },
+      { date: '2026-07-19', presentMemberIds: ['m1', 'm3'] },
+      { date: '2026-07-12', presentMemberIds: ['m1'] },
+    ];
+    const map = calculateMemberAttendance(attendances);
+    expect(map.get('m1')).toBe(3);
+    expect(map.get('m2')).toBe(1);
+    expect(map.get('m3')).toBe(2);
+    expect(map.get('m4')).toBeUndefined();
+  });
+});
+
