@@ -212,6 +212,15 @@ export default function SpeakerDashboard({
     [alreadySpoke, ageFilter],
   );
 
+  // Memoised so the badge count in JSX doesn't recompute on every render.
+  const filteredUpcoming = useMemo(
+    () => filterMembersByAge(
+      upcoming.map((inv) => ({ member: { name: inv.memberName, id: inv.memberId || inv.id } })),
+      ageFilter,
+    ),
+    [upcoming, ageFilter],
+  );
+
   // Build a map of active invites by memberId/memberName to prevent duplicates
   const activeInviteMap = useMemo(() => {
     const map = new Map();
@@ -269,19 +278,22 @@ export default function SpeakerDashboard({
         attendanceCount: item.member?.id ? (memberAttendanceMap.get(item.member.id) || 0) : 0,
       }));
     } else if (dashboardTab === 'all') {
-      const combined = filterMembersByAge([...neverSpoke, ...alreadySpoke], ageFilter);
-      data = combined.map((item) => ({
+      // Reuse already-filtered memos — avoids re-running filterMembersByAge
+      data = [...filteredNever, ...filteredAlready].map((item) => ({
         ...item,
         activeInvite: getActiveInvite(item.member),
         attendanceCount: item.member?.id ? (memberAttendanceMap.get(item.member.id) || 0) : 0,
       }));
     } else if (dashboardTab === 'upcoming') {
-      const wrapped = upcoming.map((inv) => ({
-        member: { name: inv.memberName, id: inv.memberId || inv.id },
-        lastSpeech: null,
-        invite: inv,
-      }));
-      data = filterMembersByAge(wrapped, ageFilter);
+      // Use the memoised filteredUpcoming; attach the invite reference back
+      const filteredIds = new Set(filteredUpcoming.map((w) => w.member.id));
+      data = upcoming
+        .filter((inv) => filteredIds.has(inv.memberId || inv.id))
+        .map((inv) => ({
+          member: { name: inv.memberName, id: inv.memberId || inv.id },
+          lastSpeech: null,
+          invite: inv,
+        }));
     }
 
     // Apply search filter
@@ -335,10 +347,8 @@ export default function SpeakerDashboard({
     dashboardTab,
     filteredNever,
     filteredAlready,
-    neverSpoke,
-    alreadySpoke,
+    filteredUpcoming,
     upcoming,
-    ageFilter,
     searchTerm,
     themeFilter,
     sortConfig,
@@ -541,7 +551,7 @@ export default function SpeakerDashboard({
             <span className="speakers-badge" style={{ marginLeft: '8px' }}>
               {tab.key === 'never' && filteredNever.length}
               {tab.key === 'already' && filteredAlready.length}
-              {tab.key === 'upcoming' && filterMembersByAge(upcoming.map(u => ({ member: { name: u.memberName, id: u.memberId } })), ageFilter).length}
+              {tab.key === 'upcoming' && filteredUpcoming.length}
               {tab.key === 'all' && (filteredNever.length + filteredAlready.length)}
             </span>
           </button>
@@ -614,17 +624,21 @@ export default function SpeakerDashboard({
       {paginatedData.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-            {searchTerm || themeFilter ? 'Nenhum resultado encontrado para os filtros atuais.' : 
-             dashboardTab === 'never' ? 'Todos os membros já discursaram neste período.' :
-             dashboardTab === 'already' ? 'Nenhum membro discursou neste período.' :
-             dashboardTab === 'all' ? 'Nenhum membro cadastrado.' :
-             'Nenhum convite escalado.'}
+            {searchTerm || themeFilter || ageFilter !== 'all'
+              ? 'Nenhum resultado encontrado para os filtros atuais.'
+              : dashboardTab === 'never'
+                ? 'Todos os membros já discursaram neste período.'
+                : dashboardTab === 'already'
+                  ? 'Nenhum membro discursou neste período.'
+                  : dashboardTab === 'all'
+                    ? 'Nenhum membro cadastrado.'
+                    : 'Nenhum convite escalado.'}
           </p>
-          {(searchTerm || themeFilter) && (
+          {(searchTerm || themeFilter || ageFilter !== 'all') && (
             <button
               type="button"
               className="btn btn-ghost-dark btn-sm"
-              onClick={() => { setSearchTerm(''); setThemeFilter(''); }}
+              onClick={() => { setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); }}
               style={{ marginTop: '8px' }}
             >
               Limpar filtros

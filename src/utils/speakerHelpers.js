@@ -177,7 +177,6 @@ export function calculateMemberAttendance(recentAttendances) {
   return attendanceMap;
 }
 
-
 /**
  * Filter invites that are upcoming (dataAlvo >= today) and
  * have status 'pendente' or 'aceito'.
