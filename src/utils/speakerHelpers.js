@@ -111,6 +111,73 @@ export function classifyMembers(members, speakerLog, periodMonths) {
 }
 
 /**
+ * Filter members based on age group ('all', '18+', '11+').
+ * If member.age is undefined or null, by default they are included (assuming adult).
+ * Handles both raw member objects and wrapped objects containing { member }.
+ *
+ * @param {Array} items - Array of { member, ... } or raw member objects
+ * @param {string} ageGroup - 'all' | '18+' | '11+'
+ * @returns {Array}
+ */
+export function filterMembersByAge(items, ageGroup) {
+  if (!Array.isArray(items) || !ageGroup || ageGroup === 'all') {
+    return items || [];
+  }
+
+  return items.filter((item) => {
+    const member = item?.member || item;
+    if (!member) return false;
+
+    let age = member.age;
+    if (age == null && member.birthDate) {
+      const birth = new Date(member.birthDate);
+      if (!isNaN(birth.getTime())) {
+        const today = new Date();
+        age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+          age--;
+        }
+      }
+    }
+
+    // If age is still unknown (undefined/null), treat as included by default
+    if (age == null) return true;
+
+    if (ageGroup === '18+') {
+      return age >= 18;
+    }
+    if (ageGroup === '11+') {
+      return age >= 11;
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Calculate member attendance counts based on recent attendance records.
+ *
+ * @param {Array} recentAttendances - Array of attendance docs with `presentMemberIds`
+ * @returns {Map<string, number>} memberId -> attendanceCount
+ */
+export function calculateMemberAttendance(recentAttendances) {
+  const attendanceMap = new Map();
+  if (!Array.isArray(recentAttendances)) return attendanceMap;
+
+  for (const record of recentAttendances) {
+    const presentIds = Array.isArray(record?.presentMemberIds) ? record.presentMemberIds : [];
+    for (const id of presentIds) {
+      if (id) {
+        attendanceMap.set(id, (attendanceMap.get(id) || 0) + 1);
+      }
+    }
+  }
+
+  return attendanceMap;
+}
+
+/**
  * Filter invites that are upcoming (dataAlvo >= today) and
  * have status 'pendente' or 'aceito'.
  */
