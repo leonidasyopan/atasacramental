@@ -507,6 +507,8 @@ body {
   font-size: 7.5pt;
   padding-bottom: 1pt;
   color: #111;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .print-doc table {
@@ -530,6 +532,8 @@ body {
   border-bottom: .5pt solid #ddd;
   border-left: .5pt solid #ddd;
   border-right: .5pt solid #ddd;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .print-doc table tr:nth-child(even) td { background: #f5f8ff; }
 .print-doc .obs-line {
