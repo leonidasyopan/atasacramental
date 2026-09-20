@@ -13,6 +13,7 @@ import {
   serializeAtaForFirestore,
   deserializeAtaFromFirestore,
 } from './atas';
+import { getLastUsedMusicLeaders } from './units';
 
 /**
  * Glue between Talk Invites and Ata drafts.
@@ -54,16 +55,33 @@ export async function ensureDraftForDate(unitId, dateISO) {
     if (existing.status === 'draft') return existing;
     return null; // Do not create a new draft if the Ata is already finalized
   }
+  let lastMusic = { regente: '', pianista: '' };
+  try {
+    lastMusic = await getLastUsedMusicLeaders(unitId);
+  } catch (err) {
+    console.warn('Could not fetch last music leaders for draft:', err);
+  }
+
   const payload = {
     ...serializeAtaForFirestore(DEFAULT_ATA),
     data: dateISO,
     mode: 'disc',
+    regente: lastMusic.regente || '',
+    pianista: lastMusic.pianista || '',
     status: 'draft',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
   const ref = await addDoc(atasRef(unitId), payload);
-  return { id: ref.id, ...DEFAULT_ATA, data: dateISO, mode: 'disc', status: 'draft' };
+  return {
+    id: ref.id,
+    ...DEFAULT_ATA,
+    data: dateISO,
+    mode: 'disc',
+    regente: lastMusic.regente || '',
+    pianista: lastMusic.pianista || '',
+    status: 'draft',
+  };
 }
 
 /**
