@@ -314,8 +314,8 @@ export function isFirstSundayOfMonth(isoString) {
   const [y, m, d] = isoString.split('-').map(Number);
   if (!y || !m || !d) return false;
   if (d < 1 || d > 7) return false;
-  const date = new Date(y, m - 1, d);
-  return date.getDay() === 0;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCDay() === 0;
 }
 
 /**

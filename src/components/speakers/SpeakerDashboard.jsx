@@ -624,7 +624,7 @@ export default function SpeakerDashboard({
       {paginatedData.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-            {searchTerm || themeFilter || ageFilter !== 'all'
+            {searchTerm || themeFilter || ageFilter !== '11+'
               ? 'Nenhum resultado encontrado para os filtros atuais.'
               : dashboardTab === 'never'
                 ? 'Todos os membros já discursaram neste período.'

@@ -33,7 +33,7 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
     }
     const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
     return eligible
-      .filter((m) => m.active !== false)
+      .filter((m) => m.active !== false || (initial.memberName && m.name === initial.memberName))
       .sort((a, b) => collator.compare(a.name || '', b.name || ''));
   }, [members, initial.memberName]);
 

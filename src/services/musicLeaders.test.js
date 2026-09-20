@@ -83,24 +83,21 @@ describe('Music Leaders Memory & Pre-fill', () => {
       expect(mockGetRecentFinalized).not.toHaveBeenCalled();
     });
 
-    it('falls back to recent finalized atas if memory has only regente', async () => {
+    it('respects memory settings without querying recent atas when memory exists even if only one leader is set', async () => {
       mockGetDoc.mockResolvedValueOnce({
         exists: () => true,
         data: () => ({ regente: 'Maria Pereira' }),
       });
-      mockGetRecentFinalized.mockResolvedValueOnce([
-        { id: 'ata-1', regente: 'Outra', pianista: 'Carlos Oliveira' },
-      ]);
 
       const result = await getLastUsedMusicLeaders('unit-1');
       expect(result).toEqual({
         regente: 'Maria Pereira',
-        pianista: 'Carlos Oliveira',
+        pianista: '',
       });
-      expect(mockGetRecentFinalized).toHaveBeenCalledWith('unit-1', 5);
+      expect(mockGetRecentFinalized).not.toHaveBeenCalled();
     });
 
-    it('falls back to recent finalized atas when memory document does not exist', async () => {
+    it('falls back to recent finalized atas and primes memory when memory document does not exist', async () => {
       mockGetDoc.mockResolvedValueOnce({
         exists: () => false,
       });
@@ -114,6 +111,14 @@ describe('Music Leaders Memory & Pre-fill', () => {
         pianista: 'Pianista Antigo',
       });
       expect(mockGetRecentFinalized).toHaveBeenCalledWith('unit-1', 5);
+      expect(mockSetDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          regente: 'Regente Antigo',
+          pianista: 'Pianista Antigo',
+        }),
+        { merge: true },
+      );
     });
 
     it('returns empty strings when neither memory nor recent atas have leaders', async () => {
@@ -182,9 +187,37 @@ describe('Music Leaders Memory & Pre-fill', () => {
         'units/unit-1/atas',
         expect.objectContaining({
           data: '2026-10-18',
+          mode: 'disc',
           regente: 'Regente Salva',
           pianista: 'Pianista Salvo',
           status: 'draft',
+        }),
+      );
+    });
+
+    it('creates draft with mode="test" on 1st Sunday of the month', async () => {
+      mockGetAtaByDate.mockResolvedValueOnce(null);
+      mockGetDoc.mockResolvedValueOnce({
+        exists: () => true,
+        data: () => ({ regente: 'Regente Salva', pianista: 'Pianista Salvo' }),
+      });
+      mockAddDoc.mockResolvedValueOnce({ id: 'new-test-draft' });
+
+      // 2026-10-04 is the 1st Sunday of October
+      const draft = await ensureDraftForDate('unit-1', '2026-10-04');
+
+      expect(draft).toMatchObject({
+        id: 'new-test-draft',
+        data: '2026-10-04',
+        mode: 'test',
+        status: 'draft',
+      });
+
+      expect(mockAddDoc).toHaveBeenCalledWith(
+        'units/unit-1/atas',
+        expect.objectContaining({
+          data: '2026-10-04',
+          mode: 'test',
         }),
       );
     });

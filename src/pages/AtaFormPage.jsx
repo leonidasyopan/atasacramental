@@ -235,7 +235,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
       }
     },
     delay: 1500,
-    enabled: !!unitId && !loading && !isEditing,
+    enabled: !!unitId && !loading && !isEditing && dirty,
   });
 
   // Auto-save draft to Firestore (debounced) + localStorage cache instant.

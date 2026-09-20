@@ -14,6 +14,7 @@ import {
   deserializeAtaFromFirestore,
 } from './atas';
 import { getLastUsedMusicLeaders } from './units';
+import { getDefaultMeetingMode } from '../utils/speakerHelpers';
 
 /**
  * Glue between Talk Invites and Ata drafts.
@@ -62,10 +63,11 @@ export async function ensureDraftForDate(unitId, dateISO) {
     console.warn('Could not fetch last music leaders for draft:', err);
   }
 
+  const defaultMode = getDefaultMeetingMode(dateISO);
   const payload = {
     ...serializeAtaForFirestore(DEFAULT_ATA),
     data: dateISO,
-    mode: 'disc',
+    mode: defaultMode,
     regente: lastMusic.regente || '',
     pianista: lastMusic.pianista || '',
     status: 'draft',
@@ -77,7 +79,7 @@ export async function ensureDraftForDate(unitId, dateISO) {
     id: ref.id,
     ...DEFAULT_ATA,
     data: dateISO,
-    mode: 'disc',
+    mode: defaultMode,
     regente: lastMusic.regente || '',
     pianista: lastMusic.pianista || '',
     status: 'draft',
