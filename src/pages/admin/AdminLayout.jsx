@@ -12,18 +12,30 @@ export default function AdminLayout({ children }) {
         <div className="form-wrap">
           <nav style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
             {isSuperAdmin && (
-              <NavLink to="/admin/allowed-users" className="btn btn-ghost btn-sm">
+              <NavLink
+                to="/admin/allowed-users"
+                className={({ isActive }) => `btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+              >
                 Acessos (allowedUsers)
               </NavLink>
             )}
-            <NavLink to="/admin/unit" className="btn btn-ghost btn-sm">
+            <NavLink
+              to="/admin/unit"
+              className={({ isActive }) => `btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+            >
               Unidade & Líderes
             </NavLink>
-            <NavLink to="/admin/members" className="btn btn-ghost btn-sm">
-              Membros
+            <NavLink
+              to="/admin/members"
+              className={({ isActive }) => `btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+            >
+              👥 Membros & Importação LCR
             </NavLink>
             {isSuperAdmin && (
-              <NavLink to="/admin/users" className="btn btn-ghost btn-sm">
+              <NavLink
+                to="/admin/users"
+                className={({ isActive }) => `btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+              >
                 Usuários logados
               </NavLink>
             )}

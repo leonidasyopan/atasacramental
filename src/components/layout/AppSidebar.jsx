@@ -111,9 +111,14 @@ export default function AppSidebar() {
                 </NavLink>
               )}
               {(userRole === 'admin' || isSuperAdmin) && (
-                <NavLink to="/admin/unit" onClick={close}>
-                  Config. Unidade
-                </NavLink>
+                <>
+                  <NavLink to="/admin/members" onClick={close}>
+                    Membros da Unidade
+                  </NavLink>
+                  <NavLink to="/admin/unit" onClick={close}>
+                    Config. Unidade
+                  </NavLink>
+                </>
               )}
               {isSuperAdmin && (
                 <NavLink to="/admin/allowed-users" onClick={close}>
