@@ -11,18 +11,26 @@ export function cleanPhone(val) {
   let str = String(val).trim();
   if (!str) return '';
 
-  // Handle scientific notation e.g. 4.891064478E9
-  if (/e/i.test(str)) {
+  // Handle scientific notation strictly on numeric scientific patterns (e.g. 4.891064478E9)
+  if (/^\s*[-+]?\d+(?:\.\d+)?e[+-]?\d+\s*$/i.test(str)) {
     try {
-      str = String(Math.round(Number(str)));
+      const num = Number(str);
+      if (!isNaN(num)) {
+        str = String(Math.round(num));
+      }
     } catch {
       // fallback to original
     }
   }
 
   // Remove non-digit characters
-  const digits = str.replace(/\D/g, '');
+  let digits = str.replace(/\D/g, '');
   if (!digits) return '';
+
+  // Strip Brazilian country code (+55) if 12 or 13 digits
+  if ((digits.length === 12 || digits.length === 13) && digits.startsWith('55')) {
+    digits = digits.slice(2);
+  }
 
   if (digits.length === 11) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
@@ -122,11 +130,11 @@ export function cleanMemberName(raw) {
  */
 export function naturalOrderName(cleanedLcrName) {
   if (!cleanedLcrName) return '';
-  if (!cleanedLcrName.includes(',')) return cleanedLcrName;
+  const commaIdx = cleanedLcrName.indexOf(',');
+  if (commaIdx === -1) return cleanedLcrName;
 
-  const parts = cleanedLcrName.split(',').map((p) => p.trim());
-  const surname = parts[0] || '';
-  const given = parts[1] || '';
+  const surname = cleanedLcrName.slice(0, commaIdx).trim();
+  const given = cleanedLcrName.slice(commaIdx + 1).trim();
 
   if (!given) return surname;
   if (!surname) return given;
@@ -310,6 +318,61 @@ export function parseFamiliesSheet(rows) {
  */
 export function correlateDirectory(members, families, options = {}) {
   const { nameOrder = 'natural' } = options;
+
+  // Fallback: If only the Families sheet was uploaded without an individual members sheet,
+  // synthesize member records directly from family member lines so data is not lost.
+  if (members.length === 0 && families.length > 0) {
+    const synthesizedMembers = [];
+    for (const f of families) {
+      f.memberLines.forEach((line, lineIdx) => {
+        const lineCleaned = cleanMemberName(line);
+        const ageMatch = String(line).match(/\((\d+)\)$/);
+        const lineAge = ageMatch ? parseInt(ageMatch[1], 10) : null;
+
+        let role = 'head';
+        if (f.memberLines.length > 1) {
+          if (lineIdx === 0) role = 'head';
+          else if (lineIdx === 1 && f.name.includes('&')) role = 'spouse';
+          else role = lineAge != null && lineAge < 18 ? 'child' : 'other';
+        }
+
+        let fullName = lineCleaned;
+        if (f.surname && !normalizeKey(fullName).includes(normalizeKey(f.surname))) {
+          fullName = `${lineCleaned} ${f.surname}`;
+        }
+
+        const newMem = {
+          tempId: `mem_${synthesizedMembers.length + 1}`,
+          name: fullName,
+          originalLcrName: f.surname ? `${f.surname}, ${lineCleaned}` : lineCleaned,
+          gender: null,
+          age: lineAge,
+          birthDate: null,
+          phone: lineIdx === 0 ? f.phone : '',
+          email: lineIdx === 0 ? f.email : '',
+          active: true,
+          tempHouseholdId: f.tempId,
+          householdRole: role,
+        };
+        synthesizedMembers.push(newMem);
+        f.memberTempIds.push(newMem.tempId);
+      });
+    }
+
+    return {
+      members: synthesizedMembers,
+      households: families,
+      stats: {
+        totalMembers: synthesizedMembers.length,
+        totalHouseholds: families.length,
+        totalFamilyLines: synthesizedMembers.length,
+        matchedLines: synthesizedMembers.length,
+        unmatchedLinesCount: 0,
+        unmatchedLines: [],
+        correlationRate: 100,
+      },
+    };
+  }
 
   // Build index for members
   const memberByNormName = new Map();

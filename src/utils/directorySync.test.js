@@ -101,4 +101,49 @@ describe('directorySync utility', () => {
     expect(diff.members.missing).toHaveLength(1);
     expect(diff.members.missing[0].id).toBe('m_left');
   });
+
+  it('matches existing members regardless of name order (natural vs LCR)', () => {
+    const existingMembers = [
+      { id: 'm1', name: 'Alves, Danilo Simões', active: true },
+      { id: 'm2', name: 'Mariele Silva Alcântara', active: true },
+    ];
+
+    const parsedMembers = [
+      { tempId: 'p1', name: 'Danilo Simões Alves', originalLcrName: 'Alves, Danilo Simões', age: 33 },
+      { tempId: 'p2', name: 'Alcântara, Mariele Silva', originalLcrName: 'Alcântara, Mariele Silva', age: 25 },
+    ];
+
+    const diff = computeDirectoryDiff({
+      parsedMembers,
+      parsedHouseholds: [],
+      existingMembers,
+      existingHouseholds: [],
+    });
+
+    expect(diff.members.toAdd).toHaveLength(0);
+    expect(diff.members.toUpdate).toHaveLength(2);
+    expect(diff.members.toUpdate.find((u) => u.id === 'm1')).toBeDefined();
+    expect(diff.members.toUpdate.find((u) => u.id === 'm2')).toBeDefined();
+  });
+
+  it('prevents duplicate assignment of the same existing member', () => {
+    const existingMembers = [
+      { id: 'm1', name: 'João Silva', active: true },
+    ];
+
+    const parsedMembers = [
+      { tempId: 'p1', name: 'João Silva', age: 30 },
+      { tempId: 'p2', name: 'João Silva', age: 40 },
+    ];
+
+    const diff = computeDirectoryDiff({
+      parsedMembers,
+      parsedHouseholds: [],
+      existingMembers,
+      existingHouseholds: [],
+    });
+
+    expect(diff.members.toUpdate).toHaveLength(1);
+    expect(diff.members.toAdd).toHaveLength(1);
+  });
 });

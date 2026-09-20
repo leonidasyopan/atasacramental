@@ -77,6 +77,17 @@ export async function activateMember(unitId, memberId) {
   await updateMember(unitId, memberId, { active: true });
 }
 
+function sanitizeData(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 /**
  * Batch-runner utility to safely commit Firestore writes in chunks below the 500 limit.
  */
@@ -89,13 +100,13 @@ class BatchRunner {
   }
 
   async set(ref, data) {
-    this.currentBatch.set(ref, data);
+    this.currentBatch.set(ref, sanitizeData(data));
     this.count++;
     await this.checkCommit();
   }
 
   async update(ref, data) {
-    this.currentBatch.update(ref, data);
+    this.currentBatch.update(ref, sanitizeData(data));
     this.count++;
     await this.checkCommit();
   }

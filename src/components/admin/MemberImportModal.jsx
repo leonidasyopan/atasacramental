@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { parseDirectoryFile } from '../../utils/directoryParser';
 import { computeDirectoryDiff } from '../../utils/directorySync';
 import { syncDirectoryData } from '../../services/members';
@@ -23,6 +23,18 @@ export default function MemberImportModal({
   const [syncing, setSyncing] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Close modal on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && !syncing) {
+        onClose();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, syncing, onClose]);
+
   // Compute diff dynamically when parsed data, nameOrder, or deactivateMissing changes
   const diff = useMemo(() => {
     if (!parsedData) return null;
@@ -42,8 +54,25 @@ export default function MemberImportModal({
     });
   }, [parsedData, nameOrder, deactivateMissing, existingMembers, existingHouseholds]);
 
+  // Total changes count across all operations
+  const totalChanges = useMemo(() => {
+    if (!diff) return 0;
+    const deactivatedCount = deactivateMissing ? diff.stats.membersMissingCount : 0;
+    return (
+      diff.stats.membersToAddCount +
+      diff.stats.membersToUpdateCount +
+      deactivatedCount +
+      diff.stats.householdsToAddCount +
+      diff.stats.householdsToUpdateCount
+    );
+  }, [diff, deactivateMissing]);
+
   async function handleFileSelected(selectedFile) {
     if (!selectedFile) return;
+    if (!selectedFile.name.toLowerCase().endsWith('.xlsx')) {
+      setError('Por favor, selecione um arquivo Excel válido no formato .xlsx (exportado pelo LCR).');
+      return;
+    }
     setError(null);
     setFile(selectedFile);
     setParsing(true);
@@ -144,9 +173,17 @@ export default function MemberImportModal({
   if (!isOpen) return null;
 
   return (
-    <div className="invite-form-overlay" role="dialog" aria-modal="true">
+    <div
+      className="invite-form-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (!syncing && e.target === e.currentTarget) onClose();
+      }}
+    >
       <div
         className="invite-form"
+        onClick={(e) => e.stopPropagation()}
         style={{
           maxWidth: 780,
           width: '95%',
@@ -638,11 +675,11 @@ export default function MemberImportModal({
               type="button"
               className="btn btn-primary"
               onClick={handleConfirmSync}
-              disabled={syncing || (diff.stats.membersToAddCount === 0 && diff.stats.membersToUpdateCount === 0 && (!deactivateMissing || diff.stats.membersMissingCount === 0))}
+              disabled={syncing || totalChanges === 0}
             >
               {syncing
                 ? 'Sincronizando...'
-                : `Confirmar e Sincronizar (${diff.stats.membersToAddCount + diff.stats.membersToUpdateCount} alterações)`}
+                : `Confirmar e Sincronizar (${totalChanges} alterações)`}
             </button>
           )}
         </div>

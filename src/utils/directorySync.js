@@ -1,4 +1,5 @@
 import { normalizeForSearch } from './textSearch';
+import { naturalOrderName } from './directoryParser';
 
 /**
  * Compare two values for equality in the context of member directory updates.
@@ -55,7 +56,8 @@ export function computeDirectoryDiff({
   for (const ph of parsedHouseholds) {
     const normName = normalizeForSearch(ph.name || '');
     const normDisplay = normalizeForSearch(ph.displayName || '');
-    const existing = existingHouseholdByName.get(normName) || existingHouseholdByName.get(normDisplay);
+    const candidateH = existingHouseholdByName.get(normName) || existingHouseholdByName.get(normDisplay);
+    const existing = candidateH && !matchedExistingHouseholdIds.has(candidateH.id) ? candidateH : null;
 
     if (existing) {
       householdMatches.set(ph.tempId, existing.id);
@@ -94,10 +96,14 @@ export function computeDirectoryDiff({
     }));
 
   // 3. Build lookup maps for existing members
-  // Match by id, exact name, or originalLcrName
+  // Match by id, exact name, natural order name, or originalLcrName
   const existingMemberByName = new Map();
   for (const m of existingMembers) {
-    if (m.name) existingMemberByName.set(normalizeForSearch(m.name), m);
+    if (m.name) {
+      existingMemberByName.set(normalizeForSearch(m.name), m);
+      const nat = naturalOrderName(m.name);
+      if (nat) existingMemberByName.set(normalizeForSearch(nat), m);
+    }
     if (m.fullName) existingMemberByName.set(normalizeForSearch(m.fullName), m);
     if (m.originalLcrName) existingMemberByName.set(normalizeForSearch(m.originalLcrName), m);
   }
@@ -111,7 +117,12 @@ export function computeDirectoryDiff({
   for (const pm of parsedMembers) {
     const normName = normalizeForSearch(pm.name || '');
     const normLcr = normalizeForSearch(pm.originalLcrName || '');
-    const existing = existingMemberByName.get(normName) || existingMemberByName.get(normLcr);
+    const normNat = normalizeForSearch(pm.naturalName || naturalOrderName(pm.originalLcrName || ''));
+    const candidateM =
+      existingMemberByName.get(normName) ||
+      existingMemberByName.get(normLcr) ||
+      (normNat ? existingMemberByName.get(normNat) : null);
+    const existing = candidateM && !matchedExistingMemberIds.has(candidateM.id) ? candidateM : null;
 
     if (existing) {
       matchedExistingMemberIds.add(existing.id);

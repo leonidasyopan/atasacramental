@@ -21,7 +21,7 @@ const ROLE_LABELS = {
 };
 
 export default function AdminMembersPage() {
-  const { unitId } = useUnit();
+  const { unitId, reload: reloadUnit } = useUnit();
   const { showToast } = useToast();
   const [list, setList] = useState([]);
   const [households, setHouseholds] = useState([]);
@@ -66,6 +66,7 @@ export default function AdminMembersPage() {
       await addMember(unitId, name.trim());
       setName('');
       await reload();
+      if (reloadUnit) reloadUnit();
       showToast('Membro adicionado.');
     } catch (err) {
       console.error(err);
@@ -78,6 +79,7 @@ export default function AdminMembersPage() {
     try {
       await updateMember(unitId, m.id, { name: newName });
       await reload();
+      if (reloadUnit) reloadUnit();
     } catch (err) {
       console.error(err);
       showToast('Erro ao atualizar.');
@@ -89,6 +91,7 @@ export default function AdminMembersPage() {
       if (m.active === false) await activateMember(unitId, m.id);
       else await deactivateMember(unitId, m.id);
       await reload();
+      if (reloadUnit) reloadUnit();
     } catch (err) {
       console.error(err);
       showToast('Erro ao atualizar.');
@@ -100,6 +103,7 @@ export default function AdminMembersPage() {
       `Sincronização concluída: ${stats.membersCreated} membros adicionados, ${stats.membersUpdated} atualizados.`,
     );
     reload();
+    if (reloadUnit) reloadUnit();
   }
 
   // Quick statistics

@@ -28,6 +28,15 @@ describe('directoryParser utility', () => {
       expect(cleanPhone(4884473098)).toBe('(48) 8447-3098');
     });
 
+    it('handles Brazilian country code (+55)', () => {
+      expect(cleanPhone('+5548999473969')).toBe('(48) 99947-3969');
+      expect(cleanPhone('+554832520038')).toBe('(48) 3252-0038');
+    });
+
+    it('handles notes and text containing the letter e without scientific corruption', () => {
+      expect(cleanPhone('Recado com Elaine: (48) 98888-7777')).toBe('(48) 98888-7777');
+    });
+
     it('returns empty string for null/undefined/empty', () => {
       expect(cleanPhone(null)).toBe('');
       expect(cleanPhone('')).toBe('');
@@ -73,6 +82,10 @@ describe('directoryParser utility', () => {
     it('converts "Sobrenome, Nome" to "Nome Sobrenome"', () => {
       expect(naturalOrderName('Alcântara, Mariele Silva')).toBe('Mariele Silva Alcântara');
       expect(naturalOrderName('Alves, Danilo Simões')).toBe('Danilo Simões Alves');
+    });
+
+    it('preserves suffixes and handles multiple commas', () => {
+      expect(naturalOrderName('Ribeiro, João Vilmar, Junior')).toBe('João Vilmar, Junior Ribeiro');
     });
 
     it('returns original if no comma present', () => {
@@ -203,6 +216,32 @@ describe('directoryParser utility', () => {
       const result = correlateDirectory(members, families);
       expect(result.stats.matchedLines).toBe(1);
       expect(result.members[0].householdRole).toBe('head');
+    });
+
+    it('synthesizes members from families sheet when members sheet is absent', () => {
+      const families = [
+        {
+          tempId: 'hh_1',
+          name: 'Amorim, José & Elisandra',
+          displayName: 'Amorim, José & Elisandra',
+          surname: 'Amorim',
+          phone: '(48) 93300-7316',
+          email: 'eduardo@example.com',
+          memberLines: ['José', 'Elisandra', 'Daniel (6)'],
+          memberTempIds: [],
+        },
+      ];
+
+      const result = correlateDirectory([], families);
+      expect(result.members).toHaveLength(3);
+      expect(result.households).toHaveLength(1);
+      expect(result.members[0].name).toBe('José Amorim');
+      expect(result.members[0].householdRole).toBe('head');
+      expect(result.members[1].householdRole).toBe('spouse');
+      expect(result.members[2].name).toBe('Daniel Amorim');
+      expect(result.members[2].age).toBe(6);
+      expect(result.members[2].householdRole).toBe('child');
+      expect(result.stats.correlationRate).toBe(100);
     });
   });
 
