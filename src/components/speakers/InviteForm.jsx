@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { findMemberId, getNextSunday, getUsedTopicMap } from '../../utils/speakerHelpers';
+import { findMemberId, getNextSunday, getUsedTopicMap, filterMembersByAge } from '../../utils/speakerHelpers';
 
 export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics, invites }) {
   const isEdit = !!invite?.id;
@@ -26,11 +26,16 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
 
   const sorted = useMemo(() => {
     if (!members) return [];
+    const eligible = filterMembersByAge(members, '11+');
+    if (initial.memberName && !eligible.some((m) => m.name === initial.memberName)) {
+      const existing = members.find((m) => m.name === initial.memberName);
+      if (existing) eligible.push(existing);
+    }
     const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
-    return [...members]
+    return eligible
       .filter((m) => m.active !== false)
       .sort((a, b) => collator.compare(a.name || '', b.name || ''));
-  }, [members]);
+  }, [members, initial.memberName]);
 
   function handleTopicChange(val) {
     setTopic(val);

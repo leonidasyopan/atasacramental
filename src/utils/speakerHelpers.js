@@ -141,14 +141,22 @@ export function filterMembersByAge(items, ageGroup) {
       }
     }
 
-    // If age is still unknown (undefined/null), treat as included by default
-    if (age == null) return true;
-
     if (ageGroup === '18+') {
+      // If age is unknown, keep (assume adult by default)
+      if (age == null) return true;
       return age >= 18;
     }
+
     if (ageGroup === '11+') {
+      // If age is unknown, keep (assume eligible by default)
+      if (age == null) return true;
       return age >= 11;
+    }
+
+    if (ageGroup === '11-17') {
+      // Youth filter: only members whose known age is between 11 and 17
+      if (age == null) return false;
+      return age >= 11 && age <= 17;
     }
 
     return true;

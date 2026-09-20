@@ -127,10 +127,17 @@ describe('filterMembersByAge', () => {
     expect(ids).toEqual(['1', '4']);
   });
 
-  it('filters 11+ correctly (includes 11+ and members with unknown age)', () => {
+  it('filters 11+ correctly (includes 11+ and members with unknown age, excludes children <= 10)', () => {
     const res = filterMembersByAge(members, '11+');
     const ids = res.map((item) => item.member.id);
     expect(ids).toEqual(['1', '2', '4']);
+    expect(ids).not.toContain('3');
+  });
+
+  it('filters 11-17 correctly (only includes members with known age between 11 and 17)', () => {
+    const res = filterMembersByAge(members, '11-17');
+    const ids = res.map((item) => item.member.id);
+    expect(ids).toEqual(['2']);
   });
 });
 
