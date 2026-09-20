@@ -25,22 +25,22 @@ import {
   DEFAULT_ATA,
   getAta,
   getCurrentDraft,
-  getDraftByDate,
   getAtaByDate,
   saveDraft,
   finalizarAta,
   updateAtaFields,
 } from '../services/atas';
 import {
-  getUnitSettings,
   saveUnitSettings,
+  getLastUsedMusicLeaders,
 } from '../services/units';
-import { formatDateBR } from '../utils/speakerHelpers';
+import { formatDateBR, getDefaultMeetingMode } from '../utils/speakerHelpers';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const LS_DRAFT_KEY = (unitId, date = null) =>
   date ? `ata:draft:${unitId || 'none'}:${date}` : `ata:draft:${unitId || 'none'}`;
+export const LS_MEMORY_KEY = (unitId) => `ata:memory:${unitId || 'none'}`;
 const LS_FONT_KEY = 'ata:fontSizePt';
 
 export default function AtaFormPage({ editMode = false, routeMode = null }) {
@@ -98,6 +98,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
       // Reset per-route ephemeral state
       setDirty(false);
       setAtaId(null);
+      setAta(DEFAULT_ATA);
       try {
         if (isEditing) {
           const doc = await getAta(unitId, routeAtaId);
@@ -113,21 +114,47 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
 
         // Try cached draft first for instant render (per-date key on programa route)
         const cached = lsKey ? localStorage.getItem(lsKey) : null;
+        let cachedDraft = null;
         if (cached) {
           try {
-            const parsed = JSON.parse(cached);
-            setAta({ ...DEFAULT_ATA, ...parsed });
+            cachedDraft = JSON.parse(cached);
+            setAta({ ...DEFAULT_ATA, ...cachedDraft });
           } catch {
             /* ignore */
           }
+        }
+
+        // Try local memory cache for instant prefill
+        let localMemory = null;
+        try {
+          localMemory = JSON.parse(localStorage.getItem(LS_MEMORY_KEY(unitId)) || 'null');
+        } catch {
+          /* ignore */
+        }
+
+        if (!cachedDraft && localMemory) {
+          setAta((prev) => ({
+            ...prev,
+            regente: localMemory.regente || '',
+            pianista: localMemory.pianista || '',
+          }));
         }
 
         const [existingAta, memory] = await Promise.all([
           isProgramaRoute
             ? getAtaByDate(unitId, routeDate)
             : getCurrentDraft(unitId),
-          getUnitSettings(unitId),
+          getLastUsedMusicLeaders(unitId),
         ]);
+
+        if (memory?.regente || memory?.pianista) {
+          try {
+            const cur = JSON.parse(localStorage.getItem(LS_MEMORY_KEY(unitId)) || '{}');
+            localStorage.setItem(LS_MEMORY_KEY(unitId), JSON.stringify({ ...cur, ...memory }));
+          } catch {
+            /* ignore */
+          }
+        }
 
         if (existingAta) {
           if (isProgramaRoute && existingAta.status === 'finalized') {
@@ -135,25 +162,46 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             navigate(`/historico/${existingAta.id}/editar`, { replace: true });
             return;
           }
-          setAta((prev) => ({ ...DEFAULT_ATA, ...prev, ...existingAta }));
+          // If draft has empty regente or pianista, start using the last used ones
+          const regenteVal = existingAta.status === 'draft'
+            ? (existingAta.regente || memory?.regente || localMemory?.regente || '')
+            : (existingAta.regente || '');
+          const pianistaVal = existingAta.status === 'draft'
+            ? (existingAta.pianista || memory?.pianista || localMemory?.pianista || '')
+            : (existingAta.pianista || '');
+
+          setAta({
+            ...DEFAULT_ATA,
+            ...existingAta,
+            sectionEnabled: {
+              ...DEFAULT_ATA.sectionEnabled,
+              ...(existingAta.sectionEnabled || {}),
+            },
+            regente: regenteVal,
+            pianista: pianistaVal,
+          });
           setAtaId(existingAta.id);
         } else if (isProgramaRoute) {
           // Fresh draft for this Sunday — pre-fill date + sensible defaults.
           // No Firestore write yet (lazy persistence): user must edit first.
-          setAta((prev) => ({
+          const defaultMode = (cachedDraft && cachedDraft.mode) || getDefaultMeetingMode(routeDate);
+          setAta({
             ...DEFAULT_ATA,
-            ...prev,
+            ...(cachedDraft || {}),
             data: routeDate,
-            mode: 'disc',
-            regente: prev.regente || memory?.regente || '',
-            pianista: prev.pianista || memory?.pianista || '',
-          }));
+            mode: defaultMode,
+            regente: (cachedDraft && cachedDraft.regente) || memory?.regente || localMemory?.regente || '',
+            pianista: (cachedDraft && cachedDraft.pianista) || memory?.pianista || localMemory?.pianista || '',
+          });
         } else {
-          setAta((prev) => ({
-            ...prev,
-            regente: prev.regente || memory?.regente || '',
-            pianista: prev.pianista || memory?.pianista || '',
-          }));
+          const defaultMode = (cachedDraft && cachedDraft.mode) || (cachedDraft?.data ? getDefaultMeetingMode(cachedDraft.data) : 'disc');
+          setAta({
+            ...DEFAULT_ATA,
+            ...(cachedDraft || {}),
+            mode: defaultMode,
+            regente: (cachedDraft && cachedDraft.regente) || memory?.regente || localMemory?.regente || '',
+            pianista: (cachedDraft && cachedDraft.pianista) || memory?.pianista || localMemory?.pianista || '',
+          });
         }
       } catch (e) {
         console.error('Failed to load ata:', e);
@@ -174,11 +222,20 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     value: memoryValue,
     onSave: async (val) => {
       if (!unitId) return;
-      if (!val.regente && !val.pianista) return;
-      await saveUnitSettings(unitId, val);
+      const patch = {};
+      if (val.regente?.trim()) patch.regente = val.regente.trim();
+      if (val.pianista?.trim()) patch.pianista = val.pianista.trim();
+      if (Object.keys(patch).length === 0) return;
+      await saveUnitSettings(unitId, patch);
+      try {
+        const cur = JSON.parse(localStorage.getItem(LS_MEMORY_KEY(unitId)) || '{}');
+        localStorage.setItem(LS_MEMORY_KEY(unitId), JSON.stringify({ ...cur, ...patch }));
+      } catch {
+        /* ignore */
+      }
     },
     delay: 1500,
-    enabled: !!unitId && !loading && !isEditing,
+    enabled: !!unitId && !loading && !isEditing && dirty,
   });
 
   // Auto-save draft to Firestore (debounced) + localStorage cache instant.
@@ -240,6 +297,8 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
         presididaOutro: '',
         dirigida: '',
         dirigidaOutro: '',
+        regente: '',
+        pianista: '',
       },
     };
     if (!patches[key]) return;
@@ -264,9 +323,10 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
 
   function executeReset() {
     setDirty(true);
+    const defaultMode = isProgramaRoute && routeDate ? getDefaultMeetingMode(routeDate) : 'disc';
     setAta(isProgramaRoute
-      ? { ...DEFAULT_ATA, data: routeDate, mode: 'disc' }
-      : DEFAULT_ATA);
+      ? { ...DEFAULT_ATA, data: routeDate, mode: defaultMode }
+      : { ...DEFAULT_ATA, mode: defaultMode });
     setAtaId(null);
     if (lsKey) localStorage.removeItem(lsKey);
   }
@@ -292,6 +352,18 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     setFinalizing(true);
     try {
       await finalizarAta(unitId, ataId, firebaseUser?.uid, { members });
+      const patch = {};
+      if (ata.regente?.trim()) patch.regente = ata.regente.trim();
+      if (ata.pianista?.trim()) patch.pianista = ata.pianista.trim();
+      if (Object.keys(patch).length > 0) {
+        saveUnitSettings(unitId, patch).catch(console.error);
+        try {
+          const cur = JSON.parse(localStorage.getItem(LS_MEMORY_KEY(unitId)) || '{}');
+          localStorage.setItem(LS_MEMORY_KEY(unitId), JSON.stringify({ ...cur, ...patch }));
+        } catch {
+          /* ignore */
+        }
+      }
       showToast('Ata finalizada com sucesso.');
       if (lsKey) localStorage.removeItem(lsKey);
       // After finalization on a date-keyed route, navigate back to dashboard
@@ -329,6 +401,18 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
         editedAt: new Date().toISOString(),
         editedBy: firebaseUser?.uid || null,
       });
+      const patch = {};
+      if (ata.regente?.trim()) patch.regente = ata.regente.trim();
+      if (ata.pianista?.trim()) patch.pianista = ata.pianista.trim();
+      if (Object.keys(patch).length > 0) {
+        await saveUnitSettings(unitId, patch).catch(console.error);
+        try {
+          const cur = JSON.parse(localStorage.getItem(LS_MEMORY_KEY(unitId)) || '{}');
+          localStorage.setItem(LS_MEMORY_KEY(unitId), JSON.stringify({ ...cur, ...patch }));
+        } catch {
+          /* ignore */
+        }
+      }
       showToast('Alterações salvas.');
       navigate("/historico");
     } catch (e) {
@@ -557,20 +641,18 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             <div className="field-row">
               <div className="field">
                 <label>Regente de Música</label>
-                <input
-                  type="text"
-                  placeholder="Nome do regente"
+                <MemberAutocomplete
                   value={ata.regente}
-                  onChange={(e) => update({ regente: e.target.value })}
+                  onChange={(v) => update({ regente: v })}
+                  placeholder="Nome do regente"
                 />
               </div>
               <div className="field">
                 <label>Pianista / Organista</label>
-                <input
-                  type="text"
-                  placeholder="Nome do pianista"
+                <MemberAutocomplete
                   value={ata.pianista}
-                  onChange={(e) => update({ pianista: e.target.value })}
+                  onChange={(v) => update({ pianista: v })}
+                  placeholder="Nome do pianista"
                 />
               </div>
             </div>

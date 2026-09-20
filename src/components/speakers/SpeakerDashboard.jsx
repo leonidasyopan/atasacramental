@@ -9,7 +9,7 @@ import {
   filterMembersByAge,
   calculateMemberAttendance,
 } from '../../utils/speakerHelpers';
-import { createInvite, updateInviteStatus } from '../../services/invites';
+import { createInvite, updateInvite, updateInviteStatus } from '../../services/invites';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
 import { normalizeForSearch } from '../../utils/textSearch';
@@ -183,7 +183,7 @@ export default function SpeakerDashboard({
   // New state for UI improvements
   const [dashboardTab, setDashboardTab] = useState('never');
   const [searchTerm, setSearchTerm] = useState('');
-  const [ageFilter, setAgeFilter] = useState('all');
+  const [ageFilter, setAgeFilter] = useState('11+');
   const [sortConfig, setSortConfig] = useState({ key: 'attendance', direction: 'desc' });
   const [themeFilter, setThemeFilter] = useState('');
   const [selectedMembers, setSelectedMembers] = useState(new Set());
@@ -506,7 +506,6 @@ export default function SpeakerDashboard({
         const rest = Object.fromEntries(
           Object.entries(data).filter(([k]) => k !== 'id'),
         );
-        const { updateInvite } = await import('../../services/invites');
         await updateInvite(unitId, editingInvite.id, rest);
         showToast('Convite atualizado.');
       } else {
@@ -576,11 +575,12 @@ export default function SpeakerDashboard({
           onChange={(e) => setAgeFilter(e.target.value)}
           className="speakers-filter-select"
           aria-label="Filtrar por faixa etária"
-          style={{ minWidth: '160px' }}
+          style={{ minWidth: '180px' }}
         >
-          <option value="all">Todas as idades</option>
-          <option value="18+">18+ (Adultos)</option>
           <option value="11+">11+ (Jovens e Adultos)</option>
+          <option value="18+">18+ (Adultos)</option>
+          <option value="11-17">11 a 17 anos (Jovens)</option>
+          <option value="all">Todas as idades</option>
         </select>
       </div>
 
@@ -624,7 +624,7 @@ export default function SpeakerDashboard({
       {paginatedData.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-            {searchTerm || themeFilter || ageFilter !== 'all'
+            {searchTerm || themeFilter || ageFilter !== '11+'
               ? 'Nenhum resultado encontrado para os filtros atuais.'
               : dashboardTab === 'never'
                 ? 'Todos os membros já discursaram neste período.'
@@ -634,11 +634,11 @@ export default function SpeakerDashboard({
                     ? 'Nenhum membro cadastrado.'
                     : 'Nenhum convite escalado.'}
           </p>
-          {(searchTerm || themeFilter || ageFilter !== 'all') && (
+          {(searchTerm || themeFilter || ageFilter !== '11+') && (
             <button
               type="button"
               className="btn btn-ghost-dark btn-sm"
-              onClick={() => { setSearchTerm(''); setThemeFilter(''); setAgeFilter('all'); }}
+              onClick={() => { setSearchTerm(''); setThemeFilter(''); setAgeFilter('11+'); }}
               style={{ marginTop: '8px' }}
             >
               Limpar filtros

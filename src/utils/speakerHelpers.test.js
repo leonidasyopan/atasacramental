@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { isGenericTopic, getUsedTopicMap, filterMembersByAge, calculateMemberAttendance } from './speakerHelpers';
+import {
+  isGenericTopic,
+  getUsedTopicMap,
+  filterMembersByAge,
+  calculateMemberAttendance,
+  isFirstSundayOfMonth,
+  getDefaultMeetingMode,
+} from './speakerHelpers';
 
 
 describe('isGenericTopic', () => {
@@ -120,10 +127,17 @@ describe('filterMembersByAge', () => {
     expect(ids).toEqual(['1', '4']);
   });
 
-  it('filters 11+ correctly (includes 11+ and members with unknown age)', () => {
+  it('filters 11+ correctly (includes 11+ and members with unknown age, excludes children <= 10)', () => {
     const res = filterMembersByAge(members, '11+');
     const ids = res.map((item) => item.member.id);
     expect(ids).toEqual(['1', '2', '4']);
+    expect(ids).not.toContain('3');
+  });
+
+  it('filters 11-17 correctly (only includes members with known age between 11 and 17)', () => {
+    const res = filterMembersByAge(members, '11-17');
+    const ids = res.map((item) => item.member.id);
+    expect(ids).toEqual(['2']);
   });
 });
 
@@ -141,4 +155,45 @@ describe('calculateMemberAttendance', () => {
     expect(map.get('m4')).toBeUndefined();
   });
 });
+
+describe('isFirstSundayOfMonth and getDefaultMeetingMode', () => {
+  it('identifies 1st Sundays of months correctly and defaults to test (Jejum e Testemunhos)', () => {
+    // 2026-10-04 is a Sunday and day 4 (1st Sunday of Oct 2026)
+    expect(isFirstSundayOfMonth('2026-10-04')).toBe(true);
+    expect(getDefaultMeetingMode('2026-10-04')).toBe('test');
+
+    // 2026-11-01 is a Sunday and day 1 (1st Sunday of Nov 2026)
+    expect(isFirstSundayOfMonth('2026-11-01')).toBe(true);
+    expect(getDefaultMeetingMode('2026-11-01')).toBe('test');
+
+    // 2026-06-07 is a Sunday and day 7 (1st Sunday of June 2026)
+    expect(isFirstSundayOfMonth('2026-06-07')).toBe(true);
+    expect(getDefaultMeetingMode('2026-06-07')).toBe('test');
+  });
+
+  it('identifies 2nd, 3rd, 4th, 5th Sundays correctly and defaults to disc (Com Discursantes)', () => {
+    // 2026-10-11 is the 2nd Sunday of Oct 2026
+    expect(isFirstSundayOfMonth('2026-10-11')).toBe(false);
+    expect(getDefaultMeetingMode('2026-10-11')).toBe('disc');
+
+    // 2026-10-18 is the 3rd Sunday of Oct 2026
+    expect(isFirstSundayOfMonth('2026-10-18')).toBe(false);
+    expect(getDefaultMeetingMode('2026-10-18')).toBe('disc');
+
+    // 2026-05-31 is the 5th Sunday of May 2026
+    expect(isFirstSundayOfMonth('2026-05-31')).toBe(false);
+    expect(getDefaultMeetingMode('2026-05-31')).toBe('disc');
+  });
+
+  it('returns false for non-Sunday dates or invalid strings', () => {
+    // 2026-10-03 is Saturday
+    expect(isFirstSundayOfMonth('2026-10-03')).toBe(false);
+    expect(getDefaultMeetingMode('2026-10-03')).toBe('disc');
+
+    expect(isFirstSundayOfMonth(null)).toBe(false);
+    expect(isFirstSundayOfMonth('')).toBe(false);
+    expect(isFirstSundayOfMonth('invalid')).toBe(false);
+  });
+});
+
 

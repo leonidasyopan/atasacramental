@@ -141,14 +141,22 @@ export function filterMembersByAge(items, ageGroup) {
       }
     }
 
-    // If age is still unknown (undefined/null), treat as included by default
-    if (age == null) return true;
-
     if (ageGroup === '18+') {
+      // If age is unknown, keep (assume adult by default)
+      if (age == null) return true;
       return age >= 18;
     }
+
     if (ageGroup === '11+') {
+      // If age is unknown, keep (assume eligible by default)
+      if (age == null) return true;
       return age >= 11;
+    }
+
+    if (ageGroup === '11-17') {
+      // Youth filter: only members whose known age is between 11 and 17
+      if (age == null) return false;
+      return age >= 11 && age <= 17;
     }
 
     return true;
@@ -294,3 +302,31 @@ export function daysUntil(isoString) {
   const diffMs = target.getTime() - now.getTime();
   return Math.round(diffMs / (24 * 60 * 60 * 1000));
 }
+
+/**
+ * Checks if a given ISO date (YYYY-MM-DD) is the first Sunday of its month.
+ * In any month, the 1st Sunday always occurs between day 1 and day 7.
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @returns {boolean}
+ */
+export function isFirstSundayOfMonth(isoString) {
+  if (!isoString || typeof isoString !== 'string') return false;
+  const [y, m, d] = isoString.split('-').map(Number);
+  if (!y || !m || !d) return false;
+  if (d < 1 || d > 7) return false;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCDay() === 0;
+}
+
+/**
+ * Returns the default meeting mode ('test' | 'disc') for a given ISO date.
+ * By default in LDS units, the first Sunday of the month is Fast and Testimony
+ * ("Jejum e Testemunhos", mode='test'), and all other Sundays have speakers
+ * ("Com Discursantes", mode='disc').
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @returns {'test' | 'disc'}
+ */
+export function getDefaultMeetingMode(isoString) {
+  return isFirstSundayOfMonth(isoString) ? 'test' : 'disc';
+}
+
