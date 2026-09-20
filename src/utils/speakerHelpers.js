@@ -294,3 +294,31 @@ export function daysUntil(isoString) {
   const diffMs = target.getTime() - now.getTime();
   return Math.round(diffMs / (24 * 60 * 60 * 1000));
 }
+
+/**
+ * Checks if a given ISO date (YYYY-MM-DD) is the first Sunday of its month.
+ * In any month, the 1st Sunday always occurs between day 1 and day 7.
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @returns {boolean}
+ */
+export function isFirstSundayOfMonth(isoString) {
+  if (!isoString || typeof isoString !== 'string') return false;
+  const [y, m, d] = isoString.split('-').map(Number);
+  if (!y || !m || !d) return false;
+  if (d < 1 || d > 7) return false;
+  const date = new Date(y, m - 1, d);
+  return date.getDay() === 0;
+}
+
+/**
+ * Returns the default meeting mode ('test' | 'disc') for a given ISO date.
+ * By default in LDS units, the first Sunday of the month is Fast and Testimony
+ * ("Jejum e Testemunhos", mode='test'), and all other Sundays have speakers
+ * ("Com Discursantes", mode='disc').
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @returns {'test' | 'disc'}
+ */
+export function getDefaultMeetingMode(isoString) {
+  return isFirstSundayOfMonth(isoString) ? 'test' : 'disc';
+}
+

@@ -34,7 +34,7 @@ import {
   saveUnitSettings,
   getLastUsedMusicLeaders,
 } from '../services/units';
-import { formatDateBR } from '../utils/speakerHelpers';
+import { formatDateBR, getDefaultMeetingMode } from '../utils/speakerHelpers';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -173,6 +173,10 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
           setAta({
             ...DEFAULT_ATA,
             ...existingAta,
+            sectionEnabled: {
+              ...DEFAULT_ATA.sectionEnabled,
+              ...(existingAta.sectionEnabled || {}),
+            },
             regente: regenteVal,
             pianista: pianistaVal,
           });
@@ -180,18 +184,21 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
         } else if (isProgramaRoute) {
           // Fresh draft for this Sunday — pre-fill date + sensible defaults.
           // No Firestore write yet (lazy persistence): user must edit first.
+          const defaultMode = (cachedDraft && cachedDraft.mode) || getDefaultMeetingMode(routeDate);
           setAta({
             ...DEFAULT_ATA,
             ...(cachedDraft || {}),
             data: routeDate,
-            mode: 'disc',
+            mode: defaultMode,
             regente: (cachedDraft && cachedDraft.regente) || memory?.regente || localMemory?.regente || '',
             pianista: (cachedDraft && cachedDraft.pianista) || memory?.pianista || localMemory?.pianista || '',
           });
         } else {
+          const defaultMode = (cachedDraft && cachedDraft.mode) || (cachedDraft?.data ? getDefaultMeetingMode(cachedDraft.data) : 'disc');
           setAta({
             ...DEFAULT_ATA,
             ...(cachedDraft || {}),
+            mode: defaultMode,
             regente: (cachedDraft && cachedDraft.regente) || memory?.regente || localMemory?.regente || '',
             pianista: (cachedDraft && cachedDraft.pianista) || memory?.pianista || localMemory?.pianista || '',
           });
@@ -316,9 +323,10 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
 
   function executeReset() {
     setDirty(true);
+    const defaultMode = isProgramaRoute && routeDate ? getDefaultMeetingMode(routeDate) : 'disc';
     setAta(isProgramaRoute
-      ? { ...DEFAULT_ATA, data: routeDate, mode: 'disc' }
-      : DEFAULT_ATA);
+      ? { ...DEFAULT_ATA, data: routeDate, mode: defaultMode }
+      : { ...DEFAULT_ATA, mode: defaultMode });
     setAtaId(null);
     if (lsKey) localStorage.removeItem(lsKey);
   }

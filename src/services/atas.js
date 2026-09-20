@@ -51,11 +51,11 @@ export const DEFAULT_ATA = {
   oracaoEnc: '',
   sectionEnabled: {
     abertura: true,
-    apoios: true,
-    ordenacoes: true,
-    confirmacoes: true,
-    bencao: true,
-    assinaturas: true,
+    apoios: false,
+    ordenacoes: false,
+    confirmacoes: false,
+    bencao: false,
+    assinaturas: false,
   },
 };
 

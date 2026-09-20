@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { daysUntil } from '../../utils/speakerHelpers';
+import { daysUntil, getDefaultMeetingMode } from '../../utils/speakerHelpers';
 
 const MONTHS_PT = [
   'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -37,8 +37,8 @@ function formatRelative(days) {
  *  green  — draft exists
  *  gray   — no draft
  */
-function computeSundayStatus({ draft, invites, days }) {
-  const mode = draft?.mode || 'disc';
+function computeSundayStatus({ date, draft, invites, days }) {
+  const mode = draft?.mode || getDefaultMeetingMode(date);
   if (mode === 'test') {
     return draft ? 'green' : 'gray';
   }
@@ -52,10 +52,10 @@ function computeSundayStatus({ draft, invites, days }) {
 
 export default function UpcomingSundayCard({ date, draft, invites }) {
   const days = daysUntil(date);
-  const status = computeSundayStatus({ draft, invites, days });
+  const status = computeSundayStatus({ date, draft, invites, days });
   const total = invites.length;
   const accepted = invites.filter((i) => i.status === 'aceito').length;
-  const isTest = (draft?.mode || 'disc') === 'test';
+  const isTest = (draft?.mode || getDefaultMeetingMode(date)) === 'test';
 
   return (
     <Link to={`/programa/${date}`} className="sunday-card" aria-label={`Programa de ${formatLong(date)}`}>
