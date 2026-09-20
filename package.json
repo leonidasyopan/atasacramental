@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "guard": "node scripts/harness/arch-guard.mjs",
+    "verify": "node scripts/harness/verify.mjs"
   },
   "dependencies": {
     "firebase": "^10.14.1",
