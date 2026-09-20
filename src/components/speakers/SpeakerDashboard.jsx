@@ -9,7 +9,7 @@ import {
   filterMembersByAge,
   calculateMemberAttendance,
 } from '../../utils/speakerHelpers';
-import { createInvite, updateInviteStatus } from '../../services/invites';
+import { createInvite, updateInvite, updateInviteStatus } from '../../services/invites';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
 import { normalizeForSearch } from '../../utils/textSearch';
@@ -506,7 +506,6 @@ export default function SpeakerDashboard({
         const rest = Object.fromEntries(
           Object.entries(data).filter(([k]) => k !== 'id'),
         );
-        const { updateInvite } = await import('../../services/invites');
         await updateInvite(unitId, editingInvite.id, rest);
         showToast('Convite atualizado.');
       } else {
