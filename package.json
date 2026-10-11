@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "guard": "node scripts/harness/arch-guard.mjs",
-    "verify": "node scripts/harness/verify.mjs"
+    "verify": "node scripts/harness/verify.mjs",
+    "smoke": "node scripts/harness/smoke-test.mjs"
   },
   "dependencies": {
     "firebase": "^10.14.1",
