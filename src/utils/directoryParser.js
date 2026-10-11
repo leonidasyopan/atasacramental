@@ -124,9 +124,25 @@ export function cleanMemberName(raw) {
     .trim();
 }
 
+const AGNOMES = new Set([
+  'junior',
+  'júnior',
+  'jr',
+  'jr.',
+  'filho',
+  'filha',
+  'neto',
+  'neta',
+  'sobrinho',
+  'sobrinha',
+  'segundo',
+  'terceiro',
+]);
+
 /**
  * Converts LCR name format "Sobrenome, Nome" into natural order "Nome Sobrenome"
  * for natural reading on agendas, pulpits, and UI displays.
+ * Handles Brazilian agnomes (Junior, Filho, Neto, etc.) correctly placing them at the end.
  */
 export function naturalOrderName(cleanedLcrName) {
   if (!cleanedLcrName) return '';
@@ -134,10 +150,21 @@ export function naturalOrderName(cleanedLcrName) {
   if (commaIdx === -1) return cleanedLcrName;
 
   const surname = cleanedLcrName.slice(0, commaIdx).trim();
-  const given = cleanedLcrName.slice(commaIdx + 1).trim();
+  // Strip trailing or internal commas from given name portion
+  const given = cleanedLcrName.slice(commaIdx + 1).replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
 
   if (!given) return surname;
   if (!surname) return given;
+
+  // Check if given ends with an agnome (e.g. "Ronaldo Rocha Junior" or "João Vilmar Junior")
+  const givenParts = given.split(/\s+/);
+  const lastWordNorm = givenParts[givenParts.length - 1].toLowerCase();
+
+  if (givenParts.length > 1 && AGNOMES.has(lastWordNorm)) {
+    const agnome = givenParts[givenParts.length - 1];
+    const pureGiven = givenParts.slice(0, -1).join(' ');
+    return `${pureGiven} ${surname} ${agnome}`;
+  }
 
   return `${given} ${surname}`;
 }
@@ -435,6 +462,47 @@ export function correlateDirectory(members, families, options = {}) {
               matchedMember = m;
               break;
             }
+          }
+        }
+      }
+
+      // Match strategy 5: Token overlap & agnome matching (e.g. "Ronaldo Rocha Paz Junior" vs "Ronaldo Rocha" / "Ronaldo Rocha Junior")
+      if (!matchedMember) {
+        const lineTokens = lineNorm.split(/\s+/).filter(Boolean);
+        const lineTokenSet = new Set(lineTokens);
+
+        for (const m of members) {
+          if (m.tempHouseholdId) continue; // skip already assigned members
+
+          const mSurnameNorm = normalizeKey(m.surname);
+          const isFamSurnameMatch =
+            normFamSurname &&
+            (mSurnameNorm === normFamSurname ||
+              mSurnameNorm.includes(normFamSurname) ||
+              normFamSurname.includes(mSurnameNorm));
+
+          if (!isFamSurnameMatch) continue;
+
+          const mTokens = normalizeKey(m.name).split(/\s+/).filter(Boolean);
+          const mTokenSet = new Set(mTokens);
+
+          // Check token overlap
+          const lineInMember = lineTokens.filter((t) => mTokenSet.has(t)).length;
+          if (lineTokens.length >= 2 && lineInMember >= lineTokens.length - 1 && lineInMember >= 2) {
+            matchedMember = m;
+            break;
+          }
+
+          // Check if given tokens match line tokens (ignoring agnomes)
+          const mGivenTokens = normalizeKey(m.given)
+            .split(/\s+/)
+            .filter((t) => !AGNOMES.has(t));
+          if (
+            mGivenTokens.length > 0 &&
+            mGivenTokens.every((t) => lineTokenSet.has(t))
+          ) {
+            matchedMember = m;
+            break;
           }
         }
       }

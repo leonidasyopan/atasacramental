@@ -14,13 +14,17 @@ const mockWriteBatch = vi.fn(() => ({
   commit: mockBatchCommit,
 }));
 
+const mockAddDoc = vi.fn(async () => ({ id: 'new-id-123' }));
+const mockUpdateDoc = vi.fn(async () => {});
+const mockGetDocs = vi.fn();
+
 vi.mock('firebase/firestore', () => ({
   doc: (...args) => mockDoc(...args),
   collection: (...args) => mockCollection(...args),
   writeBatch: (...args) => mockWriteBatch(...args),
-  getDocs: vi.fn(),
-  addDoc: vi.fn(),
-  updateDoc: vi.fn(),
+  getDocs: (...args) => mockGetDocs(...args),
+  addDoc: (...args) => mockAddDoc(...args),
+  updateDoc: (...args) => mockUpdateDoc(...args),
   query: vi.fn(),
   where: vi.fn(),
   orderBy: vi.fn(),
@@ -30,7 +34,14 @@ vi.mock('firebase/firestore', () => ({
 vi.mock('../config/firebase', () => ({ db: {} }));
 
 // Import service under test
-import { syncDirectoryData } from './members';
+import {
+  syncDirectoryData,
+  addMember,
+  addHousehold,
+  updateHousehold,
+  assignMemberToHousehold,
+  mergeHouseholds,
+} from './members';
 
 describe('members service - syncDirectoryData', () => {
   beforeEach(() => {
@@ -128,5 +139,142 @@ describe('members service - syncDirectoryData', () => {
     // 1 household update + 1 member update + 1 member deactivation = 3 batch updates
     expect(mockBatchUpdate).toHaveBeenCalledTimes(3);
     expect(mockBatchCommit).toHaveBeenCalled();
+  });
+});
+
+describe('members service - CRUD & household management', () => {
+  beforeEach(() => {
+    mockDoc.mockClear();
+    mockCollection.mockClear();
+    mockAddDoc.mockClear();
+    mockUpdateDoc.mockClear();
+    mockGetDocs.mockClear();
+    mockBatchUpdate.mockReset();
+    mockBatchCommit.mockReset();
+    mockWriteBatch.mockClear();
+  });
+
+  describe('addMember', () => {
+    it('creates member with string name for backwards compatibility', async () => {
+      const result = await addMember('unit-1', 'Ronaldo Rocha');
+      expect(result.id).toBe('new-id-123');
+      expect(result.name).toBe('Ronaldo Rocha');
+      expect(mockAddDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          name: 'Ronaldo Rocha',
+          active: true,
+          householdId: null,
+          householdRole: 'other',
+        }),
+      );
+    });
+
+    it('creates member with structured object including householdId and role', async () => {
+      const result = await addMember('unit-1', {
+        name: 'Ronaldo Rocha Paz Junior',
+        householdId: 'hh_paz',
+        householdRole: 'head',
+        age: 38,
+        phone: '(48) 99999-9999',
+      });
+      expect(result.id).toBe('new-id-123');
+      expect(result.name).toBe('Ronaldo Rocha Paz Junior');
+      expect(result.householdId).toBe('hh_paz');
+      expect(result.householdRole).toBe('head');
+      expect(mockAddDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          name: 'Ronaldo Rocha Paz Junior',
+          householdId: 'hh_paz',
+          householdRole: 'head',
+          age: 38,
+          phone: '(48) 99999-9999',
+          active: true,
+        }),
+      );
+    });
+
+    it('throws error when name is empty', async () => {
+      await expect(addMember('unit-1', '   ')).rejects.toThrow('Nome do membro é obrigatório.');
+      await expect(addMember('unit-1', { name: '' })).rejects.toThrow('Nome do membro é obrigatório.');
+    });
+  });
+
+  describe('addHousehold & updateHousehold', () => {
+    it('creates new household', async () => {
+      const result = await addHousehold('unit-1', {
+        name: 'Paz, Ronaldo Rocha & Natália Vicari Faleiro',
+      });
+      expect(result.id).toBe('new-id-123');
+      expect(result.name).toBe('Paz, Ronaldo Rocha & Natália Vicari Faleiro');
+      expect(mockAddDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          name: 'Paz, Ronaldo Rocha & Natália Vicari Faleiro',
+          active: true,
+          attendanceCount: 0,
+        }),
+      );
+    });
+
+    it('updates existing household', async () => {
+      await updateHousehold('unit-1', 'hh-123', {
+        displayName: 'Família Paz',
+      });
+      expect(mockUpdateDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          displayName: 'Família Paz',
+        }),
+      );
+    });
+  });
+
+  describe('assignMemberToHousehold', () => {
+    it('updates member householdId and role', async () => {
+      await assignMemberToHousehold('unit-1', 'mem-1', 'hh-123', 'head');
+      expect(mockUpdateDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          householdId: 'hh-123',
+          householdRole: 'head',
+        }),
+      );
+    });
+
+    it('unassigns member when householdId is null', async () => {
+      await assignMemberToHousehold('unit-1', 'mem-1', null);
+      expect(mockUpdateDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          householdId: null,
+        }),
+      );
+    });
+  });
+
+  describe('mergeHouseholds', () => {
+    it('moves members from source to target and deactivates source', async () => {
+      mockGetDocs.mockResolvedValueOnce({
+        docs: [
+          { id: 'mem-1', data: () => ({ name: 'Ronaldo Rocha', householdId: 'src-hh' }) },
+          { id: 'mem-2', data: () => ({ name: 'Sara Faleiro', householdId: 'src-hh' }) },
+        ],
+      });
+
+      const result = await mergeHouseholds('unit-1', 'src-hh', 'target-hh');
+      expect(result.movedCount).toBe(2);
+      expect(mockWriteBatch).toHaveBeenCalled();
+      // 2 members updated + 1 source household deactivated = 3 batch updates
+      expect(mockBatchUpdate).toHaveBeenCalledTimes(3);
+      expect(mockBatchCommit).toHaveBeenCalled();
+    });
+
+    it('throws error when source and target are the same', async () => {
+      await expect(mergeHouseholds('unit-1', 'hh-1', 'hh-1')).rejects.toThrow(
+        'As famílias de origem e destino devem ser diferentes.',
+      );
+    });
   });
 });

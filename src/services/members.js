@@ -50,23 +50,40 @@ export async function getMembers(unitId, { includeInactive = false } = {}) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export async function addMember(unitId, name) {
-  const trimmed = (name || '').trim();
+export async function addMember(unitId, memberData) {
+  const data = typeof memberData === 'string' ? { name: memberData } : (memberData || {});
+  const trimmed = (data.name || '').trim();
   if (!trimmed) throw new Error('Nome do membro é obrigatório.');
-  const docRef = await addDoc(membersRef(unitId), {
+  const docRef = await addDoc(membersRef(unitId), sanitizeData({
     name: trimmed,
     active: true,
+    householdId: data.householdId || null,
+    householdRole: data.householdRole || 'other',
+    age: data.age != null && data.age !== '' ? Number(data.age) : null,
+    birthDate: data.birthDate || null,
+    phone: data.phone || '',
+    email: data.email || '',
+    gender: data.gender || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
-  return { id: docRef.id, name: trimmed, active: true };
+  }));
+  return {
+    id: docRef.id,
+    name: trimmed,
+    active: true,
+    householdId: data.householdId || null,
+    householdRole: data.householdRole || 'other',
+    age: data.age != null && data.age !== '' ? Number(data.age) : null,
+    phone: data.phone || '',
+    email: data.email || '',
+  };
 }
 
 export async function updateMember(unitId, memberId, data) {
-  await updateDoc(doc(db, 'units', unitId, 'members', memberId), {
+  await updateDoc(doc(db, 'units', unitId, 'members', memberId), sanitizeData({
     ...data,
     updatedAt: serverTimestamp(),
-  });
+  }));
 }
 
 export async function deactivateMember(unitId, memberId) {
@@ -75,6 +92,88 @@ export async function deactivateMember(unitId, memberId) {
 
 export async function activateMember(unitId, memberId) {
   await updateMember(unitId, memberId, { active: true });
+}
+
+export async function addHousehold(unitId, data = {}) {
+  const name = (data.name || '').trim();
+  if (!name) throw new Error('Nome da família é obrigatório.');
+  const displayName = (data.displayName || name).trim();
+  const headNames = (data.headNames || name).trim();
+
+  const docRef = await addDoc(householdsRef(unitId), sanitizeData({
+    name,
+    displayName,
+    headNames,
+    address: data.address || '',
+    phone: data.phone || '',
+    email: data.email || '',
+    active: true,
+    attendanceCount: 0,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  return {
+    id: docRef.id,
+    name,
+    displayName,
+    headNames,
+    active: true,
+    attendanceCount: 0,
+  };
+}
+
+export async function updateHousehold(unitId, householdId, data) {
+  if (!householdId) throw new Error('householdId é obrigatório.');
+  await updateDoc(doc(db, 'units', unitId, 'households', householdId), sanitizeData({
+    ...data,
+    updatedAt: serverTimestamp(),
+  }));
+}
+
+export async function deactivateHousehold(unitId, householdId) {
+  await updateHousehold(unitId, householdId, { active: false });
+}
+
+export async function assignMemberToHousehold(unitId, memberId, householdId, role) {
+  if (!memberId) throw new Error('memberId é obrigatório.');
+  const updates = {
+    householdId: householdId || null,
+    updatedAt: serverTimestamp(),
+  };
+  if (role !== undefined) {
+    updates.householdRole = role || 'other';
+  }
+  await updateDoc(doc(db, 'units', unitId, 'members', memberId), sanitizeData(updates));
+}
+
+export async function mergeHouseholds(unitId, sourceHouseholdId, targetHouseholdId) {
+  if (!unitId) throw new Error('unitId é obrigatório.');
+  if (!sourceHouseholdId || !targetHouseholdId) {
+    throw new Error('IDs de família de origem e destino são obrigatórios.');
+  }
+  if (sourceHouseholdId === targetHouseholdId) {
+    throw new Error('As famílias de origem e destino devem ser diferentes.');
+  }
+
+  const membersToMove = await getMembersByHousehold(unitId, sourceHouseholdId);
+  const batch = writeBatch(db);
+
+  for (const m of membersToMove) {
+    const mRef = doc(db, 'units', unitId, 'members', m.id);
+    batch.update(mRef, {
+      householdId: targetHouseholdId,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  const sourceHRef = doc(db, 'units', unitId, 'households', sourceHouseholdId);
+  batch.update(sourceHRef, {
+    active: false,
+    updatedAt: serverTimestamp(),
+  });
+
+  await batch.commit();
+  return { movedCount: membersToMove.length };
 }
 
 function sanitizeData(obj) {

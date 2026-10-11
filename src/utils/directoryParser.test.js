@@ -84,8 +84,11 @@ describe('directoryParser utility', () => {
       expect(naturalOrderName('Alves, Danilo Simões')).toBe('Danilo Simões Alves');
     });
 
-    it('preserves suffixes and handles multiple commas', () => {
-      expect(naturalOrderName('Ribeiro, João Vilmar, Junior')).toBe('João Vilmar, Junior Ribeiro');
+    it('correctly places Brazilian agnomes (Junior, Filho, Neto) at the end of the full name', () => {
+      expect(naturalOrderName('Paz, Ronaldo Rocha Junior')).toBe('Ronaldo Rocha Paz Junior');
+      expect(naturalOrderName('Ribeiro, João Vilmar, Junior')).toBe('João Vilmar Ribeiro Junior');
+      expect(naturalOrderName('Silva, Carlos Eduardo Filho')).toBe('Carlos Eduardo Silva Filho');
+      expect(naturalOrderName('Paz Junior, Ronaldo Rocha')).toBe('Ronaldo Rocha Paz Junior');
     });
 
     it('returns original if no comma present', () => {
@@ -242,6 +245,73 @@ describe('directoryParser utility', () => {
       expect(result.members[2].age).toBe(6);
       expect(result.members[2].householdRole).toBe('child');
       expect(result.stats.correlationRate).toBe(100);
+    });
+
+    it('correlates household head with Brazilian agnomes (e.g. Ronaldo Rocha Paz Junior)', () => {
+      const members = [
+        {
+          tempId: 'mem_1',
+          name: 'Ronaldo Rocha Paz Junior',
+          originalLcrName: 'Paz, Ronaldo Rocha Junior',
+          surname: 'Paz',
+          given: 'Ronaldo Rocha Junior',
+          gender: 'M',
+          age: 38,
+          active: true,
+        },
+        {
+          tempId: 'mem_2',
+          name: 'Natália Vicari Faleiro Paz',
+          originalLcrName: 'Paz, Natália Vicari Faleiro',
+          surname: 'Paz',
+          given: 'Natália Vicari Faleiro',
+          gender: 'F',
+          age: 35,
+          active: true,
+        },
+        {
+          tempId: 'mem_3',
+          name: 'Sara Faleiro Paz',
+          originalLcrName: 'Paz, Sara Faleiro',
+          surname: 'Paz',
+          given: 'Sara Faleiro',
+          gender: 'F',
+          age: 2,
+          active: true,
+        },
+      ];
+
+      const families = [
+        {
+          tempId: 'hh_1',
+          name: 'Paz, Ronaldo Rocha & Natália Vicari Faleiro',
+          displayName: 'Paz, Ronaldo Rocha & Natália Vicari Faleiro',
+          headNames: 'Paz, Ronaldo Rocha & Natália Vicari Faleiro',
+          surname: 'Paz',
+          memberLines: [
+            'Ronaldo Rocha Paz Junior',
+            'Natália Vicari Faleiro',
+            'Sara Faleiro (2)',
+          ],
+          memberTempIds: [],
+        },
+      ];
+
+      const result = correlateDirectory(members, families);
+      expect(result.stats.correlationRate).toBe(100);
+      expect(result.stats.matchedLines).toBe(3);
+
+      const head = result.members.find((m) => m.tempId === 'mem_1');
+      expect(head.householdRole).toBe('head');
+      expect(head.tempHouseholdId).toBe('hh_1');
+
+      const spouse = result.members.find((m) => m.tempId === 'mem_2');
+      expect(spouse.householdRole).toBe('spouse');
+      expect(spouse.tempHouseholdId).toBe('hh_1');
+
+      const child = result.members.find((m) => m.tempId === 'mem_3');
+      expect(child.householdRole).toBe('child');
+      expect(child.tempHouseholdId).toBe('hh_1');
     });
   });
 
