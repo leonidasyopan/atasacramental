@@ -11,6 +11,17 @@ export function createFirestoreMock() {
   const mockAddDoc = vi.fn();
   const mockUpdateDoc = vi.fn();
   const mockDeleteDoc = vi.fn();
+  const mockBatchSet = vi.fn();
+  const mockBatchUpdate = vi.fn();
+  const mockBatchDelete = vi.fn();
+  const mockBatchCommit = vi.fn(async () => {});
+  const mockWriteBatch = vi.fn(() => ({
+    set: mockBatchSet,
+    update: mockBatchUpdate,
+    delete: mockBatchDelete,
+    commit: mockBatchCommit,
+  }));
+
   const mockRunTransaction = vi.fn(async (_db, callback) => {
     const txn = {
       get: (...args) => mockGetDoc(...args),
@@ -43,6 +54,7 @@ export function createFirestoreMock() {
     updateDoc: (...args) => mockUpdateDoc(...args),
     deleteDoc: (...args) => mockDeleteDoc(...args),
     runTransaction: (...args) => mockRunTransaction(...args),
+    writeBatch: (...args) => mockWriteBatch(...args),
     query: vi.fn((col, ...clauses) => ({ col, clauses, _isMockQuery: true })),
     where: vi.fn((field, op, val) => ({ type: 'where', field, op, val })),
     orderBy: vi.fn((field, dir = 'asc') => ({ type: 'orderBy', field, dir })),
@@ -98,6 +110,11 @@ export function createFirestoreMock() {
     mockUpdateDoc.mockReset();
     mockDeleteDoc.mockReset();
     mockRunTransaction.mockClear();
+    mockBatchSet.mockReset();
+    mockBatchUpdate.mockReset();
+    mockBatchDelete.mockReset();
+    mockBatchCommit.mockReset();
+    mockWriteBatch.mockClear();
     firestoreModule.doc.mockClear();
     firestoreModule.collection.mockClear();
     firestoreModule.query.mockClear();
@@ -116,6 +133,11 @@ export function createFirestoreMock() {
       mockUpdateDoc,
       mockDeleteDoc,
       mockRunTransaction,
+      mockWriteBatch,
+      mockBatchSet,
+      mockBatchUpdate,
+      mockBatchDelete,
+      mockBatchCommit,
     },
     firestoreModule,
     mockDocSnapshot,

@@ -1,13 +1,16 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useUnit } from './useUnit';
 import { getSpeakerLog } from '../services/speakers';
 import { getInvites } from '../services/invites';
 import { getDiscourseTopics } from '../services/topics';
 import { getRecentAttendances } from '../services/attendance';
+import { getAtaHistory } from '../services/atas';
+import { consolidateSpeakerHistory } from '../utils/speakerHelpers';
 
 export function useSpeakerData() {
   const { unitId, members } = useUnit();
-  const [speakerLog, setSpeakerLog] = useState([]);
+  const [rawSpeakerLog, setRawSpeakerLog] = useState([]);
+  const [finalizedAtas, setFinalizedAtas] = useState([]);
   const [invites, setInvites] = useState([]);
   const [topics, setTopics] = useState([]);
   const [recentAttendances, setRecentAttendances] = useState([]);
@@ -19,16 +22,18 @@ export function useSpeakerData() {
     setLoading(true);
     setError(null);
     try {
-      const [log, inv, top, att] = await Promise.all([
+      const [log, inv, top, att, atas] = await Promise.all([
         getSpeakerLog(unitId),
         getInvites(unitId),
         getDiscourseTopics(unitId),
         getRecentAttendances(unitId, 12),
+        getAtaHistory(unitId, { max: 100 }),
       ]);
-      setSpeakerLog(log);
-      setInvites(inv);
-      setTopics(top);
-      setRecentAttendances(att);
+      setRawSpeakerLog(log || []);
+      setInvites(inv || []);
+      setTopics(top || []);
+      setRecentAttendances(att || []);
+      setFinalizedAtas(atas || []);
     } catch (e) {
       console.error('useSpeakerData:', e);
       setError(e);
@@ -40,6 +45,15 @@ export function useSpeakerData() {
   useEffect(() => {
     reload();
   }, [reload]);
+
+  const speakerLog = useMemo(() => {
+    return consolidateSpeakerHistory({
+      speakerLog: rawSpeakerLog,
+      finalizedAtas,
+      invites,
+      members,
+    });
+  }, [rawSpeakerLog, finalizedAtas, invites, members]);
 
   return { speakerLog, invites, topics, recentAttendances, members, loading, error, reload };
 }

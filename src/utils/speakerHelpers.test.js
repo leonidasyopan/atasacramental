@@ -6,6 +6,10 @@ import {
   calculateMemberAttendance,
   isFirstSundayOfMonth,
   getDefaultMeetingMode,
+  stripHonorific,
+  findMemberId,
+  consolidateSpeakerHistory,
+  classifyMembers,
 } from './speakerHelpers';
 
 
@@ -195,5 +199,277 @@ describe('isFirstSundayOfMonth and getDefaultMeetingMode', () => {
     expect(isFirstSundayOfMonth('invalid')).toBe(false);
   });
 });
+
+describe('stripHonorific', () => {
+  it('strips common Brazilian LDS titles and honorifics', () => {
+    expect(stripHonorific('Irmã Nélia Luiza')).toBe('Nélia Luiza');
+    expect(stripHonorific('Irmao Edivan')).toBe('Edivan');
+    expect(stripHonorific('Élder Bednar')).toBe('Bednar');
+    expect(stripHonorific('Elder Holland')).toBe('Holland');
+    expect(stripHonorific('Bispo Silva')).toBe('Silva');
+    expect(stripHonorific('Pres. Santos')).toBe('Santos');
+    expect(stripHonorific('Presidente Nelson')).toBe('Nelson');
+    expect(stripHonorific('Ir. Maria')).toBe('Maria');
+  });
+
+  it('leaves names without honorifics intact', () => {
+    expect(stripHonorific('Larissa Machado Motta Yopán')).toBe('Larissa Machado Motta Yopán');
+    expect(stripHonorific('')).toBe('');
+    expect(stripHonorific(null)).toBe('');
+  });
+});
+
+describe('findMemberId', () => {
+  const mockMembers = [
+    {
+      id: 'm_nelia',
+      name: 'Nélia Luiza Gomes Gonçalves Ferreira',
+      originalLcrName: 'Gomes Gonçalves Ferreira, Nélia Luiza',
+    },
+    {
+      id: 'm_larissa',
+      name: 'Larissa Machado Motta Yopán',
+      originalLcrName: 'Machado Motta Yopán, Larissa',
+    },
+    {
+      id: 'm_edivan',
+      name: 'Edivan Da Silva Sangaletto',
+      originalLcrName: 'Da Silva Sangaletto, Edivan',
+    },
+  ];
+
+  it('matches exact name with accents', () => {
+    expect(findMemberId('Nélia Luiza Gomes Gonçalves Ferreira', mockMembers)).toBe('m_nelia');
+    expect(findMemberId('Larissa Machado Motta Yopán', mockMembers)).toBe('m_larissa');
+  });
+
+  it('matches name without accents (accent-insensitive)', () => {
+    expect(findMemberId('Nelia Luiza Gomes Goncalves Ferreira', mockMembers)).toBe('m_nelia');
+    expect(findMemberId('Larissa Machado Motta Yopan', mockMembers)).toBe('m_larissa');
+  });
+
+  it('matches names with honorific titles', () => {
+    expect(findMemberId('Irmã Nélia Luiza Gomes Gonçalves Ferreira', mockMembers)).toBe('m_nelia');
+    expect(findMemberId('Irmão Edivan Da Silva Sangaletto', mockMembers)).toBe('m_edivan');
+  });
+
+  it('matches LCR natural order', () => {
+    expect(findMemberId('Gomes Gonçalves Ferreira, Nélia Luiza', mockMembers)).toBe('m_nelia');
+  });
+
+  it('returns null when member is not found', () => {
+    expect(findMemberId('Desconhecido', mockMembers)).toBe(null);
+    expect(findMemberId('', mockMembers)).toBe(null);
+  });
+});
+
+describe('consolidateSpeakerHistory', () => {
+  const members = [
+    { id: 'm_nelia', name: 'Nélia Luiza Gomes Gonçalves Ferreira' },
+    { id: 'm_larissa', name: 'Larissa Machado Motta Yopán' },
+    { id: 'm_edivan', name: 'Edivan Da Silva Sangaletto' },
+  ];
+
+  it('consolidates emergency speakers from finalized atas who have no invite', () => {
+    const finalizedAtas = [
+      {
+        id: 'ata_1',
+        data: '2026-08-09',
+        status: 'finalized',
+        mode: 'disc',
+        rowsDisc: [
+          ['Larissa Machado Motta Yopán', 'Tema Livre [ Inspirado no Dia dos Pais ]', '10'],
+          ['Edivan Da Silva Sangaletto', 'Tema Livre [ Inspirado no dia dos Pais ]', '20'],
+        ],
+      },
+    ];
+
+    const history = consolidateSpeakerHistory({
+      speakerLog: [],
+      finalizedAtas,
+      invites: [],
+      members,
+    });
+
+    expect(history.length).toBe(2);
+    expect(history[0].name).toBe('Larissa Machado Motta Yopán');
+    expect(history[0].memberId).toBe('m_larissa');
+    expect(history[0].data).toBe('2026-08-09');
+    expect(history[0].topic).toBe('Tema Livre [ Inspirado no Dia dos Pais ]');
+    expect(history[0].duration).toBe(10);
+
+    expect(history[1].name).toBe('Edivan Da Silva Sangaletto');
+    expect(history[1].memberId).toBe('m_edivan');
+  });
+
+  it('handles finalized atas where rowsDisc are objects ({ c0, c1, c2 })', () => {
+    const finalizedAtas = [
+      {
+        id: 'ata_1',
+        data: '2026-08-09',
+        status: 'finalized',
+        mode: 'disc',
+        rowsDisc: [
+          { c0: 'Larissa Machado Motta Yopán', c1: 'Tema dos Pais', c2: '10' },
+        ],
+      },
+    ];
+
+    const history = consolidateSpeakerHistory({ finalizedAtas, members });
+    expect(history.length).toBe(1);
+    expect(history[0].memberId).toBe('m_larissa');
+    expect(history[0].topic).toBe('Tema dos Pais');
+  });
+
+  it('consolidates completed invites whose atas are not yet finalized', () => {
+    const invites = [
+      {
+        id: 'inv_1',
+        status: 'concluido',
+        dataAlvo: '2026-09-27',
+        memberId: 'm_nelia',
+        memberName: 'Nélia Luiza Gomes Gonçalves Ferreira',
+        topic: 'Cristo: Autor e aperfeiçoador de nossa fé',
+        duration: 5,
+      },
+    ];
+
+    const history = consolidateSpeakerHistory({
+      invites,
+      finalizedAtas: [],
+      speakerLog: [],
+      members,
+    });
+
+    expect(history.length).toBe(1);
+    expect(history[0].name).toBe('Nélia Luiza Gomes Gonçalves Ferreira');
+    expect(history[0].memberId).toBe('m_nelia');
+    expect(history[0].data).toBe('2026-09-27');
+    expect(history[0].topic).toBe('Cristo: Autor e aperfeiçoador de nossa fé');
+    expect(history[0].duration).toBe(5);
+  });
+
+  it('deduplicates speeches present in both finalized atas and invites or speakerLog', () => {
+    const finalizedAtas = [
+      {
+        id: 'ata_1',
+        data: '2026-09-27',
+        status: 'finalized',
+        mode: 'disc',
+        rowsDisc: [
+          ['Nélia Luiza Gomes Gonçalves Ferreira', 'Cristo: Autor...', '5'],
+        ],
+      },
+    ];
+
+    const invites = [
+      {
+        id: 'inv_1',
+        status: 'concluido',
+        dataAlvo: '2026-09-27',
+        memberId: 'm_nelia',
+        memberName: 'Nélia Luiza Gomes Gonçalves Ferreira',
+        topic: 'Cristo: Autor e aperfeiçoador de nossa fé',
+        duration: 5,
+      },
+    ];
+
+    const speakerLog = [
+      {
+        id: 'log_1',
+        data: '2026-09-27',
+        memberId: 'm_nelia',
+        name: 'Nélia Luiza Gomes Gonçalves Ferreira',
+      },
+    ];
+
+    const history = consolidateSpeakerHistory({
+      speakerLog,
+      finalizedAtas,
+      invites,
+      members,
+    });
+
+    // Should be deduplicated into exactly 1 entry
+    expect(history.length).toBe(1);
+    expect(history[0].data).toBe('2026-09-27');
+    expect(history[0].memberId).toBe('m_nelia');
+  });
+
+  it('sorts entries in descending chronological order', () => {
+    const finalizedAtas = [
+      {
+        id: 'ata_1',
+        data: '2026-08-09',
+        status: 'finalized',
+        mode: 'disc',
+        rowsDisc: [['Larissa Machado Motta Yopán', 'Tema A', '10']],
+      },
+    ];
+    const invites = [
+      {
+        id: 'inv_1',
+        status: 'concluido',
+        dataAlvo: '2026-09-27',
+        memberId: 'm_nelia',
+        memberName: 'Nélia Luiza Gomes Gonçalves Ferreira',
+        topic: 'Tema B',
+      },
+    ];
+
+    const history = consolidateSpeakerHistory({ finalizedAtas, invites, members });
+    expect(history[0].data).toBe('2026-09-27');
+    expect(history[1].data).toBe('2026-08-09');
+  });
+});
+
+describe('classifyMembers', () => {
+  const members = [
+    { id: 'm_nelia', name: 'Nélia Luiza Gomes Gonçalves Ferreira', active: true },
+    { id: 'm_larissa', name: 'Larissa Machado Motta Yopán', active: true },
+    { id: 'm_adriana', name: 'Adriana Clarice Silva Parrella', active: true },
+  ];
+
+  it('correctly classifies members who spoke into alreadySpoke and those who never spoke into neverSpoke', () => {
+    const speakerLog = [
+      {
+        data: '2026-09-27',
+        memberId: 'm_nelia',
+        name: 'Nélia Luiza Gomes Gonçalves Ferreira',
+        topic: 'Cristo: Autor e aperfeiçoador de nossa fé',
+      },
+      {
+        data: '2026-08-09',
+        memberId: 'm_larissa',
+        name: 'Larissa Machado Motta Yopán',
+        topic: 'Tema Livre [ Inspirado no Dia dos Pais ]',
+      },
+    ];
+
+    const { neverSpoke, alreadySpoke } = classifyMembers(members, speakerLog, 6);
+
+    const neverNames = neverSpoke.map((item) => item.member.name);
+    const alreadyNames = alreadySpoke.map((item) => item.member.name);
+
+    expect(neverNames).toEqual(['Adriana Clarice Silva Parrella']);
+    expect(alreadyNames).toContain('Nélia Luiza Gomes Gonçalves Ferreira');
+    expect(alreadyNames).toContain('Larissa Machado Motta Yopán');
+  });
+
+  it('matches member even if speaker entry has only normalized name without memberId', () => {
+    const speakerLog = [
+      {
+        data: '2026-08-09',
+        name: 'Larissa Machado Motta Yopan', // no accent, no memberId
+        topic: 'Tema Livre',
+      },
+    ];
+
+    const { alreadySpoke, neverSpoke } = classifyMembers(members, speakerLog, 6);
+    expect(alreadySpoke.map((i) => i.member.id)).toContain('m_larissa');
+    expect(neverSpoke.map((i) => i.member.id)).not.toContain('m_larissa');
+  });
+});
+
 
 

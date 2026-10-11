@@ -180,10 +180,12 @@ export async function syncInviteToDraft(unitId, invite, prevInvite = null) {
   // Step 1: cleanup old slot if prevInvite previously owned one and identity changed.
   if (prevInvite?.dataAlvo && prevInvite?.position && prevInvite?.id) {
     const deleted = !invite;
-    const noLongerAccepted = invite && prevInvite.status === 'aceito' && invite.status !== 'aceito';
+    const prevWasActive = prevInvite.status === 'aceito' || prevInvite.status === 'concluido';
+    const nextIsActive = Boolean(invite && (invite.status === 'aceito' || invite.status === 'concluido'));
+    const noLongerActive = prevWasActive && !nextIsActive;
     const dateMoved = invite && invite.dataAlvo && invite.dataAlvo !== prevInvite.dataAlvo;
     const positionMoved = invite && invite.position && String(invite.position) !== String(prevInvite.position);
-    if (deleted || noLongerAccepted || dateMoved || positionMoved) {
+    if (deleted || noLongerActive || dateMoved || positionMoved) {
       await clearSlotIfOwned(unitId, prevInvite.dataAlvo, prevInvite.position, prevInvite.id);
     }
   }
@@ -196,8 +198,9 @@ export async function syncInviteToDraft(unitId, invite, prevInvite = null) {
   const draft = await ensureDraftForDate(unitId, invite.dataAlvo);
   if (!draft) return;
 
-  // Step 4: auto-fill only when accepted with a position.
-  if (invite.status !== 'aceito') return;
+  // Step 4: auto-fill when accepted or completed with a position.
+  const nextIsActive = invite.status === 'aceito' || invite.status === 'concluido';
+  if (!nextIsActive) return;
   if (!invite.position) return;
   await fillSlotFromInvite(unitId, draft.id, invite);
 }

@@ -99,3 +99,63 @@ Ele executa deterministicamente:
 2. `npm run lint` (ESLint)
 3. `npm test` (Suíte completa do Vitest)
 4. `npm run build` (Compilação do bundle de produção do Vite)
+
+---
+
+## 6. Fluxo de Code Review, Deploy & Smoke Test (Harness de Release)
+
+Para garantir lançamentos resilientes, sem regressões e com padrão de excelência de mercado, qualquer agente de IA ou desenvolvedor deve seguir este fluxo formalizado:
+
+### 6.1. As 5 Premissas de Engenharia de Software
+Antes de preparar a entrega para produção, realize uma auto-revisão rigorosa (com perspectiva de *devil's advocate*) sobre o diff:
+1. **Maintainability (Manutenibilidade & S.O.L.I.D.)**:
+   - Cada componente deve ter responsabilidade única. Modais de ação devem ser extraídos e desacoplados da página principal.
+   - Código limpo, sem comentários mortos ou consoles de depuração.
+2. **Consistency (Consistência Arquitetural)**:
+   - Respeito absoluto às 6 camadas de arquitetura.
+   - NUNCA importar de `'firebase/firestore'` em componentes ou páginas (`npm run guard` bloqueia violações).
+   - Componentes e páginas de administração devem manter coerência visual (paleta tailwind/slate, badges consistentes, modais padronizados).
+3. **Performance (Desempenho & Otimização)**:
+   - Estruturas de dados em memória O(1) (como `Map` e `Set`) para correlações de listas longas de membros e famílias.
+   - Preservação do tempo de resposta da UI instantâneo (0ms percebidos com cache).
+4. **Security & PII (Segurança e Proteção de Dados)**:
+   - NUNCA versionar arquivos de planilhas ou diretórios de membros (`.xlsx`, `.csv`, `import/` estão no `.gitignore`).
+   - Todas as regras de banco continuam estritamente restritas no `firestore.rules`.
+   - Sanitização de campos de formulário e validação de `unitId`.
+5. **Cost-Effectiveness (Custo Firebase)**:
+   - Utilização de `writeBatch` para operações em lote (ex.: mesclagem de famílias e migração em massa de membros), evitando múltiplas transações dispersas.
+   - Gravação lazy: apenas gravar se o formulário for efetivamente alterado (`dirty`).
+
+### 6.2. Verificação Pré-Deploy
+Execute a suíte de validação antes de qualquer deploy:
+```bash
+npm run verify
+```
+
+### 6.3. Deploy em Produção
+O deploy no Firebase Hosting é executado através da CLI:
+```bash
+firebase deploy --only hosting
+```
+Isso publica o bundle otimizado gerado em `dist/` para `https://sacramentalmeeting.web.app`.
+
+### 6.4. Smoke Test Automatizado em Produção (`npm run smoke`)
+Após o deploy, valide a saúde imediata de Produção com o harness dedicado:
+```bash
+npm run smoke
+```
+O script `scripts/harness/smoke-test.mjs` valida deterministicamente:
+- Acessibilidade e resposta HTTP 200 do SPA entrypoint (`/`).
+- Integridade do HTML raiz (tag `<div id="root">` e título da aplicação).
+- Resolução e integridade de todos os bundles estáticos de JS e CSS (`/assets/*`).
+- Comportamento de roteamento SPA em rotas profundas (ex.: `/admin/members`).
+- Ausência de regressões críticas de carregamento em ambiente live.
+
+### 6.5. Padrão de Pull Request & Entrega para `main`
+- Seguir **Conventional Commits** (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`).
+- Abrir o Pull Request com descrição detalhada de escopo, mudanças implementadas, critérios de aceite e resultados de teste:
+  ```bash
+  gh pr create --base main --head <sua-branch> --title "..." --body "..."
+  ```
+- Integrar a branch na `main` de forma limpa (squash ou rebase/merge com histórico rastreável).
+
