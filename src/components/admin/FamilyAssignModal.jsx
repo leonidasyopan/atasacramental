@@ -22,16 +22,22 @@ export default function FamilyAssignModal({
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newHouseholdName, setNewHouseholdName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!member || !isOpen) return;
     setMemberName(member.name || '');
-    setSelectedHouseholdId(member.householdId || '');
+    const initialHId =
+      member.householdId && households.some((h) => h.id === member.householdId)
+        ? member.householdId
+        : '';
+    setSelectedHouseholdId(initialHId);
     setSelectedRole(member.householdRole || 'other');
     setSearchHousehold('');
     setIsCreatingNew(false);
     setNewHouseholdName('');
-  }, [member, isOpen]);
+    setError(null);
+  }, [member, isOpen, households]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -59,6 +65,7 @@ export default function FamilyAssignModal({
     e.preventDefault();
     if (!memberName.trim()) return;
     setSaving(true);
+    setError(null);
     try {
       await onSave({
         memberId: member.id,
@@ -70,6 +77,7 @@ export default function FamilyAssignModal({
       onClose();
     } catch (err) {
       console.error(err);
+      setError(err.message || 'Erro ao salvar vínculo familiar.');
     } finally {
       setSaving(false);
     }
@@ -136,6 +144,21 @@ export default function FamilyAssignModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} style={{ padding: '20px', overflowY: 'auto' }}>
+          {error && (
+            <div
+              style={{
+                background: '#fee2e2',
+                color: '#991b1b',
+                padding: '10px 14px',
+                borderRadius: 8,
+                fontSize: '0.86rem',
+                marginBottom: 16,
+              }}
+            >
+              ⚠️ {error}
+            </div>
+          )}
+
           {/* Member Name */}
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: 6 }}>

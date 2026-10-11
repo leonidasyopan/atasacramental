@@ -82,8 +82,10 @@ export default function AdminMembersPage() {
   }, [list]);
 
   const unassignedMembersCount = useMemo(() => {
-    return list.filter((m) => m.active !== false && !m.householdId).length;
-  }, [list]);
+    return list.filter(
+      (m) => m.active !== false && (!m.householdId || !householdsById.has(m.householdId)),
+    ).length;
+  }, [list, householdsById]);
 
   async function reload() {
     if (!unitId) return;
@@ -297,8 +299,9 @@ export default function AdminMembersPage() {
       }
 
       // Family assignment filter
-      if (familyFilter === 'with_family' && !m.householdId) return false;
-      if (familyFilter === 'unassigned' && m.householdId) return false;
+      const hasValidHousehold = Boolean(m.householdId && householdsById.has(m.householdId));
+      if (familyFilter === 'with_family' && !hasValidHousehold) return false;
+      if (familyFilter === 'unassigned' && hasValidHousehold) return false;
 
       // Role filter
       if (roleFilter !== 'all' && (m.householdRole || 'other') !== roleFilter) {
@@ -733,38 +736,52 @@ export default function AdminMembersPage() {
                             </div>
                           </td>
                           <td>
-                            <select
-                              value={m.householdRole || 'other'}
-                              onChange={(e) => onRoleChange(m, e.target.value)}
-                              style={{
-                                fontSize: '0.78rem',
-                                padding: '3px 6px',
-                                borderRadius: 6,
-                                border: '1px solid #cbd5e1',
-                                background:
-                                  m.householdRole === 'head'
-                                    ? '#e0e7ff'
-                                    : m.householdRole === 'spouse'
-                                    ? '#fce7f3'
-                                    : m.householdRole === 'child'
-                                    ? '#dcfce7'
-                                    : '#ffffff',
-                                color:
-                                  m.householdRole === 'head'
-                                    ? '#3730a3'
-                                    : m.householdRole === 'spouse'
-                                    ? '#9d174d'
-                                    : m.householdRole === 'child'
-                                    ? '#166534'
-                                    : '#334155',
-                                fontWeight: 600,
-                              }}
-                            >
-                              <option value="head">Chefe</option>
-                              <option value="spouse">Cônjuge</option>
-                              <option value="child">Filho(a)</option>
-                              <option value="other">Outro</option>
-                            </select>
+                            {household ? (
+                              <select
+                                value={m.householdRole || 'other'}
+                                onChange={(e) => onRoleChange(m, e.target.value)}
+                                style={{
+                                  fontSize: '0.78rem',
+                                  padding: '3px 6px',
+                                  borderRadius: 6,
+                                  border: '1px solid #cbd5e1',
+                                  background:
+                                    m.householdRole === 'head'
+                                      ? '#e0e7ff'
+                                      : m.householdRole === 'spouse'
+                                      ? '#fce7f3'
+                                      : m.householdRole === 'child'
+                                      ? '#dcfce7'
+                                      : '#ffffff',
+                                  color:
+                                    m.householdRole === 'head'
+                                      ? '#3730a3'
+                                      : m.householdRole === 'spouse'
+                                      ? '#9d174d'
+                                      : m.householdRole === 'child'
+                                      ? '#166534'
+                                      : '#334155',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                <option value="head">Chefe</option>
+                                <option value="spouse">Cônjuge</option>
+                                <option value="child">Filho(a)</option>
+                                <option value="other">Outro</option>
+                              </select>
+                            ) : (
+                              <span
+                                style={{
+                                  color: '#94a3b8',
+                                  fontSize: '0.84rem',
+                                  fontStyle: 'italic',
+                                  paddingLeft: 4,
+                                }}
+                                title="Vincule uma família para definir o papel"
+                              >
+                                —
+                              </span>
+                            )}
                           </td>
                           <td style={{ color: '#4b5563', fontSize: '0.85rem' }}>
                             {m.age ?? '—'}

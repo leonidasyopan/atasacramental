@@ -456,6 +456,7 @@ export function correlateDirectory(members, families, options = {}) {
       // Match strategy 4: Suffix variations (e.g. "João Vilmar" matching "João Vilmar Junior")
       else {
         for (const m of members) {
+          if (m.tempHouseholdId) continue;
           if (normFamSurname && normalizeKey(m.surname) === normFamSurname) {
             const mGivenNorm = normalizeKey(m.given);
             if (lineNorm.startsWith(mGivenNorm) || mGivenNorm.startsWith(lineNorm)) {
@@ -466,10 +467,11 @@ export function correlateDirectory(members, families, options = {}) {
         }
       }
 
-      // Match strategy 5: Token overlap & agnome matching (e.g. "Ronaldo Rocha Paz Junior" vs "Ronaldo Rocha" / "Ronaldo Rocha Junior")
+      // Match strategy 5: Token overlap & agnome matching with candidate scoring
       if (!matchedMember) {
         const lineTokens = lineNorm.split(/\s+/).filter(Boolean);
         const lineTokenSet = new Set(lineTokens);
+        const candidates = [];
 
         for (const m of members) {
           if (m.tempHouseholdId) continue; // skip already assigned members
@@ -486,24 +488,40 @@ export function correlateDirectory(members, families, options = {}) {
           const mTokens = normalizeKey(m.name).split(/\s+/).filter(Boolean);
           const mTokenSet = new Set(mTokens);
 
-          // Check token overlap
-          const lineInMember = lineTokens.filter((t) => mTokenSet.has(t)).length;
-          if (lineTokens.length >= 2 && lineInMember >= lineTokens.length - 1 && lineInMember >= 2) {
-            matchedMember = m;
-            break;
-          }
-
           // Check if given tokens match line tokens (ignoring agnomes)
           const mGivenTokens = normalizeKey(m.given)
             .split(/\s+/)
             .filter((t) => !AGNOMES.has(t));
-          if (
+          const allGivenInLine =
             mGivenTokens.length > 0 &&
-            mGivenTokens.every((t) => lineTokenSet.has(t))
-          ) {
-            matchedMember = m;
-            break;
+            mGivenTokens.every((t) => lineTokenSet.has(t));
+
+          // Check token overlap
+          const lineInMember = lineTokens.filter((t) => mTokenSet.has(t)).length;
+          const strongOverlap =
+            lineTokens.length >= 2 &&
+            lineInMember >= lineTokens.length - 1 &&
+            lineInMember >= 2;
+
+          if (allGivenInLine || strongOverlap) {
+            candidates.push({ member: m, score: lineInMember + (allGivenInLine ? 2 : 0) });
           }
+        }
+
+        if (candidates.length === 1) {
+          matchedMember = candidates[0].member;
+        } else if (candidates.length > 1) {
+          // Disambiguate by score, then by age match if available
+          candidates.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if (lineAge != null) {
+              const diffA = a.member.age != null ? Math.abs(a.member.age - lineAge) : 999;
+              const diffB = b.member.age != null ? Math.abs(b.member.age - lineAge) : 999;
+              return diffA - diffB;
+            }
+            return 0;
+          });
+          matchedMember = candidates[0].member;
         }
       }
 

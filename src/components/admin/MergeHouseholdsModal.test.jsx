@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import MergeHouseholdsModal from './MergeHouseholdsModal';
 
 describe('MergeHouseholdsModal', () => {
@@ -57,7 +57,9 @@ describe('MergeHouseholdsModal', () => {
     fireEvent.change(targetSelect, { target: { value: 'hh_target' } });
 
     const confirmBtn = screen.getByRole('button', { name: /Confirmar Unificação/i });
-    fireEvent.click(confirmBtn);
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
 
     expect(handleMerge).toHaveBeenCalledWith('hh_src', 'hh_target');
   });

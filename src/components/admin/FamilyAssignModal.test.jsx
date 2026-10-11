@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import FamilyAssignModal from './FamilyAssignModal';
 
 describe('FamilyAssignModal', () => {
@@ -65,7 +65,9 @@ describe('FamilyAssignModal', () => {
 
     // Submit
     const submitBtn = screen.getByRole('button', { name: /Salvar Alterações/i });
-    fireEvent.click(submitBtn);
+    await act(async () => {
+      fireEvent.click(submitBtn);
+    });
 
     expect(handleSave).toHaveBeenCalledWith({
       memberId: 'mem_1',
