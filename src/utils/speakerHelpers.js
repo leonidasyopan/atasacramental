@@ -3,7 +3,21 @@
  * No Firebase dependencies — safe to use anywhere.
  */
 
+import { normalizeForSearch } from './textSearch';
+import { naturalOrderName } from './directoryParser';
+
 const collator = new Intl.Collator('pt-BR', { sensitivity: 'base' });
+
+/**
+ * Strips common Brazilian LDS titles and honorifics (case- and accent-insensitive)
+ * e.g., "Irmã Nélia", "Irmão Edivan", "Elder Smith", "Bispo Silva", "Pres. Santos".
+ */
+export function stripHonorific(name) {
+  if (!name) return '';
+  return String(name)
+    .replace(/^(irmã|irma|irmão|irmao|ir\.|ir|élder|elder|bispo|bisp\.|presidente|pres\.)\s+/i, '')
+    .trim();
+}
 
 /**
  * Format a Date as YYYY-MM-DD using local timezone (not UTC).
@@ -26,16 +40,34 @@ function todayLocal() {
 }
 
 /**
- * Match a name against the members list (case-insensitive).
- * Compares against `m.name` and `m.fullName`.
+ * Match a name against the members list.
+ * Compares normalized needle against `m.name`, `m.fullName`, `m.originalLcrName`,
+ * and the natural order of `m.originalLcrName`, with and without common honorifics.
+ * @param {string} name
+ * @param {Array} members
  * @returns {string|null} member id or null
  */
 export function findMemberId(name, members) {
   if (!name || !Array.isArray(members)) return null;
-  const needle = name.trim().toLowerCase();
+  const rawNeedle = name.trim();
+  if (!rawNeedle) return null;
+
+  const normNeedle = normalizeForSearch(rawNeedle);
+  const cleanNeedle = normalizeForSearch(stripHonorific(rawNeedle));
+
   for (const m of members) {
-    if ((m.name || '').toLowerCase() === needle) return m.id;
-    if ((m.fullName || '').toLowerCase() === needle) return m.id;
+    if (!m) continue;
+    const normName = normalizeForSearch(m.name || '');
+    const normFull = normalizeForSearch(m.fullName || '');
+    const normLcr = normalizeForSearch(m.originalLcrName || '');
+    const normNat = normalizeForSearch(naturalOrderName(m.originalLcrName || ''));
+
+    if (
+      (normNeedle && (normName === normNeedle || normFull === normNeedle || normLcr === normNeedle || normNat === normNeedle)) ||
+      (cleanNeedle && (normName === cleanNeedle || normFull === cleanNeedle || normNat === cleanNeedle))
+    ) {
+      return m.id;
+    }
   }
   return null;
 }
@@ -57,6 +89,140 @@ export function filterLogByPeriod(log, months) {
 }
 
 /**
+ * Consolidates speaker history from all official and operational sources:
+ * 1. Finalized Atas (atas with status === 'finalized' and mode === 'disc')
+ *    - Captures emergency speakers called to fill vacancies who never had an invite.
+ * 2. Completed Invites (discourseInvites with status === 'concluido')
+ *    - Captures invited members whose talk has taken place even if the meeting minutes
+ *      have not yet been finalized.
+ * 3. speakerLog collection entries (explicit logs or historical records).
+ *
+ * Deduplicates by (date + memberId) or (date + normalized name) so that the same talk
+ * is never counted or displayed twice, keeping the richest attributes (topic, duration).
+ *
+ * @param {object} params
+ * @param {Array} [params.speakerLog]
+ * @param {Array} [params.finalizedAtas]
+ * @param {Array} [params.invites]
+ * @param {Array} [params.members]
+ * @returns {Array} Consolidated speaker entries sorted by data desc
+ */
+export function consolidateSpeakerHistory({
+  speakerLog = [],
+  finalizedAtas = [],
+  invites = [],
+  members = [],
+} = {}) {
+  const map = new Map();
+
+  const getMemberKey = (memberId, name) => {
+    if (memberId) return `id_${memberId}`;
+    const clean = normalizeForSearch(stripHonorific(name || ''));
+    return clean ? `name_${clean}` : null;
+  };
+
+  const mergeEntry = (item) => {
+    if (!item || !item.data) return;
+    const name = (item.name || item.memberName || '').trim();
+    if (!name && !item.memberId) return;
+
+    let memberId = item.memberId || null;
+    if (!memberId && name && Array.isArray(members) && members.length > 0) {
+      memberId = findMemberId(name, members);
+    }
+
+    const memberKey = getMemberKey(memberId, name);
+    if (!memberKey) return;
+
+    const dedupKey = `${item.data}_${memberKey}`;
+    const existing = map.get(dedupKey);
+
+    const topic = (item.topic || '').trim() || null;
+    const duration =
+      item.duration != null && !isNaN(Number(item.duration)) && Number(item.duration) > 0
+        ? Number(item.duration)
+        : null;
+
+    if (!existing) {
+      let resolvedName = name;
+      if (!resolvedName && memberId && Array.isArray(members)) {
+        const found = members.find((m) => m.id === memberId);
+        if (found?.name) resolvedName = found.name;
+      }
+
+      map.set(dedupKey, {
+        id: item.id || `speech_${dedupKey}`,
+        data: item.data,
+        name: resolvedName || 'Discursante',
+        memberId: memberId || null,
+        topic,
+        duration,
+        ataId: item.ataId || null,
+      });
+    } else {
+      if (!existing.memberId && memberId) existing.memberId = memberId;
+      if (!existing.topic && topic) existing.topic = topic;
+      if (!existing.duration && duration) existing.duration = duration;
+      if (!existing.ataId && item.ataId) existing.ataId = item.ataId;
+      if (name && (!existing.name || existing.name.length < name.length)) {
+        existing.name = name;
+      }
+    }
+  };
+
+  // 1. Process finalized Atas (the official record of meetings)
+  if (Array.isArray(finalizedAtas)) {
+    for (const ata of finalizedAtas) {
+      if (ata.status === 'finalized' && ata.mode === 'disc' && Array.isArray(ata.rowsDisc)) {
+        for (let idx = 0; idx < ata.rowsDisc.length; idx++) {
+          const row = ata.rowsDisc[idx];
+          const nome = Array.isArray(row) ? row[0] : row?.c0;
+          const tema = Array.isArray(row) ? row[1] : row?.c1;
+          const dur = Array.isArray(row) ? row[2] : row?.c2;
+          if (nome && String(nome).trim()) {
+            mergeEntry({
+              id: `ata_${ata.id}_${idx}`,
+              ataId: ata.id,
+              data: ata.data,
+              name: String(nome).trim(),
+              topic: tema ? String(tema).trim() : null,
+              duration: dur ? Number(dur) : null,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Process completed invites
+  if (Array.isArray(invites)) {
+    for (const inv of invites) {
+      if (inv.status === 'concluido' && inv.dataAlvo) {
+        mergeEntry({
+          id: `inv_${inv.id}`,
+          data: inv.dataAlvo,
+          name: inv.memberName,
+          memberId: inv.memberId,
+          topic: inv.topic,
+          duration: inv.duration,
+        });
+      }
+    }
+  }
+
+  // 3. Process explicit speakerLog entries
+  if (Array.isArray(speakerLog)) {
+    for (const entry of speakerLog) {
+      mergeEntry(entry);
+    }
+  }
+
+  const result = Array.from(map.values());
+  result.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+  return result;
+}
+
+/**
  * Classify members into those who never spoke and those who already spoke
  * within the given period.
  *
@@ -68,14 +234,27 @@ export function filterLogByPeriod(log, months) {
 export function classifyMembers(members, speakerLog, periodMonths) {
   const filtered = filterLogByPeriod(speakerLog, periodMonths);
 
-  // Build a map: memberId or name → most recent entry
+  // Build a map: memberId or normalized names → most recent entry
   const lastSpeechMap = new Map();
-  for (const entry of filtered) {
-    const key = entry.memberId || entry.name;
-    if (!key) continue;
+  const recordEntry = (key, entry) => {
+    if (!key) return;
     const existing = lastSpeechMap.get(key);
     if (!existing || (entry.data || '') > (existing.data || '')) {
       lastSpeechMap.set(key, entry);
+    }
+  };
+
+  for (const entry of filtered) {
+    if (entry.memberId) {
+      recordEntry(entry.memberId, entry);
+    }
+    if (entry.name) {
+      const norm = normalizeForSearch(entry.name);
+      recordEntry(norm, entry);
+      const clean = normalizeForSearch(stripHonorific(entry.name));
+      if (clean && clean !== norm) {
+        recordEntry(clean, entry);
+      }
     }
   }
 
@@ -85,8 +264,19 @@ export function classifyMembers(members, speakerLog, periodMonths) {
   for (const m of members) {
     if (m.active === false) continue;
     const byId = m.id ? lastSpeechMap.get(m.id) : null;
-    const byName = m.name ? lastSpeechMap.get(m.name) : null;
-    const lastSpeech = byId || byName || null;
+    const byName = m.name ? lastSpeechMap.get(normalizeForSearch(m.name)) : null;
+    const byClean = m.name ? lastSpeechMap.get(normalizeForSearch(stripHonorific(m.name))) : null;
+    const byFull = m.fullName ? lastSpeechMap.get(normalizeForSearch(m.fullName)) : null;
+    const byLcr = m.originalLcrName ? lastSpeechMap.get(normalizeForSearch(m.originalLcrName)) : null;
+    const byNat = m.originalLcrName ? lastSpeechMap.get(normalizeForSearch(naturalOrderName(m.originalLcrName))) : null;
+
+    const candidates = [byId, byName, byClean, byFull, byLcr, byNat].filter(Boolean);
+    let lastSpeech = null;
+    for (const cand of candidates) {
+      if (!lastSpeech || (cand.data || '') > (lastSpeech.data || '')) {
+        lastSpeech = cand;
+      }
+    }
 
     if (lastSpeech) {
       alreadySpoke.push({ member: m, lastSpeech });
