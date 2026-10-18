@@ -16,6 +16,11 @@ import {
   markHouseholdsIncremented,
   visitorsTotal,
 } from '../services/attendance';
+import {
+  getVisitorSuggestions,
+  saveVisitorSuggestions,
+  deleteVisitorSuggestion,
+} from '../services/visitors';
 import { currentSundayIso, formatPtBrDate } from '../utils/attendanceDate';
 import { normalizeForSearch } from '../utils/textSearch';
 
@@ -62,6 +67,7 @@ export default function DetailedAttendancePage() {
   const [unassignedMembers, setUnassignedMembers] = useState([]);
   const [presentIds, setPresentIds] = useState(() => new Set());
   const [visitors, setVisitors] = useState([]);
+  const [visitorSuggestions, setVisitorSuggestions] = useState([]);
   const [search, setSearch] = useState('');
   const [hadExistingDetailed, setHadExistingDetailed] = useState(false);
   const [simpleCount, setSimpleCount] = useState(null);
@@ -71,8 +77,13 @@ export default function DetailedAttendancePage() {
   const isSavingRef = useRef(false);
   const hadExistingDetailedRef = useRef(hadExistingDetailed);
   const membersByHouseholdRef = useRef(membersByHousehold);
+  const visitorSuggestionsRef = useRef(visitorSuggestions);
   const hasPendingChangesRef = useRef(false);
   const saveVersionRef = useRef(0);
+
+  useEffect(() => {
+    visitorSuggestionsRef.current = visitorSuggestions;
+  }, [visitorSuggestions]);
 
   useEffect(() => {
     if (!unitId || unitLoading) return;
@@ -80,10 +91,11 @@ export default function DetailedAttendancePage() {
     (async () => {
       setLoading(true);
       try {
-        const [householdsList, membersList, existing] = await Promise.all([
+        const [householdsList, membersList, existing, suggestionsList] = await Promise.all([
           getHouseholds(unitId),
           getMembers(unitId),
           getAttendance(unitId, targetDate),
+          getVisitorSuggestions(unitId),
         ]);
         if (cancelled) return;
 
@@ -118,6 +130,9 @@ export default function DetailedAttendancePage() {
         setPresentIds(initialPresent);
         setVisitors(
           Array.isArray(existing?.visitors) ? existing.visitors : [],
+        );
+        setVisitorSuggestions(
+          Array.isArray(suggestionsList) ? suggestionsList : [],
         );
         setHadExistingDetailed(
           existing?.householdsIncremented !== undefined
@@ -217,7 +232,16 @@ export default function DetailedAttendancePage() {
 
   const addVisitor = useCallback((entry) => {
     setVisitors((prev) => [...prev, entry]);
-  }, []);
+    if (unitId) {
+      saveVisitorSuggestions(unitId, [entry], visitorSuggestionsRef.current)
+        .then((updated) => {
+          if (updated) setVisitorSuggestions(updated);
+        })
+        .catch((err) => {
+          console.warn('Falha ao salvar sugestão de visitante:', err);
+        });
+    }
+  }, [unitId]);
 
   const removeVisitor = useCallback((idx) => {
     setVisitors((prev) => prev.filter((_, i) => i !== idx));
@@ -225,7 +249,28 @@ export default function DetailedAttendancePage() {
 
   const editVisitor = useCallback((idx, entry) => {
     setVisitors((prev) => prev.map((v, i) => (i === idx ? entry : v)));
-  }, []);
+    if (unitId) {
+      saveVisitorSuggestions(unitId, [entry], visitorSuggestionsRef.current)
+        .then((updated) => {
+          if (updated) setVisitorSuggestions(updated);
+        })
+        .catch((err) => {
+          console.warn('Falha ao atualizar sugestão de visitante:', err);
+        });
+    }
+  }, [unitId]);
+
+  const handleDeleteSuggestion = useCallback(async (name) => {
+    if (!unitId) return;
+    try {
+      const updated = await deleteVisitorSuggestion(unitId, name, visitorSuggestionsRef.current);
+      setVisitorSuggestions(updated || []);
+      showToast(`Sugestão "${name}" removida.`);
+    } catch (err) {
+      console.error('Falha ao remover sugestão de visitante:', err);
+      showToast('Erro ao remover sugestão.');
+    }
+  }, [unitId, showToast]);
 
   const checkedMemberIds = useMemo(() => Array.from(presentIds), [presentIds]);
   const memberCount = presentIds.size;
@@ -378,6 +423,8 @@ export default function DetailedAttendancePage() {
             onAdd={addVisitor}
             onRemove={removeVisitor}
             onEdit={editVisitor}
+            suggestions={visitorSuggestions}
+            onDeleteSuggestion={handleDeleteSuggestion}
           />
 
           <div className="attendance-save-bar">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import VisitorAutocomplete from './VisitorAutocomplete';
 
 function IconPencil() {
   return (
@@ -38,7 +39,14 @@ function IconX() {
   );
 }
 
-export default function VisitorEntry({ visitors, onAdd, onRemove, onEdit }) {
+export default function VisitorEntry({
+  visitors,
+  onAdd,
+  onRemove,
+  onEdit,
+  suggestions = [],
+  onDeleteSuggestion,
+}) {
   const [description, setDescription] = useState('');
   const [count, setCount] = useState(1);
   const [editingIdx, setEditingIdx] = useState(null);
@@ -98,7 +106,7 @@ export default function VisitorEntry({ visitors, onAdd, onRemove, onEdit }) {
                   onChange={(e) => setEditDesc(e.target.value)}
                   onKeyDown={(e) => handleEditKeyDown(e, idx)}
                   autoFocus
-                  aria-label="Descrição do visitante"
+                  aria-label="Editar descrição do visitante"
                 />
                 <input
                   className="visitor-edit-input visitor-edit-count"
@@ -157,11 +165,19 @@ export default function VisitorEntry({ visitors, onAdd, onRemove, onEdit }) {
       )}
 
       <form className="attendance-visitor-form" onSubmit={handleAdd}>
-        <input
-          type="text"
-          placeholder="Descrição (ex: Família visitante)"
+        <VisitorAutocomplete
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={setDescription}
+          onSelect={(suggestion) => {
+            setDescription(suggestion.name);
+            if (suggestion.count && (!count || Number(count) === 1)) {
+              setCount(suggestion.count);
+            }
+          }}
+          suggestions={suggestions}
+          onDeleteSuggestion={onDeleteSuggestion}
+          placeholder="Descrição (ex: Família visitante)"
+          aria-label="Descrição do visitante"
         />
         <input
           type="number"
