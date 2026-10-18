@@ -6,6 +6,7 @@ import DynamicTable from '../components/shared/DynamicTable';
 import HymnLookup from '../components/shared/HymnLookup';
 import LeaderSelect, { OTHER } from '../components/shared/LeaderSelect';
 import MemberAutocomplete from '../components/shared/MemberAutocomplete';
+import RecognitionTable from '../components/ata/RecognitionTable';
 import PrintDocument from '../components/print/PrintDocument';
 import AttendancePicker from '../components/ata/AttendancePicker';
 import KebabMenu from '../components/layout/KebabMenu';
@@ -34,6 +35,11 @@ import {
   saveUnitSettings,
   getLastUsedMusicLeaders,
 } from '../services/units';
+import {
+  getRecognitionSuggestions,
+  saveRecognitionSuggestions,
+  deleteRecognitionSuggestion,
+} from '../services/recognitions';
 import { formatDateBR, getDefaultMeetingMode } from '../utils/speakerHelpers';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -41,6 +47,7 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LS_DRAFT_KEY = (unitId, date = null) =>
   date ? `ata:draft:${unitId || 'none'}:${date}` : `ata:draft:${unitId || 'none'}`;
 export const LS_MEMORY_KEY = (unitId) => `ata:memory:${unitId || 'none'}`;
+export const LS_RECOGNITIONS_KEY = (unitId) => `ata:recognitions:${unitId || 'none'}`;
 const LS_FONT_KEY = 'ata:fontSizePt';
 
 export default function AtaFormPage({ editMode = false, routeMode = null }) {
@@ -69,6 +76,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   // touched the form. Once a draft is persisted (ataId set), this stays true
   // implicitly via the `enabled` check below.
   const [dirty, setDirty] = useState(false);
+  const [recognitionSuggestions, setRecognitionSuggestions] = useState([]);
   const hasLoaded = useRef(false);
   const loadKey = useRef(null);
 
@@ -238,6 +246,66 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
     enabled: !!unitId && !loading && !isEditing && dirty,
   });
 
+  // Load recognition suggestions (instant from local cache, then refreshed from Firestore)
+  useEffect(() => {
+    if (!unitId) return;
+    let local = [];
+    try {
+      local = JSON.parse(localStorage.getItem(LS_RECOGNITIONS_KEY(unitId)) || '[]');
+    } catch {
+      /* ignore */
+    }
+    if (Array.isArray(local) && local.length > 0) {
+      setRecognitionSuggestions(local);
+    }
+    getRecognitionSuggestions(unitId)
+      .then((suggestions) => {
+        setRecognitionSuggestions(suggestions);
+        try {
+          localStorage.setItem(LS_RECOGNITIONS_KEY(unitId), JSON.stringify(suggestions));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch((err) => {
+        console.warn('Falha ao carregar sugestões de reconhecimentos:', err);
+      });
+  }, [unitId]);
+
+  // Persist recognition memory on change — debounced via useAutoSave.
+  useAutoSave({
+    value: ata.rowsRec,
+    onSave: async (rows) => {
+      if (!unitId || !Array.isArray(rows) || rows.length === 0) return;
+      const validRows = rows.filter((r) => r && r[0] && r[0].trim());
+      if (validRows.length === 0) return;
+      const updated = await saveRecognitionSuggestions(unitId, validRows, recognitionSuggestions);
+      setRecognitionSuggestions(updated);
+      try {
+        localStorage.setItem(LS_RECOGNITIONS_KEY(unitId), JSON.stringify(updated));
+      } catch {
+        /* ignore */
+      }
+    },
+    delay: 1500,
+    enabled: !!unitId && !loading && !isEditing && dirty,
+  });
+
+  async function handleDeleteRecognitionSuggestion(name) {
+    if (!unitId || !name) return;
+    try {
+      const updated = await deleteRecognitionSuggestion(unitId, name, recognitionSuggestions);
+      setRecognitionSuggestions(updated);
+      try {
+        localStorage.setItem(LS_RECOGNITIONS_KEY(unitId), JSON.stringify(updated));
+      } catch {
+        /* ignore */
+      }
+    } catch (e) {
+      console.warn('Erro ao remover sugestão de reconhecimento:', e);
+    }
+  }
+
   // Auto-save draft to Firestore (debounced) + localStorage cache instant.
   // Disabled while editing a finalized ata — edits save explicitly via button.
   const autoSaveHandler = useCallback(
@@ -276,7 +344,7 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
 
   function executeClearSection(key) {
     const patches = {
-      abertura: { hAberNum: '', oracao1: '', anuncios: '' },
+      abertura: { hAberNum: '', oracao1: '', anuncios: '', rowsRec: [] },
       apoios: { rowsApoios: [] },
       ordenacoes: { rowsOrd: [] },
       confirmacoes: { rowsConf: [] },
@@ -364,6 +432,12 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
           /* ignore */
         }
       }
+      if (Array.isArray(ata.rowsRec) && ata.rowsRec.length > 0) {
+        const validRows = ata.rowsRec.filter((r) => r && r[0] && r[0].trim());
+        if (validRows.length > 0) {
+          saveRecognitionSuggestions(unitId, validRows, recognitionSuggestions).catch(console.error);
+        }
+      }
       showToast('Ata finalizada com sucesso.');
       if (lsKey) localStorage.removeItem(lsKey);
       // After finalization on a date-keyed route, navigate back to dashboard
@@ -411,6 +485,12 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
           localStorage.setItem(LS_MEMORY_KEY(unitId), JSON.stringify({ ...cur, ...patch }));
         } catch {
           /* ignore */
+        }
+      }
+      if (Array.isArray(ata.rowsRec) && ata.rowsRec.length > 0) {
+        const validRows = ata.rowsRec.filter((r) => r && r[0] && r[0].trim());
+        if (validRows.length > 0) {
+          saveRecognitionSuggestions(unitId, validRows, recognitionSuggestions).catch(console.error);
         }
       }
       showToast('Alterações salvas.');
@@ -685,11 +765,22 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             </div>
             <div className="field-row single">
               <div className="field">
-                <label>Anúncios / Reconhecimentos</label>
+                <label>Anúncios</label>
                 <textarea
-                  placeholder="Anúncios, reconhecimentos, visitantes..."
+                  placeholder="Anúncios da unidade, estaca, atividades..."
                   value={ata.anuncios}
                   onChange={(e) => update({ anuncios: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="field-row single">
+              <div className="field">
+                <label>Reconhecimentos</label>
+                <RecognitionTable
+                  rows={ata.rowsRec || []}
+                  onChange={(rows) => update({ rowsRec: rows })}
+                  suggestions={recognitionSuggestions}
+                  onDeleteSuggestion={handleDeleteRecognitionSuggestion}
                 />
               </div>
             </div>

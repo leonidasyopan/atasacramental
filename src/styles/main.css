@@ -346,6 +346,92 @@ body {
 .dyn-table tr.row-dragging { opacity: .4; }
 .dyn-table tr.row-drag-over td { border-top: 2px solid var(--blue); }
 
+/* ── Recognition Table & Autocomplete ── */
+.recognition-table-container {
+  margin-top: 10px;
+}
+.recognition-table-empty {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 12px 8px !important;
+  font-size: 0.85rem;
+}
+.recognition-autocomplete {
+  position: relative;
+  width: 100%;
+}
+.recognition-autocomplete input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.recognition-autocomplete-dropdown {
+  position: fixed;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(27, 58, 107, 0.15), 0 8px 10px -6px rgba(27, 58, 107, 0.1);
+  padding: 4px;
+}
+.recognition-autocomplete-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: white;
+  transition: background-color 0.12s;
+  user-select: none;
+}
+.recognition-autocomplete-option.highlighted,
+.recognition-autocomplete-option:hover {
+  background: var(--light-blue);
+}
+.recognition-autocomplete-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.recognition-autocomplete-name {
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recognition-autocomplete-calling {
+  font-size: 0.75rem;
+  color: #4b5563;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recognition-autocomplete-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.12s, background-color 0.12s;
+}
+.recognition-autocomplete-delete-btn:hover {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
 /* ── History tables (Data-display) ── */
 .table-history th {
   background: #f8fafc;
