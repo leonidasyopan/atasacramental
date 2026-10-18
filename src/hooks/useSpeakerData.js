@@ -5,6 +5,7 @@ import { getInvites } from '../services/invites';
 import { getDiscourseTopics } from '../services/topics';
 import { getRecentAttendances } from '../services/attendance';
 import { getAtaHistory } from '../services/atas';
+import { getCalendarSettings } from '../services/calendar';
 import { consolidateSpeakerHistory } from '../utils/speakerHelpers';
 
 export function useSpeakerData() {
@@ -14,6 +15,7 @@ export function useSpeakerData() {
   const [invites, setInvites] = useState([]);
   const [topics, setTopics] = useState([]);
   const [recentAttendances, setRecentAttendances] = useState([]);
+  const [calendarSettings, setCalendarSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,18 +24,20 @@ export function useSpeakerData() {
     setLoading(true);
     setError(null);
     try {
-      const [log, inv, top, att, atas] = await Promise.all([
+      const [log, inv, top, att, atas, cal] = await Promise.all([
         getSpeakerLog(unitId),
         getInvites(unitId),
         getDiscourseTopics(unitId),
         getRecentAttendances(unitId, 12),
         getAtaHistory(unitId, { max: 100 }),
+        getCalendarSettings(unitId),
       ]);
       setRawSpeakerLog(log || []);
       setInvites(inv || []);
       setTopics(top || []);
       setRecentAttendances(att || []);
       setFinalizedAtas(atas || []);
+      setCalendarSettings(cal || null);
     } catch (e) {
       console.error('useSpeakerData:', e);
       setError(e);
@@ -55,6 +59,6 @@ export function useSpeakerData() {
     });
   }, [rawSpeakerLog, finalizedAtas, invites, members]);
 
-  return { speakerLog, invites, topics, recentAttendances, members, loading, error, reload };
+  return { speakerLog, invites, topics, recentAttendances, members, calendarSettings, loading, error, reload };
 }
 

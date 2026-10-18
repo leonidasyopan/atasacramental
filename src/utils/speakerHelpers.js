@@ -24,7 +24,7 @@ export function stripHonorific(name) {
  * Avoids the off-by-one bug from `toISOString()` for users in negative UTC
  * offsets (e.g. Brazil UTC-3) late at night.
  */
-function toLocalISODate(d) {
+export function toLocalISODate(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -464,14 +464,25 @@ export function getNextSunday() {
 }
 
 /**
- * Compute the next N Sundays starting from today (if today is Sunday) or from getNextSunday().
+ * Compute the next N Sundays starting from today (if today is Sunday and not skipped)
+ * or from getNextSunday().
  * @param {number} n - how many Sundays to return (>=1)
+ * @param {object} [opts]
+ * @param {string|null} [opts.fromDate] - explicit start ISO string (optional)
+ * @param {boolean} [opts.skipToday] - if today is Sunday, skip today and start from next Sunday
  * @returns {string[]} array of ISO date strings (YYYY-MM-DD)
  */
-export function getNextNSundays(n) {
+export function getNextNSundays(n, { fromDate = null, skipToday = false } = {}) {
   if (!Number.isInteger(n) || n <= 0) return [];
   const now = new Date();
-  const startIso = now.getDay() === 0 ? toLocalISODate(now) : getNextSunday();
+  let startIso;
+  if (fromDate) {
+    startIso = fromDate;
+  } else if (now.getDay() === 0 && !skipToday) {
+    startIso = toLocalISODate(now);
+  } else {
+    startIso = getNextSunday();
+  }
   const [y, m, d] = startIso.split('-').map(Number);
   return Array.from({ length: n }, (_, i) => toLocalISODate(new Date(y, m - 1, d + i * 7)));
 }
@@ -518,5 +529,80 @@ export function isFirstSundayOfMonth(isoString) {
  */
 export function getDefaultMeetingMode(isoString) {
   return isFirstSundayOfMonth(isoString) ? 'test' : 'disc';
+}
+
+/**
+ * Checks if a given ISO date is General Conference Sunday.
+ * In the Church of Jesus Christ of Latter-day Saints, General Conference
+ * is held semi-annually on the first Sunday of April (month 4) and first Sunday of October (month 10).
+ * On these Sundays, units do not hold local sacramental meetings.
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @returns {boolean}
+ */
+export function isGeneralConferenceSunday(isoString) {
+  if (!isFirstSundayOfMonth(isoString)) return false;
+  const [, m] = isoString.split('-').map(Number);
+  return m === 4 || m === 10;
+}
+
+/**
+ * Resolves special Sunday information (e.g. Conferência Geral, Conferência de Estaca).
+ * @param {string} isoString - ISO date string (YYYY-MM-DD)
+ * @param {object} [calendarSettings] - unit calendar settings
+ * @returns {{ isSpecial: boolean, date: string, type: string, title: string, notes: string }|null}
+ */
+export function getSpecialSundayInfo(isoString, calendarSettings = {}) {
+  if (!isoString || typeof isoString !== 'string') return null;
+  const specialSundays = Array.isArray(calendarSettings?.specialSundays)
+    ? calendarSettings.specialSundays
+    : [];
+
+  const directMatch = specialSundays.find((s) => s.date === isoString);
+  if (directMatch) {
+    const defaultTitle = directMatch.type === 'stake_conference'
+      ? 'Conferência de Estaca'
+      : directMatch.type === 'general_conference'
+      ? 'Conferência Geral'
+      : 'Sem Reunião Sacramental';
+    return {
+      isSpecial: true,
+      date: isoString,
+      type: directMatch.type || 'stake_conference',
+      title: directMatch.title || defaultTitle,
+      notes: directMatch.notes || '',
+    };
+  }
+
+  const autoGC = calendarSettings?.autoGeneralConference !== false;
+  if (autoGC && isGeneralConferenceSunday(isoString)) {
+    return {
+      isSpecial: true,
+      date: isoString,
+      type: 'general_conference',
+      title: 'Conferência Geral',
+      notes: 'Transmissão mundial — Sem reunião sacramental na unidade',
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Returns the next upcoming Sunday that has a local sacramental meeting
+ * (i.e., skipping any configured special Sundays like Stake or General Conference).
+ * @param {object} [calendarSettings]
+ * @param {string|null} [fromDate]
+ * @returns {string} ISO date string (YYYY-MM-DD)
+ */
+export function getNextSacramentalSunday(calendarSettings = {}, fromDate = null) {
+  let cur = fromDate || getNextSunday();
+  for (let i = 0; i < 10; i++) {
+    if (!getSpecialSundayInfo(cur, calendarSettings)) {
+      return cur;
+    }
+    const [y, m, d] = cur.split('-').map(Number);
+    cur = toLocalISODate(new Date(y, m - 1, d + 7));
+  }
+  return cur;
 }
 

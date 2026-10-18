@@ -1,16 +1,16 @@
 import { Link } from 'react-router-dom';
-import { daysUntil, formatDateBR } from '../../utils/speakerHelpers';
+import { daysUntil, formatDateBR, getSpecialSundayInfo } from '../../utils/speakerHelpers';
 
 const PENDING_INVITE_THRESHOLD_DAYS = 7;
 
 /**
  * Build the alert list from the dashboard's data.
- *  - red:    upcoming Sundays (≤7 days) with 0 invites
+ *  - red:    upcoming Sundays (≤7 days) with 0 invites (skipped for special Sundays)
  *  - yellow: invites pending for > N days
  *  - blue:   past Sundays with unfinalized drafts
  *  - blue:   drafts with mode='test' that have invites for that date
  */
-function buildAlerts({ upcomingDates, drafts, invites }) {
+function buildAlerts({ upcomingDates, drafts, invites, calendarSettings }) {
   const alerts = [];
   const today = (() => {
     const d = new Date();
@@ -25,8 +25,9 @@ function buildAlerts({ upcomingDates, drafts, invites }) {
     return acc;
   }, new Map());
 
-  // Red: imminent Sundays (≤7 days) with 0 invites
+  // Red: imminent Sundays (≤7 days) with 0 invites (skipped for special Sundays without sacramental meeting)
   for (const date of upcomingDates) {
+    if (getSpecialSundayInfo(date, calendarSettings)) continue;
     const days = daysUntil(date);
     if (days == null || days > 7) continue;
     const dateInvites = invitesByDate.get(date) || [];
@@ -91,8 +92,8 @@ function buildAlerts({ upcomingDates, drafts, invites }) {
   return alerts;
 }
 
-export default function DashboardAlerts({ upcomingDates, drafts, invites }) {
-  const alerts = buildAlerts({ upcomingDates, drafts, invites });
+export default function DashboardAlerts({ upcomingDates, drafts, invites, calendarSettings = {} }) {
+  const alerts = buildAlerts({ upcomingDates, drafts, invites, calendarSettings });
   if (alerts.length === 0) return null;
 
   return (
