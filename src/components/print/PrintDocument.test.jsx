@@ -16,21 +16,25 @@ describe('PrintDocument', () => {
     expect(screen.getByText('23/08/2026')).toBeInTheDocument();
   });
 
-  it('renders multi-line text for Anúncios / Reconhecimentos with line breaks', () => {
+  it('renders multi-line text for Anúncios with line breaks and formatted Reconhecimentos', () => {
     const anunciosText = '1. Primeira atividade na quarta-feira às 19h.\n2. Limpeza no sábado às 8h.\n3. Conferência de estaca no domingo.';
     const ata = {
       data: '2026-08-23',
       anuncios: anunciosText,
+      rowsRec: [
+        ['Presidente Adriano Silva Machado', 'Presidente da Estaca'],
+        ['Sandra Zacheu', 'Presidente da Sociedade de Socorro'],
+      ],
       sectionEnabled: { abertura: true },
     };
 
     const { container } = render(<PrintDocument ata={ata} unit={defaultUnit} />);
-    const labels = screen.getAllByText(/Anúncios \/ Reconhecimentos:/i);
-    expect(labels.length).toBeGreaterThan(0);
-
-    const valEl = container.querySelector('.section .fl .val');
-    expect(valEl).toBeInTheDocument();
+    expect(screen.getByText(/Anúncios:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reconhecimentos:/i)).toBeInTheDocument();
     expect(container.textContent).toContain(anunciosText);
+    expect(container.textContent).toContain(
+      'Presidente Adriano Silva Machado — Presidente da Estaca; Sandra Zacheu — Presidente da Sociedade de Socorro',
+    );
   });
 
   it('renders multi-line text for Observações in Jejum e Testemunhos mode', () => {

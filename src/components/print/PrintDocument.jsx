@@ -1,4 +1,5 @@
 import { lookupHymn } from '../../data/hymns';
+import { formatReconhecimentos } from '../../services/atas';
 
 function fmtDate(iso) {
   if (!iso) return '';
@@ -76,7 +77,8 @@ export default function PrintDocument({ ata, unit, fontSizePt = 8 }) {
             <div className="fl"><span className="lbl">Hino de Abertura:</span><span className="val">{hymnLabel(ata?.hAberNum)}</span></div>
             <div className="fl"><span className="lbl">1ª Oração:</span><span className="val">{ata?.oracao1 || ''}</span></div>
           </div>
-          <div className="fl"><span className="lbl">Anúncios / Reconhecimentos:</span><span className="val">{ata?.anuncios || ''}</span></div>
+          <div className="fl"><span className="lbl">Anúncios:</span><span className="val">{ata?.anuncios || ''}</span></div>
+          <div className="fl"><span className="lbl">Reconhecimentos:</span><span className="val">{formatReconhecimentos(ata?.rowsRec)}</span></div>
         </div>
       )}
 

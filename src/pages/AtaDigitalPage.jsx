@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUnit } from '../services/units';
-import { getAta, getAtaByDate } from '../services/atas';
+import { getAta, getAtaByDate, formatReconhecimentos } from '../services/atas';
 import { lookupHymn } from '../data/hymns';
 import { formatDateBR } from '../utils/speakerHelpers';
 import '../styles/digital-view.css';
@@ -176,8 +176,12 @@ export default function AtaDigitalPage({ routeMode = 'programa' }) {
               </div>
             </div>
             <div className="fl">
-              <span className="lbl">Anúncios / Reconhecimentos</span>
+              <span className="lbl">Anúncios</span>
               <span className="val" style={{ whiteSpace: 'pre-wrap' }}>{ata?.anuncios || '—'}</span>
+            </div>
+            <div className="fl">
+              <span className="lbl">Reconhecimentos</span>
+              <span className="val" style={{ whiteSpace: 'pre-wrap' }}>{formatReconhecimentos(ata?.rowsRec) || '—'}</span>
             </div>
           </div>
         )}

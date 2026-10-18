@@ -33,6 +33,7 @@ export const DEFAULT_ATA = {
   hAberNum: '',
   oracao1: '',
   anuncios: '',
+  rowsRec: [],
   rowsApoios: [],
   rowsOrd: [],
   rowsConf: [],
@@ -59,6 +60,23 @@ export const DEFAULT_ATA = {
   },
 };
 
+/**
+ * Formats a list of recognition rows [[name, calling], ...] into a fluid readable string
+ * for print and digital views (e.g. "Nome — Chamado; Nome 2 — Chamado 2").
+ */
+export function formatReconhecimentos(rowsRec) {
+  if (!Array.isArray(rowsRec) || rowsRec.length === 0) return '';
+  const entries = rowsRec
+    .map((r) => {
+      const nome = (Array.isArray(r) ? r[0] : r?.c0 || r?.name || '').trim();
+      const chamado = (Array.isArray(r) ? r[1] : r?.c1 || r?.calling || '').trim();
+      if (!nome) return '';
+      return chamado ? `${nome} — ${chamado}` : nome;
+    })
+    .filter(Boolean);
+  return entries.join('; ');
+}
+
 export function atasRef(unitId) {
   return collection(db, 'units', unitId, 'atas');
 }
@@ -74,7 +92,7 @@ function speakerLogRef(unitId) {
  * keyed by column index (`[{c0, c1, c2}, ...]`) at the Firestore boundary,
  * keeping the in-memory shape unchanged for the UI.
  */
-const ROW_FIELDS = ['rowsApoios', 'rowsOrd', 'rowsConf', 'rowsBencao', 'rowsDisc'];
+const ROW_FIELDS = ['rowsApoios', 'rowsOrd', 'rowsConf', 'rowsBencao', 'rowsDisc', 'rowsRec'];
 
 function rowsToObjects(rows) {
   if (!Array.isArray(rows)) return [];
