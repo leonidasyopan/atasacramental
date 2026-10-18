@@ -151,9 +151,12 @@ O script `scripts/harness/smoke-test.mjs` valida deterministicamente:
 - Comportamento de roteamento SPA em rotas profundas (ex.: `/admin/members`).
 - Ausência de regressões críticas de carregamento em ambiente live.
 
-### 6.5. Padrão de Pull Request & Entrega para `main`
+### 6.5. Padrão de Pull Request & Encerramento Obrigatório de Tarefas
+> [!IMPORTANT]
+> **Encerramento Obrigatório**: Toda implementação, melhoria ou correção deve ser encerrada com uma Auto-Revisão Crítica (*Devil's Advocate* guiado pelas 5 premissas) e a abertura de um Pull Request para a branch `main`. Consulte [`docs/HARNESS.md`](file:///home/yopan/projects/atasacramental/docs/HARNESS.md) e [`.agents/rules/development-harness.md`](file:///home/yopan/projects/atasacramental/.agents/rules/development-harness.md) para a diretriz canônica.
+
 - Seguir **Conventional Commits** (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`).
-- Abrir o Pull Request com descrição detalhada de escopo, mudanças implementadas, critérios de aceite e resultados de teste:
+- Abrir o Pull Request com descrição detalhada de escopo, mudanças implementadas, análise crítica devil's advocate e evidências de testes:
   ```bash
   gh pr create --base main --head <sua-branch> --title "..." --body "..."
   ```

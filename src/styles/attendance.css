@@ -402,6 +402,86 @@
   font-size: 1rem;
 }
 
+/* Visitor Autocomplete */
+.visitor-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+.visitor-autocomplete input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.visitor-autocomplete-dropdown {
+  position: fixed;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(27, 58, 107, 0.15), 0 8px 10px -6px rgba(27, 58, 107, 0.1);
+  padding: 4px;
+}
+
+.visitor-autocomplete-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: white;
+  transition: background-color 0.12s;
+  user-select: none;
+}
+
+.visitor-autocomplete-option.highlighted,
+.visitor-autocomplete-option:hover {
+  background: var(--light-blue);
+}
+
+.visitor-autocomplete-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--navy);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.visitor-autocomplete-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4b5563;
+  background: #f3f4f6;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+.visitor-autocomplete-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.12s, background-color 0.12s;
+}
+
+.visitor-autocomplete-delete-btn:hover {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
 /* --- Save bar --- */
 .attendance-save-bar {
   position: fixed;
