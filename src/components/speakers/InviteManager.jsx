@@ -16,7 +16,7 @@ const STATUS_FILTERS = [
   { label: 'Concluídos', value: 'concluido' },
 ];
 
-export default function InviteManager({ invites, topics, members, reload, readOnly = false }) {
+export default function InviteManager({ invites, topics, members, reload, readOnly = false, calendarSettings = null }) {
   const { unitId, unit, leadersFull } = useUnit();
   const { showToast } = useToast();
   const [statusFilter, setStatusFilter] = useState(null);
@@ -137,6 +137,7 @@ export default function InviteManager({ invites, topics, members, reload, readOn
           members={members}
           topics={topics}
           invites={invites}
+          calendarSettings={calendarSettings}
         />
       )}
 

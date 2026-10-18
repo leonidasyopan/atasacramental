@@ -9,6 +9,13 @@ import {
   updateLeader,
   deleteLeader,
 } from '../../services/units';
+import {
+  getCalendarSettings,
+  saveCalendarSettings,
+  addSpecialSunday,
+  removeSpecialSunday,
+} from '../../services/calendar';
+import { formatDateBR } from '../../utils/speakerHelpers';
 
 export default function AdminUnitsPage() {
   const { unitId, unit, reload } = useUnit();
@@ -23,6 +30,14 @@ export default function AdminUnitsPage() {
   const [newLeaderName, setNewLeaderName] = useState('');
   const [newLeaderCalling, setNewLeaderCalling] = useState('');
   const [newLeaderPhone, setNewLeaderPhone] = useState('');
+
+  const [calendarSettings, setCalendarSettings] = useState(null);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [newSpecialDate, setNewSpecialDate] = useState('');
+  const [newSpecialType, setNewSpecialType] = useState('stake_conference');
+  const [newSpecialTitle, setNewSpecialTitle] = useState('Conferência de Estaca');
+  const [newSpecialNotes, setNewSpecialNotes] = useState('');
+  const [savingCalendar, setSavingCalendar] = useState(false);
 
   useEffect(() => {
     setName(unit?.name || '');
@@ -40,8 +55,19 @@ export default function AdminUnitsPage() {
     }
   }
 
+  async function reloadCalendar() {
+    if (!unitId) return;
+    setCalendarLoading(true);
+    try {
+      setCalendarSettings(await getCalendarSettings(unitId));
+    } finally {
+      setCalendarLoading(false);
+    }
+  }
+
   useEffect(() => {
     reloadLeaders();
+    reloadCalendar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unitId]);
 
@@ -104,6 +130,77 @@ export default function AdminUnitsPage() {
     } catch (err) {
       console.error(err);
       showToast('Erro ao remover líder.');
+    }
+  }
+
+  async function handleToggleAutoGC(e) {
+    const val = e.target.checked;
+    if (!unitId) return;
+    setSavingCalendar(true);
+    try {
+      const updated = {
+        ...(calendarSettings || {}),
+        autoGeneralConference: val,
+      };
+      await saveCalendarSettings(unitId, updated);
+      setCalendarSettings(updated);
+      showToast(val ? 'Conferência Geral automática ativada.' : 'Conferência Geral automática desativada.');
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao atualizar configuração de calendário.');
+    } finally {
+      setSavingCalendar(false);
+    }
+  }
+
+  function handleSpecialTypeChange(val) {
+    setNewSpecialType(val);
+    if (val === 'stake_conference') {
+      setNewSpecialTitle('Conferência de Estaca');
+    } else if (val === 'general_conference') {
+      setNewSpecialTitle('Conferência Geral');
+    } else {
+      setNewSpecialTitle('');
+    }
+  }
+
+  async function handleAddSpecialSunday(e) {
+    e.preventDefault();
+    if (!unitId || !newSpecialDate) return;
+    setSavingCalendar(true);
+    try {
+      await addSpecialSunday(unitId, {
+        date: newSpecialDate,
+        type: newSpecialType,
+        title: newSpecialTitle.trim() || (newSpecialType === 'stake_conference' ? 'Conferência de Estaca' : 'Sem Reunião'),
+        notes: newSpecialNotes.trim(),
+      });
+      await reloadCalendar();
+      setNewSpecialDate('');
+      setNewSpecialNotes('');
+      setNewSpecialType('stake_conference');
+      setNewSpecialTitle('Conferência de Estaca');
+      showToast('Data especial adicionada.');
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao adicionar data especial.');
+    } finally {
+      setSavingCalendar(false);
+    }
+  }
+
+  async function handleRemoveSpecialSunday(date) {
+    if (!unitId) return;
+    setSavingCalendar(true);
+    try {
+      await removeSpecialSunday(unitId, date);
+      await reloadCalendar();
+      showToast('Data especial removida.');
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao remover data especial.');
+    } finally {
+      setSavingCalendar(false);
     }
   }
 
@@ -263,6 +360,127 @@ export default function AdminUnitsPage() {
                         type="button"
                         className="btn btn-ghost btn-sm"
                         onClick={() => removeLeader(l)}
+                      >
+                        Remover
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Domingos Especiais & Calendário */}
+      <div className="card" style={{ marginTop: 14 }}>
+        <div className="card-header">
+          <div className="card-header-left"><h2>Domingos Especiais & Calendário</h2></div>
+        </div>
+        <div className="card-body">
+          <p style={{ color: '#6b7280', marginTop: 0 }}>
+            Configure os domingos em que a unidade não realiza Reunião Sacramental própria (ex: Conferência Geral e Conferências de Estaca). Nessas datas, o sistema não exige rascunhos nem alerta sobre falta de convites.
+          </p>
+
+          <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={calendarSettings?.autoGeneralConference !== false}
+                onChange={handleToggleAutoGC}
+                disabled={savingCalendar}
+                style={{ marginTop: 3, accentColor: '#7c3aed', width: 16, height: 16 }}
+              />
+              <div>
+                <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#4c1d95', display: 'block' }}>
+                  Conferência Geral Automática (1º domingo de abril e 1º domingo de outubro)
+                </span>
+                <span style={{ fontSize: '0.78rem', color: '#6d28d9', display: 'block', marginTop: 2 }}>
+                  Quando ativado, o sistema reconhece automaticamente essas datas fixas como sem reunião sacramental na unidade.
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <form onSubmit={handleAddSpecialSunday} className="field-row" style={{ alignItems: 'end' }}>
+            <div className="field">
+              <label>Data (Domingo)</label>
+              <input
+                type="date"
+                value={newSpecialDate}
+                onChange={(e) => setNewSpecialDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Tipo</label>
+              <select
+                value={newSpecialType}
+                onChange={(e) => handleSpecialTypeChange(e.target.value)}
+              >
+                <option value="stake_conference">Conferência de Estaca</option>
+                <option value="general_conference">Conferência Geral</option>
+                <option value="other">Outro Evento</option>
+              </select>
+            </div>
+            <div className="field">
+              <label>Título / Rótulo</label>
+              <input
+                type="text"
+                value={newSpecialTitle}
+                onChange={(e) => setNewSpecialTitle(e.target.value)}
+                placeholder="Ex: Conferência de Estaca"
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Observações (opcional)</label>
+              <input
+                type="text"
+                value={newSpecialNotes}
+                onChange={(e) => setNewSpecialNotes(e.target.value)}
+                placeholder="Ex: 10h na sede da estaca"
+              />
+            </div>
+            <div className="field">
+              <button className="btn btn-primary" type="submit" disabled={savingCalendar || !newSpecialDate}>
+                {savingCalendar ? 'Salvando...' : '+ Adicionar Data'}
+              </button>
+            </div>
+          </form>
+
+          {calendarLoading && <p>Carregando calendário...</p>}
+          {!calendarLoading && (!calendarSettings?.specialSundays || calendarSettings.specialSundays.length === 0) && (
+            <p style={{ color: '#6b7280', marginTop: 12 }}>Nenhuma data de Conferência de Estaca ou data especial cadastrada.</p>
+          )}
+          {!calendarLoading && calendarSettings?.specialSundays && calendarSettings.specialSundays.length > 0 && (
+            <table className="dyn-table" style={{ marginTop: 12 }}>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Título</th>
+                  <th>Observações</th>
+                  <th style={{ width: '8%' }} />
+                </tr>
+              </thead>
+              <tbody>
+                {calendarSettings.specialSundays.map((s) => (
+                  <tr key={s.date}>
+                    <td style={{ fontWeight: 600 }}>{formatDateBR(s.date)}</td>
+                    <td>
+                      <span className="dash-badge dash-badge-special">
+                        {s.type === 'stake_conference' ? 'Conferência de Estaca' : s.type === 'general_conference' ? 'Conferência Geral' : 'Outro'}
+                      </span>
+                    </td>
+                    <td>{s.title}</td>
+                    <td style={{ color: '#64748b' }}>{s.notes || '—'}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => handleRemoveSpecialSunday(s.date)}
+                        disabled={savingCalendar}
                       >
                         Remover
                       </button>

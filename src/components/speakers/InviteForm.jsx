@@ -1,13 +1,31 @@
 import { useState, useMemo } from 'react';
-import { findMemberId, getNextSunday, getUsedTopicMap, filterMembersByAge } from '../../utils/speakerHelpers';
+import {
+  findMemberId,
+  getNextSunday,
+  getNextSacramentalSunday,
+  getSpecialSundayInfo,
+  getUsedTopicMap,
+  filterMembersByAge,
+} from '../../utils/speakerHelpers';
 
-export default function InviteForm({ onSave, onCancel, invite, defaultValues, members, topics, invites }) {
+export default function InviteForm({
+  onSave,
+  onCancel,
+  invite,
+  defaultValues,
+  members,
+  topics,
+  invites,
+  calendarSettings = null,
+}) {
   const isEdit = !!invite?.id;
   const initial = invite || defaultValues || {};
 
   const [isExternal, setIsExternal] = useState(initial.isExternal || false);
   const [memberName, setMemberName] = useState(initial.memberName || '');
-  const [dataAlvo, setDataAlvo] = useState(initial.dataAlvo || getNextSunday());
+  const [dataAlvo, setDataAlvo] = useState(
+    initial.dataAlvo || (calendarSettings ? getNextSacramentalSunday(calendarSettings) : getNextSunday()),
+  );
   const [position, setPosition] = useState(initial.position || '');
   const [duration, setDuration] = useState(initial.duration || '');
   const [topic, setTopic] = useState(initial.topic || '');
@@ -22,6 +40,11 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
   const visibleTopics = useMemo(
     () => (topics || []).filter((t) => !usedTopicMap.has(t.trim().toLowerCase())),
     [topics, usedTopicMap],
+  );
+
+  const specialSundayNotice = useMemo(
+    () => getSpecialSundayInfo(dataAlvo, calendarSettings),
+    [dataAlvo, calendarSettings],
   );
 
   const sorted = useMemo(() => {
@@ -131,6 +154,21 @@ export default function InviteForm({ onSave, onCancel, invite, defaultValues, me
             value={dataAlvo}
             onChange={(e) => setDataAlvo(e.target.value)}
           />
+          {specialSundayNotice && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: '0.78rem',
+                color: '#5b21b6',
+                background: '#ede9fe',
+                padding: '6px 10px',
+                borderRadius: 6,
+                border: '1px solid #ddd6fe',
+              }}
+            >
+              ⚠️ <strong>Atenção:</strong> {specialSundayNotice.title} — Não há Reunião Sacramental nesta data.
+            </div>
+          )}
         </div>
 
         <div className="field-row" style={{ marginBottom: 14, gap: 12 }}>

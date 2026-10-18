@@ -37,7 +37,9 @@ function formatRelative(days) {
  *  green  — draft exists
  *  gray   — no draft
  */
-function computeSundayStatus({ date, draft, invites, days }) {
+function computeSundayStatus({ date, draft, invites, days, finalizedAta, specialSunday }) {
+  if (specialSunday) return 'special';
+  if (finalizedAta) return 'green';
   const mode = draft?.mode || getDefaultMeetingMode(date);
   if (mode === 'test') {
     return draft ? 'green' : 'gray';
@@ -50,15 +52,64 @@ function computeSundayStatus({ date, draft, invites, days }) {
   return days != null && days <= 7 ? 'red' : 'gray';
 }
 
-export default function UpcomingSundayCard({ date, draft, invites }) {
+export default function UpcomingSundayCard({
+  date,
+  draft,
+  invites = [],
+  finalizedAta = null,
+  specialSunday = null,
+  onManageSpecial = null,
+}) {
   const days = daysUntil(date);
-  const status = computeSundayStatus({ date, draft, invites, days });
+  const status = computeSundayStatus({ date, draft, invites, days, finalizedAta, specialSunday });
   const total = invites.length;
   const accepted = invites.filter((i) => i.status === 'aceito').length;
   const isTest = (draft?.mode || getDefaultMeetingMode(date)) === 'test';
 
+  if (specialSunday) {
+    const handleSpecialClick = (e) => {
+      if (onManageSpecial) {
+        e.preventDefault();
+        onManageSpecial(specialSunday);
+      }
+    };
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleSpecialClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSpecialClick(e);
+          }
+        }}
+        className="sunday-card sunday-card-special"
+        aria-label={`${specialSunday.title} - ${formatLong(date)}`}
+        style={{ cursor: onManageSpecial ? 'pointer' : 'default' }}
+      >
+        <div className={`sunday-card-stripe stripe-${status}`} />
+        <div className="sunday-card-body">
+          <div>
+            <div className="sunday-card-date">{formatLong(date)}</div>
+            <div className="sunday-card-relative">{formatRelative(days)}</div>
+          </div>
+          <div className="sunday-card-badges">
+            <span className="dash-badge dash-badge-special">{specialSunday.title}</span>
+            <span className="dash-badge dash-badge-muted">Sem Reunião</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const targetUrl = finalizedAta
+    ? `/historico/${finalizedAta.id}/editar`
+    : `/programa/${date}`;
+
   return (
-    <Link to={`/programa/${date}`} className="sunday-card" aria-label={`Programa de ${formatLong(date)}`}>
+    <Link to={targetUrl} className="sunday-card" aria-label={`Programa de ${formatLong(date)}`}>
       <div className={`sunday-card-stripe stripe-${status}`} />
       <div className="sunday-card-body">
         <div>
@@ -66,7 +117,14 @@ export default function UpcomingSundayCard({ date, draft, invites }) {
           <div className="sunday-card-relative">{formatRelative(days)}</div>
         </div>
         <div className="sunday-card-badges">
-          {isTest ? (
+          {finalizedAta ? (
+            <>
+              <span className="dash-badge dash-badge-success">Ata finalizada</span>
+              {finalizedAta.frequencia ? (
+                <span className="dash-badge">{finalizedAta.frequencia} presentes</span>
+              ) : null}
+            </>
+          ) : isTest ? (
             <span className="dash-badge dash-badge-info">Jejum e Testemunhos</span>
           ) : total === 0 ? (
             <span className={`dash-badge ${status === 'red' ? 'dash-badge-alert' : ''}`}>
@@ -79,10 +137,12 @@ export default function UpcomingSundayCard({ date, draft, invites }) {
               </span>
             </>
           )}
-          {draft ? (
-            <span className="dash-badge dash-badge-info">Rascunho iniciado</span>
-          ) : (
-            <span className="dash-badge">Sem rascunho</span>
+          {!finalizedAta && (
+            draft ? (
+              <span className="dash-badge dash-badge-info">Rascunho iniciado</span>
+            ) : (
+              <span className="dash-badge">Sem rascunho</span>
+            )
           )}
         </div>
       </div>

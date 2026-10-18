@@ -40,7 +40,8 @@ import {
   saveRecognitionSuggestions,
   deleteRecognitionSuggestion,
 } from '../services/recognitions';
-import { formatDateBR, getDefaultMeetingMode } from '../utils/speakerHelpers';
+import { getCalendarSettings } from '../services/calendar';
+import { formatDateBR, getDefaultMeetingMode, getSpecialSundayInfo } from '../utils/speakerHelpers';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -77,8 +78,14 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
   // implicitly via the `enabled` check below.
   const [dirty, setDirty] = useState(false);
   const [recognitionSuggestions, setRecognitionSuggestions] = useState([]);
+  const [calendarSettings, setCalendarSettings] = useState(null);
   const hasLoaded = useRef(false);
   const loadKey = useRef(null);
+
+  const specialSundayInfo = useMemo(() => {
+    if (!isProgramaRoute || !routeDate) return null;
+    return getSpecialSundayInfo(routeDate, calendarSettings);
+  }, [isProgramaRoute, routeDate, calendarSettings]);
 
   // Load draft (or finalized ata when editing) once unit is available.
   // The effect re-runs when the underlying route identity changes
@@ -148,12 +155,14 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
           }));
         }
 
-        const [existingAta, memory] = await Promise.all([
+        const [existingAta, memory, calSettings] = await Promise.all([
           isProgramaRoute
             ? getAtaByDate(unitId, routeDate)
             : getCurrentDraft(unitId),
           getLastUsedMusicLeaders(unitId),
+          getCalendarSettings(unitId),
         ]);
+        setCalendarSettings(calSettings);
 
         if (memory?.regente || memory?.pianista) {
           try {
@@ -600,6 +609,39 @@ export default function AtaFormPage({ editMode = false, routeMode = null }) {
             </KebabMenu>
           </div>
         </div>
+
+        {specialSundayInfo && (
+          <div className="form-wrap" style={{ marginBottom: 0 }}>
+            <div
+              style={{
+                background: '#ede9fe',
+                border: '1px solid #c4b5fd',
+                color: '#4c1d95',
+                padding: '12px 16px',
+                borderRadius: 8,
+                marginBottom: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '0.88rem',
+                gap: 12,
+                flexWrap: 'wrap',
+              }}
+            >
+              <div>
+                <strong>ℹ️ {specialSundayInfo.title}:</strong> Esta data não possui Reunião Sacramental ordinária da unidade.
+                {specialSundayInfo.notes ? ` (${specialSundayInfo.notes})` : ''}
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => navigate('/')}
+              >
+                Voltar ao Início
+              </button>
+            </div>
+          </div>
+        )}
 
         {isEditing && (
           <div className="form-wrap" style={{ marginBottom: 0 }}>

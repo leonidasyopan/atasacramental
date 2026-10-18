@@ -90,13 +90,41 @@
 .dash-badge-warn    { background: #fef3c7; color: #78350f; }
 .dash-badge-alert   { background: #fee2e2; color: #991b1b; }
 .dash-badge-info    { background: var(--light-blue); color: var(--navy); }
+.dash-badge-special { background: #ede9fe; color: #5b21b6; }
+.dash-badge-muted   { background: #f1f5f9; color: #475569; }
 
 /* Status stripe colors (left edge of each card) */
-.stripe-green  { background: #16a34a; }
-.stripe-yellow { background: #eab308; }
-.stripe-orange { background: #f97316; }
-.stripe-red    { background: var(--red); }
-.stripe-gray   { background: #d1d5db; }
+.stripe-green   { background: #16a34a; }
+.stripe-yellow  { background: #eab308; }
+.stripe-orange  { background: #f97316; }
+.stripe-red     { background: var(--red); }
+.stripe-gray    { background: #d1d5db; }
+.stripe-special { background: #7c3aed; }
+
+.sunday-card-special:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+.btn-header-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-header-action:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
 
 /* ── Alerts list ── */
 .dashboard-alerts {

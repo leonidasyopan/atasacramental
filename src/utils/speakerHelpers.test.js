@@ -6,6 +6,10 @@ import {
   calculateMemberAttendance,
   isFirstSundayOfMonth,
   getDefaultMeetingMode,
+  isGeneralConferenceSunday,
+  getSpecialSundayInfo,
+  getNextNSundays,
+  getNextSacramentalSunday,
   stripHonorific,
   findMemberId,
   consolidateSpeakerHistory,
@@ -470,6 +474,90 @@ describe('classifyMembers', () => {
     expect(neverSpoke.map((i) => i.member.id)).not.toContain('m_larissa');
   });
 });
+
+describe('isGeneralConferenceSunday', () => {
+  it('returns true for 1st Sunday of April and 1st Sunday of October', () => {
+    expect(isGeneralConferenceSunday('2026-04-05')).toBe(true);
+    expect(isGeneralConferenceSunday('2026-10-04')).toBe(true);
+    expect(isGeneralConferenceSunday('2027-04-04')).toBe(true);
+    expect(isGeneralConferenceSunday('2027-10-03')).toBe(true);
+  });
+
+  it('returns false for other Sundays in April or October', () => {
+    expect(isGeneralConferenceSunday('2026-04-12')).toBe(false);
+    expect(isGeneralConferenceSunday('2026-10-18')).toBe(false);
+  });
+
+  it('returns false for 1st Sunday of other months', () => {
+    expect(isGeneralConferenceSunday('2026-11-01')).toBe(false);
+    expect(isGeneralConferenceSunday('2026-05-03')).toBe(false);
+  });
+
+  it('returns false for invalid inputs or weekdays', () => {
+    expect(isGeneralConferenceSunday(null)).toBe(false);
+    expect(isGeneralConferenceSunday('')).toBe(false);
+    expect(isGeneralConferenceSunday('2026-10-03')).toBe(false); // Saturday
+  });
+});
+
+describe('getSpecialSundayInfo', () => {
+  it('resolves auto General Conference by default', () => {
+    const info = getSpecialSundayInfo('2026-10-04', {});
+    expect(info).not.toBeNull();
+    expect(info.isSpecial).toBe(true);
+    expect(info.type).toBe('general_conference');
+    expect(info.title).toBe('Conferência Geral');
+  });
+
+  it('respects autoGeneralConference: false setting', () => {
+    const info = getSpecialSundayInfo('2026-10-04', { autoGeneralConference: false });
+    expect(info).toBeNull();
+  });
+
+  it('resolves explicit special Sunday from settings', () => {
+    const calendarSettings = {
+      specialSundays: [
+        { date: '2026-11-15', type: 'stake_conference', title: 'Conferência de Estaca Palhoça' },
+      ],
+    };
+    const info = getSpecialSundayInfo('2026-11-15', calendarSettings);
+    expect(info).not.toBeNull();
+    expect(info.isSpecial).toBe(true);
+    expect(info.title).toBe('Conferência de Estaca Palhoça');
+  });
+
+  it('returns null for normal meeting Sunday', () => {
+    const info = getSpecialSundayInfo('2026-10-18', {});
+    expect(info).toBeNull();
+  });
+});
+
+describe('getNextNSundays with skipToday and fromDate', () => {
+  it('returns N Sundays starting from fromDate', () => {
+    const res = getNextNSundays(2, { fromDate: '2026-10-18' });
+    expect(res).toEqual(['2026-10-18', '2026-10-25']);
+
+    const nextSundays = getNextNSundays(2, { fromDate: '2026-10-25' });
+    expect(nextSundays).toEqual(['2026-10-25', '2026-11-01']);
+  });
+});
+
+describe('getNextSacramentalSunday', () => {
+  it('skips special Sundays and advances to the next available sacramental Sunday', () => {
+    const calendarSettings = {
+      autoGeneralConference: true,
+      specialSundays: [
+        { date: '2026-10-11', type: 'stake_conference', title: 'Conferência de Estaca' },
+      ],
+    };
+
+    // If starting from 2026-10-04 (General Conference)
+    const next = getNextSacramentalSunday(calendarSettings, '2026-10-04');
+    // 2026-10-04 is GC (skip), 2026-10-11 is Stake Conference (skip) -> should be 2026-10-18!
+    expect(next).toBe('2026-10-18');
+  });
+});
+
 
 
 
