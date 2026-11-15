@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from './AdminLayout';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import { useUnit } from '../../hooks/useUnit';
 import { useToast } from '../../contexts/ToastContext';
 import {
@@ -120,10 +121,13 @@ export default function AdminUnitsPage() {
     }
   }
 
-  async function removeLeader(leader) {
-    if (!confirm(`Remover líder "${leader.name}"?`)) return;
+  const [leaderToRemove, setLeaderToRemove] = useState(null);
+
+  async function confirmRemoveLeader() {
+    if (!leaderToRemove) return;
     try {
-      await deleteLeader(unitId, leader.id);
+      await deleteLeader(unitId, leaderToRemove.id);
+      setLeaderToRemove(null);
       await reloadLeaders();
       await reload();
       showToast('Líder removido.');
@@ -358,8 +362,8 @@ export default function AdminUnitsPage() {
                     <td>
                       <button
                         type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => removeLeader(l)}
+                        className="btn btn-ghost-dark btn-sm"
+                        onClick={() => setLeaderToRemove(l)}
                       >
                         Remover
                       </button>
@@ -478,7 +482,7 @@ export default function AdminUnitsPage() {
                     <td>
                       <button
                         type="button"
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-ghost-dark btn-sm"
                         onClick={() => handleRemoveSpecialSunday(s.date)}
                         disabled={savingCalendar}
                       >
@@ -492,6 +496,15 @@ export default function AdminUnitsPage() {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={Boolean(leaderToRemove)}
+        title="Remover líder"
+        message={`Tem certeza que deseja remover o líder ${leaderToRemove?.name || ''}?`}
+        confirmText="Remover"
+        cancelText="Cancelar"
+        onConfirm={confirmRemoveLeader}
+        onCancel={() => setLeaderToRemove(null)}
+      />
     </AdminLayout>
   );
 }
