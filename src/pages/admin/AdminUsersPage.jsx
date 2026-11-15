@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from './AdminLayout';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
+import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../contexts/ToastContext';
 import {
   getAllAllowedUsers,
@@ -7,7 +9,10 @@ import {
   removeAllowedUser,
 } from '../../services/users';
 
+const ROLES = ['user', 'counter', 'music', 'admin', 'superadmin'];
+
 export default function AdminUsersPage() {
+  const { user } = useAuth();
   const { showToast } = useToast();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +20,13 @@ export default function AdminUsersPage() {
   const [unitId, setUnitId] = useState('2322846');
   const [role, setRole] = useState('user');
   const [busy, setBusy] = useState(false);
+
+  const [editingEmail, setEditingEmail] = useState(null);
+  const [editUnitId, setEditUnitId] = useState('');
+  const [editRole, setEditRole] = useState('user');
+  const [userToRemove, setUserToRemove] = useState(null);
+
+  const currentUserEmail = (user?.email || '').trim().toLowerCase();
 
   async function reload() {
     setLoading(true);
@@ -46,15 +58,55 @@ export default function AdminUsersPage() {
     }
   }
 
-  async function handleRemove(e) {
-    if (!confirm(`Remover acesso de ${e}?`)) return;
+  function startEdit(u) {
+    setEditingEmail(u.id);
+    setEditUnitId(u.unitId || '');
+    setEditRole(u.role || 'user');
+  }
+
+  function cancelEdit() {
+    setEditingEmail(null);
+    setEditUnitId('');
+    setEditRole('user');
+  }
+
+  async function handleSaveEdit(targetEmail) {
+    if (!editUnitId.trim()) return;
+    setBusy(true);
     try {
-      await removeAllowedUser(e);
+      await addAllowedUser(targetEmail, editUnitId.trim(), editRole);
+      showToast('Acesso atualizado.');
+      cancelEdit();
+      await reload();
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao atualizar.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function requestRemove(targetEmail) {
+    if (targetEmail.trim().toLowerCase() === currentUserEmail) {
+      showToast('Você não pode remover seu próprio acesso.');
+      return;
+    }
+    setUserToRemove(targetEmail);
+  }
+
+  async function confirmRemove() {
+    if (!userToRemove) return;
+    setBusy(true);
+    try {
+      await removeAllowedUser(userToRemove);
       showToast('Acesso removido.');
+      setUserToRemove(null);
       await reload();
     } catch (err) {
       console.error(err);
       showToast('Erro ao remover.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -88,11 +140,9 @@ export default function AdminUsersPage() {
             <div className="field">
               <label>Role</label>
               <select value={role} onChange={(ev) => setRole(ev.target.value)}>
-                <option value="user">user</option>
-                <option value="counter">counter</option>
-                <option value="music">music</option>
-                <option value="admin">admin</option>
-                <option value="superadmin">superadmin</option>
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
               </select>
             </div>
             <div className="field">
@@ -118,31 +168,115 @@ export default function AdminUsersPage() {
                   <th>E-mail</th>
                   <th>Unit ID</th>
                   <th>Role</th>
-                  <th style={{ width: '10%' }} />
+                  <th style={{ width: '22%' }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {list.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.email || u.id}</td>
-                    <td>{u.unitId}</td>
-                    <td>{u.role}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => handleRemove(u.id)}
-                      >
-                        Remover
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {list.map((u) => {
+                  const rowEmail = (u.email || u.id || '').trim().toLowerCase();
+                  const isSelf = rowEmail === currentUserEmail;
+                  const isEditing = editingEmail === u.id;
+
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        {u.email || u.id}
+                        {isSelf && (
+                          <span style={{ marginLeft: 8, fontSize: '0.75rem', opacity: 0.7 }}>
+                            (Você)
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            aria-label={`Unit ID de ${u.email || u.id}`}
+                            value={editUnitId}
+                            onChange={(ev) => setEditUnitId(ev.target.value)}
+                            style={{ width: '100%', minWidth: 90 }}
+                          />
+                        ) : (
+                          u.unitId
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <select
+                            aria-label={`Role de ${u.email || u.id}`}
+                            value={editRole}
+                            onChange={(ev) => setEditRole(ev.target.value)}
+                          >
+                            {ROLES.map((r) => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          u.role
+                        )}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                          {isEditing ? (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleSaveEdit(u.id)}
+                                disabled={busy}
+                              >
+                                Salvar
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-ghost-dark btn-sm"
+                                onClick={cancelEdit}
+                                disabled={busy}
+                              >
+                                Cancelar
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-ghost-dark btn-sm"
+                                onClick={() => startEdit(u)}
+                                disabled={busy}
+                              >
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-ghost-dark btn-sm"
+                                onClick={() => requestRemove(u.id)}
+                                disabled={busy || isSelf}
+                                title={isSelf ? 'Você não pode remover seu próprio acesso' : `Remover acesso de ${u.email || u.id}`}
+                              >
+                                Remover
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(userToRemove)}
+        title="Remover acesso"
+        message={`Tem certeza que deseja remover o acesso de ${userToRemove}?`}
+        confirmText="Remover"
+        cancelText="Cancelar"
+        onConfirm={confirmRemove}
+        onCancel={() => setUserToRemove(null)}
+      />
     </AdminLayout>
   );
 }
